@@ -1,0 +1,4 @@
+ArrayMath is a portable low level C++ library for performing primitive math operations on arrays.
+
+The idea is to provide a simple interface to highly optimized math kernels.
+
