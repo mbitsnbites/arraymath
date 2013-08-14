@@ -338,75 +338,75 @@ float32 ArrayMathGeneric::sum_f32(const float32 *x, size_t length) {
   return result;
 }
 
-void ArrayMathGeneric::sampleLinear_f32(float32 *dst, const float32 *x, const float32 *t, bool repeat, size_t length, size_t xLength) {
+void ArrayMathGeneric::sampleLinear_f32(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength) {
   size_t maxIdx = xLength - 1;
-  if (repeat) {
-    float32 xLengthF = static_cast<float32>(xLength);
-    float32 xLengthFInv = 1.0f / xLengthF;
-    while (length--) {
-      float32 t2 = *t++;
-      t2 = t2 - std::floor(t2 * xLengthFInv) * xLengthF;
-      size_t idx = std::floor(t2);
-      float32 w = t2 - static_cast<float32>(idx);
-      float32 p1 = x[idx];
-      float32 p2 = x[idx < maxIdx ? idx + 1 : 0];
-      *dst++ = p1 + w * (p2 - p1);
-    }
-  }
-  else {
-    while (length--) {
-      float32 t2 = *t++;
-      t2 = t2 < 0 ? 0 : t2 > maxIdx ? maxIdx : t2;
-      size_t idx = std::floor(t2);
-      float32 w = t2 - static_cast<float32>(idx);
-      float32 p1 = x[idx];
-      float32 p2 = x[idx < maxIdx ? idx + 1 : maxIdx];
-      *dst++ = p1 + w * (p2 - p1);
-    }
+  while (length--) {
+    float32 t2 = *t++;
+    t2 = t2 < 0 ? 0 : t2 > maxIdx ? maxIdx : t2;
+    size_t idx = std::floor(t2);
+    float32 w = t2 - static_cast<float32>(idx);
+    float32 p1 = x[idx];
+    float32 p2 = x[idx < maxIdx ? idx + 1 : maxIdx];
+    *dst++ = p1 + w * (p2 - p1);
   }
 }
 
-void ArrayMathGeneric::sampleCubic_f32(float32 *dst, const float32 *x, const float32 *t, bool repeat, size_t length, size_t xLength) {
+void ArrayMathGeneric::sampleLinearRepeat_f32(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength) {
   size_t maxIdx = xLength - 1;
-  if (repeat) {
-    float32 xLengthF = static_cast<float32>(xLength);
-    float32 xLengthFInv = 1.0f / xLengthF;
-    while (length--) {
-      float32 t2 = *t++;
-      t2 = t2 - std::floor(t2 * xLengthFInv) * xLengthF;
-      size_t idx = std::floor(t2);
-      float32 w = t2 - static_cast<float32>(idx);
-      float32 w2 = w * w;
-      float32 w3 = w2 * w;
-      float32 h2 = -2*w3 + 3*w2;
-      float32 h1 = 1 - h2;
-      float32 h4 = w3 - w2;
-      float32 h3 = h4 - w2 + w;
-      float32 p1 = x[idx > 0 ? idx - 1 : maxIdx];
-      float32 p2 = x[idx];
-      float32 p3 = x[idx < maxIdx ? idx + 1 : 0];
-      float32 p4 = x[idx < maxIdx - 1 ? idx + 2 : idx + 2 - static_cast<size_t>(std::floor((idx + 2) * xLengthFInv) * xLengthF)];
-      *dst++ = h1 * p2 + h2 * p3 + 0.5f * (h3 * (p3 - p1) + h4 * (p4 - p2));
-    }
+  float32 xLengthF = static_cast<float32>(xLength);
+  float32 xLengthFInv = 1.0f / xLengthF;
+  while (length--) {
+    float32 t2 = *t++;
+    t2 = t2 - std::floor(t2 * xLengthFInv) * xLengthF;
+    size_t idx = std::floor(t2);
+    float32 w = t2 - static_cast<float32>(idx);
+    float32 p1 = x[idx];
+    float32 p2 = x[idx < maxIdx ? idx + 1 : 0];
+    *dst++ = p1 + w * (p2 - p1);
   }
-  else {
-    while (length--) {
-      float32 t2 = *t++;
-      t2 = t2 < 0 ? 0 : t2 > maxIdx ? maxIdx : t2;
-      size_t idx = std::floor(t2);
-      float32 w = t2 - static_cast<float32>(idx);
-      float32 w2 = w * w;
-      float32 w3 = w2 * w;
-      float32 h2 = -2*w3 + 3*w2;
-      float32 h1 = 1 - h2;
-      float32 h4 = w3 - w2;
-      float32 h3 = h4 - w2 + w;
-      float32 p1 = x[idx > 0 ? idx - 1 :  0];
-      float32 p2 = x[idx];
-      float32 p3 = x[idx < maxIdx ? idx + 1 : maxIdx];
-      float32 p4 = x[idx < maxIdx - 1 ? idx + 2 : maxIdx];
-      *dst++ = h1 * p2 + h2 * p3 + 0.5f * (h3 * (p3 - p1) + h4 * (p4 - p2));
-    }
+}
+
+void ArrayMathGeneric::sampleCubic_f32(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength) {
+  size_t maxIdx = xLength - 1;
+  while (length--) {
+    float32 t2 = *t++;
+    t2 = t2 < 0 ? 0 : t2 > maxIdx ? maxIdx : t2;
+    size_t idx = std::floor(t2);
+    float32 w = t2 - static_cast<float32>(idx);
+    float32 w2 = w * w;
+    float32 w3 = w2 * w;
+    float32 h2 = -2*w3 + 3*w2;
+    float32 h1 = 1 - h2;
+    float32 h4 = w3 - w2;
+    float32 h3 = h4 - w2 + w;
+    float32 p1 = x[idx > 0 ? idx - 1 :  0];
+    float32 p2 = x[idx];
+    float32 p3 = x[idx < maxIdx ? idx + 1 : maxIdx];
+    float32 p4 = x[idx < maxIdx - 1 ? idx + 2 : maxIdx];
+    *dst++ = h1 * p2 + h2 * p3 + 0.5f * (h3 * (p3 - p1) + h4 * (p4 - p2));
+  }
+}
+
+void ArrayMathGeneric::sampleCubicRepeat_f32(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength) {
+  size_t maxIdx = xLength - 1;
+  float32 xLengthF = static_cast<float32>(xLength);
+  float32 xLengthFInv = 1.0f / xLengthF;
+  while (length--) {
+    float32 t2 = *t++;
+    t2 = t2 - std::floor(t2 * xLengthFInv) * xLengthF;
+    size_t idx = std::floor(t2);
+    float32 w = t2 - static_cast<float32>(idx);
+    float32 w2 = w * w;
+    float32 w3 = w2 * w;
+    float32 h2 = -2*w3 + 3*w2;
+    float32 h1 = 1 - h2;
+    float32 h4 = w3 - w2;
+    float32 h3 = h4 - w2 + w;
+    float32 p1 = x[idx > 0 ? idx - 1 : maxIdx];
+    float32 p2 = x[idx];
+    float32 p3 = x[idx < maxIdx ? idx + 1 : 0];
+    float32 p4 = x[idx < maxIdx - 1 ? idx + 2 : idx + 2 - static_cast<size_t>(std::floor((idx + 2) * xLengthFInv) * xLengthF)];
+    *dst++ = h1 * p2 + h2 * p3 + 0.5f * (h3 * (p3 - p1) + h4 * (p4 - p2));
   }
 }
 

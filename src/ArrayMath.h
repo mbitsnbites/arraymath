@@ -192,12 +192,20 @@ class ArrayMath {
     return p_sum_f32(x, length);
   }
 
-  AM_INLINE void sampleLinear(float32 *dst, const float32 *x, const float32 *t, bool repeat, size_t length, size_t xLength) {
-    p_sampleLinear_f32(dst, x, t, repeat, length, xLength);
+  AM_INLINE void sampleLinear(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength) {
+    p_sampleLinear_f32(dst, x, t, length, xLength);
   }
 
-  AM_INLINE void sampleCubic(float32 *dst, const float32 *x, const float32 *t, bool repeat, size_t length, size_t xLength) {
-    p_sampleCubic_f32(dst, x, t, repeat, length, xLength);
+  AM_INLINE void sampleLinearRepeat(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength) {
+    p_sampleLinearRepeat_f32(dst, x, t, length, xLength);
+  }
+
+  AM_INLINE void sampleCubic(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength) {
+    p_sampleCubic_f32(dst, x, t, length, xLength);
+  }
+
+  AM_INLINE void sampleCubicRepeat(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength) {
+    p_sampleCubicRepeat_f32(dst, x, t, length, xLength);
   }
 
  private:
@@ -241,8 +249,10 @@ class ArrayMath {
   void (*p_ramp_f32)(float32 *dst, float32 first, float32 last, size_t length);
   void (*p_sign_f32)(float32 *dst, const float32 *x, size_t length);
   float32 (*p_sum_f32)(const float32 *x, size_t length);
-  void (*p_sampleLinear_f32)(float32 *dst, const float32 *x, const float32 *t, bool repeat, size_t length, size_t xLength);
-  void (*p_sampleCubic_f32)(float32 *dst, const float32 *x, const float32 *t, bool repeat, size_t length, size_t xLength);
+  void (*p_sampleLinear_f32)(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength);
+  void (*p_sampleLinearRepeat_f32)(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength);
+  void (*p_sampleCubic_f32)(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength);
+  void (*p_sampleCubicRepeat_f32)(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength);
 };
 
 }  // namespace arraymath

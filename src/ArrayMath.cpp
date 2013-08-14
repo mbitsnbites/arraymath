@@ -72,7 +72,9 @@ ArrayMath::ArrayMath() {
   p_sign_f32 = ArrayMathGeneric::sign_f32;
   p_sum_f32 = ArrayMathGeneric::sum_f32;
   p_sampleLinear_f32 = ArrayMathGeneric::sampleLinear_f32;
+  p_sampleLinearRepeat_f32 = ArrayMathGeneric::sampleLinearRepeat_f32;
   p_sampleCubic_f32 = ArrayMathGeneric::sampleCubic_f32;
+  p_sampleCubicRepeat_f32 = ArrayMathGeneric::sampleCubicRepeat_f32;
 
 #ifdef AM_USE_X86
   CPUFeatureDetector cpu;
