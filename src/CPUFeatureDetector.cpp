@@ -26,7 +26,6 @@
 #include "CPUFeatureDetector.h"
 
 #ifdef AM_USE_X86
-
 namespace {
 
 enum CPUIDFunc {
@@ -55,8 +54,11 @@ void CPUID(CPUIDFunc func, unsigned &a, unsigned &b, unsigned &c, unsigned &d) {
 }
 
 }  // anonymous namespace
-
 #endif // AM_USE_X86
+
+#if defined(AM_USE_ARM) && defined(__ANDROID__)
+#include <cpu-features.h>
+#endif // AM_USE_ARM && __ANDROID__
 
 
 namespace arraymath {
@@ -86,8 +88,23 @@ CPUFeatureDetector::CPUFeatureDetector() {
 #endif // AM_USE_X86
 
 #ifdef AM_USE_ARM
-  // TODO(m): Check CPU features.
+# if defined(__ANDROID__)
+  // Get feature flags.
+  uint64_t features = android_getCpuFeatures();
+
+  // Decode feature flags.
+  m_hasNEON = (features & ANDROID_CPU_ARM_FEATURE_NEON) != 0;
+  m_hasNEON_FMA = (features & ANDROID_CPU_ARM_FEATURE_NEON_FMA) != 0;
+# else
+  // Fall back to compile-time detection. Can we do better?
+#  ifdef __ARM_NEON__
+  m_hasNEON = true;
+  m_hasNEON_FMA = false;  // TODO(m): Can we do better?
+#  else
   m_hasNEON = false;
+  m_hasNEON_FMA = false;
+#  endif // __ARM_NEON__
+# endif // __ANDROID__
 #endif // AM_USE_ARM
 }
 

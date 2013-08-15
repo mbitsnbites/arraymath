@@ -76,6 +76,10 @@ class CPUFeatureDetector {
   bool hasNEON() const {
     return m_hasNEON;
   }
+
+  bool hasNEON_FMA() const {
+    return m_hasNEON_FMA;
+  }
 #endif // AM_USE_ARM
 
  private:
@@ -93,6 +97,7 @@ class CPUFeatureDetector {
 
 #ifdef AM_USE_ARM
   bool m_hasNEON;
+  bool m_hasNEON_FMA;
 #endif // AM_USE_ARM
 };
 

@@ -92,6 +92,9 @@ ArrayMath::ArrayMath() {
 #ifdef AM_USE_ARM
   if (cpu.hasNEON()) {
     // TODO(m): Override generic routines with ARM NEON optimized versions.
+    if (cpu.hasNEON_FMA()) {
+      // TODO(m): madd() should probably be implemented using vmla.
+    }
   }
 #endif
 }
