@@ -33,6 +33,7 @@ OBJS = ArrayMath.o \
        ArrayMathGeneric.o \
        ArrayMathSSE.o \
        CPUFeatureDetector.o \
+       RandomGeneric.o \
        Test.o
 
 all: Test

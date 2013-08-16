@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 // ArrayMath - an array math library
 //------------------------------------------------------------------------------
-// Copyright (c) 2013 Marcus Geelnard
+// Copyright(c) 2013 Marcus Geelnard
 //
 // This software is provided 'as-is', without any express or implied warranty.
 // In no event will the authors be held liable for any damages arising from the
@@ -23,33 +23,19 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //------------------------------------------------------------------------------
 
-#ifndef _ARRAYMATH_TYPES_H
-#define _ARRAYMATH_TYPES_H
+#ifndef _ARRAYMATH_RANDOMGENERIC_H
+#define _ARRAYMATH_RANDOMGENERIC_H
 
-// Needed for size_t.
-#include <cstdlib>
-
-// CPU architecture detection.
-#if defined(_M_IX86) || defined(__i386__) || defined(_X86_) \
-    || defined(_M_X64) || defined(__amd64__)
-# define AM_USE_X86 1
-#elif defined(_M_ARM) || defined(__arm__)
-# define AM_USE_ARM 1
-#endif
-
-// Function inline macro.
-#if defined(_MSC_VER)
-# define AM_INLINE __forceinline
-#else
-# define AM_INLINE inline
-#endif
+#include "Types.h"
 
 namespace arraymath {
 
-typedef float float32;
-typedef double float64;
+class Random {
+ public:
+  virtual ~Random() {}
+  virtual void random(float32 *dst, float32 low, float32 high, size_t length) = 0;
+};
 
-}  // namespace arraymath
+} // namespace arraymath
 
-#endif // _ARRAYMATH_TYPES_H
-
+#endif // _ARRAYMATH_RANDOMGENERIC_H

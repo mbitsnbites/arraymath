@@ -26,8 +26,7 @@
 #ifndef _ARRAYMATH_ARRAYMATH_H
 #define _ARRAYMATH_ARRAYMATH_H
 
-#include <cstdlib>
-
+#include "Random.h"
 #include "Types.h"
 
 namespace arraymath {
@@ -35,6 +34,7 @@ namespace arraymath {
 class ArrayMath {
  public:
   ArrayMath();
+  ~ArrayMath();
 
   AM_INLINE void add(float32 *dst, const float32 *x, float32 y, size_t length) {
     p_add_f32_as(dst, x, y, length);
@@ -153,7 +153,7 @@ class ArrayMath {
   }
 
   AM_INLINE void random(float32 *dst, float32 low, float32 high, size_t length) {
-    p_random_f32(dst, low, high, length);
+    m_random->random(dst, low, high, length);
   }
 
   AM_INLINE void round(float32 *dst, const float32 *x, size_t length) {
@@ -239,7 +239,6 @@ class ArrayMath {
   float32 (*p_min_f32)(const float32 *x, size_t length);
   void (*p_pow_f32_as)(float32 *dst, const float32 *x, float32 y, size_t length);
   void (*p_pow_f32_aa)(float32 *dst, const float32 *x, const float32 *y, size_t length);
-  void (*p_random_f32)(float32 *dst, float32 low, float32 high, size_t length);
   void (*p_round_f32)(float32 *dst, const float32 *x, size_t length);
   void (*p_sin_f32)(float32 *dst, const float32 *x, size_t length);
   void (*p_sqrt_f32)(float32 *dst, const float32 *x, size_t length);
@@ -253,6 +252,9 @@ class ArrayMath {
   void (*p_sampleLinearRepeat_f32)(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength);
   void (*p_sampleCubic_f32)(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength);
   void (*p_sampleCubicRepeat_f32)(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength);
+
+  // Random number generator.
+  Random *m_random;
 };
 
 }  // namespace arraymath

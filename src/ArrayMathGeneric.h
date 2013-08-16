@@ -26,8 +26,6 @@
 #ifndef _ARRAYMATH_ARRAYMATHGENERIC_H
 #define _ARRAYMATH_ARRAYMATHGENERIC_H
 
-#include <cstdlib>
-
 #include "Types.h"
 
 namespace arraymath {
@@ -63,7 +61,6 @@ class ArrayMathGeneric {
   static float32 min_f32(const float32 *x, size_t length);
   static void pow_f32_as(float32 *dst, const float32 *x, float32 y, size_t length);
   static void pow_f32_aa(float32 *dst, const float32 *x, const float32 *y, size_t length);
-  static void random_f32(float32 *dst, float32 low, float32 high, size_t length);
   static void round_f32(float32 *dst, const float32 *x, size_t length);
   static void sin_f32(float32 *dst, const float32 *x, size_t length);
   static void sqrt_f32(float32 *dst, const float32 *x, size_t length);

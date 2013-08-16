@@ -27,6 +27,7 @@
 #include "ArrayMathGeneric.h"
 #include "ArrayMathSSE.h"
 #include "CPUFeatureDetector.h"
+#include "RandomGeneric.h"
 
 namespace arraymath {
 
@@ -61,7 +62,6 @@ ArrayMath::ArrayMath() {
   p_min_f32 = ArrayMathGeneric::min_f32;
   p_pow_f32_as = ArrayMathGeneric::pow_f32_as;
   p_pow_f32_aa = ArrayMathGeneric::pow_f32_aa;
-  p_random_f32 = ArrayMathGeneric::random_f32;
   p_round_f32 = ArrayMathGeneric::round_f32;
   p_sin_f32 = ArrayMathGeneric::sin_f32;
   p_sqrt_f32 = ArrayMathGeneric::sqrt_f32;
@@ -75,6 +75,9 @@ ArrayMath::ArrayMath() {
   p_sampleLinearRepeat_f32 = ArrayMathGeneric::sampleLinearRepeat_f32;
   p_sampleCubic_f32 = ArrayMathGeneric::sampleCubic_f32;
   p_sampleCubicRepeat_f32 = ArrayMathGeneric::sampleCubicRepeat_f32;
+
+  // Set up default random number generator.
+  m_random = new RandomGeneric();
 
 #ifdef AM_USE_X86
   CPUFeatureDetector cpu;
@@ -97,6 +100,10 @@ ArrayMath::ArrayMath() {
     }
   }
 #endif
+}
+
+ArrayMath::~ArrayMath() {
+  delete m_random;
 }
 
 }  // namespace arraymath

@@ -31,7 +31,7 @@
 int main() {
   arraymath::ArrayMath am;
 
-  std::vector<float> x(100000), y(10000);
+  std::vector<float> x(100000), y(10000), z(123123);
 
   am.ramp(&x[0], 0.0f, 1.0f, x.size());
   am.mul(&x[0], &x[0], 3.141592654f,x.size());
@@ -41,12 +41,19 @@ int main() {
   am.madd(&y[0], &x[0], &y[0], 0.5f, std::min(x.size(), y.size()));
   am.add(&y[0], &x[0], &y[0], std::min(x.size(), y.size()));
 
+  am.random(&z[0], 0.0f, 10.0f, z.size());
+
   std::cout << "sum(x) = " << am.sum(&x[0], x.size()) << std::endl;
   std::cout << "min(x) = " << am.min(&x[0], x.size()) << std::endl;
   std::cout << "max(x) = " << am.max(&x[0], x.size()) << std::endl;
+
   std::cout << "sum(y) = " << am.sum(&y[0], y.size()) << std::endl;
   std::cout << "min(y) = " << am.min(&y[0], y.size()) << std::endl;
   std::cout << "max(y) = " << am.max(&y[0], y.size()) << std::endl;
+
+  std::cout << "mean(z) = " << (am.sum(&z[0], z.size()) / static_cast<float>(z.size())) << std::endl;
+  std::cout << "min(z) = " << am.min(&z[0], z.size()) << std::endl;
+  std::cout << "max(z) = " << am.max(&z[0], z.size()) << std::endl;
 
   return 0;
 }

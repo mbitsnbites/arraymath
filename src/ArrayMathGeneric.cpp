@@ -264,14 +264,6 @@ void ArrayMathGeneric::pow_f32_aa(float32 *dst, const float32 *x, const float32 
   }
 }
 
-void ArrayMathGeneric::random_f32(float32 *dst, float32 low, float32 high, size_t length) {
-  // TODO(m): Implement me!
-  (void)dst;
-  (void)low;
-  (void)high;
-  (void)length;
-}
-
 void ArrayMathGeneric::round_f32(float32 *dst, const float32 *x, size_t length) {
   while (length--) {
     *dst++ = std::floor(*x++ + 0.5f);
