@@ -34,114 +34,145 @@
 namespace arraymath {
 
 //-----------------------------------------------------------------------------
-// Convenience macros.
+// Template functions for common code patterns.
 //-----------------------------------------------------------------------------
 
-#define OP_F32_AS(GEN_OP, SSE_OP) \
-  /* 1) Align x to a 16-byte boundary. */                                     \
-  while ((reinterpret_cast<size_t>(x) & 15) && length--) {                    \
-    *dst++ = GEN_OP;                                                          \
-  }                                                                           \
-  const __m128 *_x = reinterpret_cast<const __m128*>(x);                      \
-                                                                              \
-  /* Check alignment. */                                                      \
-  bool dstAligned = (reinterpret_cast<size_t>(dst) & 15) == 0;                \
-                                                                              \
-  /* 2) Main SSE loop (handle different alignment cases). */                  \
-  __m128 _y = _mm_set_ps1(y);                                                 \
-  if (dstAligned) {                                                           \
-    for (; length >= 4; length -= 4) {                                        \
-      _mm_store_ps(dst, SSE_OP(*_x++, _y));                                   \
-      dst += 4;                                                               \
-    }                                                                         \
-  }                                                                           \
-  else {                                                                      \
-    for (; length >= 4; length -= 4) {                                        \
-      _mm_storeu_ps(dst, SSE_OP(*_x++, _y));                                  \
-      dst += 4;                                                               \
-    }                                                                         \
-  }                                                                           \
-                                                                              \
-  /* 3) Tail loop. */                                                         \
-  x = reinterpret_cast<const float32*>(_x);                                   \
-  while (length--) {                                                          \
-    *dst++ = GEN_OP;                                                          \
-  }                                                                           \
+template <class OP>
+void op_f32_as(float32 *dst, const float32 *x, float32 y, size_t length) {
+  // 1) Align x to a 16-byte boundary.
+  while ((reinterpret_cast<size_t>(x) & 15) && length--) {
+    *dst++ = OP::op(*x++, y);
+  }
+  const __m128 *_x = reinterpret_cast<const __m128*>(x);
 
-#define OP_F32_AA(GEN_OP, SSE_OP) \
-  /* 1) Align x to a 16-byte boundary. */                                     \
-  while ((reinterpret_cast<size_t>(x) & 15) && length--) {                    \
-    *dst++ = GEN_OP;                                                          \
-  }                                                                           \
-  const __m128 *_x = reinterpret_cast<const __m128*>(x);                      \
-                                                                              \
-  /* Check alignment. */                                                      \
-  bool dstAligned = (reinterpret_cast<size_t>(dst) & 15) == 0;                \
-  bool yAligned = (reinterpret_cast<size_t>(y) & 15) == 0;                    \
-                                                                              \
-  /* 2) Main SSE loop (handle different alignment cases). */                  \
-  if (dstAligned && yAligned) {                                               \
-    for (; length >= 4; length -= 4) {                                        \
-      _mm_store_ps(dst, SSE_OP(*_x++, _mm_load_ps(y)));                       \
-      dst += 4;                                                               \
-      y += 4;                                                                 \
-    }                                                                         \
-  }                                                                           \
-  else if (dstAligned) {                                                      \
-    for (; length >= 4; length -= 4) {                                        \
-      _mm_store_ps(dst, SSE_OP(*_x++, _mm_loadu_ps(y)));                      \
-      dst += 4;                                                               \
-      y += 4;                                                                 \
-    }                                                                         \
-  }                                                                           \
-  else if (yAligned) {                                                        \
-    for (; length >= 4; length -= 4) {                                        \
-      _mm_storeu_ps(dst, SSE_OP(*_x++, _mm_load_ps(y)));                      \
-      dst += 4;                                                               \
-      y += 4;                                                                 \
-    }                                                                         \
-  }                                                                           \
-  else {                                                                      \
-    for (; length >= 4; length -= 4) {                                        \
-      _mm_storeu_ps(dst, SSE_OP(*_x++, _mm_loadu_ps(y)));                     \
-      dst += 4;                                                               \
-      y += 4;                                                                 \
-    }                                                                         \
-  }                                                                           \
-                                                                              \
-  /* 3) Tail loop. */                                                         \
-  x = reinterpret_cast<const float32*>(_x);                                   \
-  while (length--) {                                                          \
-    *dst++ = GEN_OP;                                                          \
-  }                                                                           \
+  // Check alignment.
+  bool dstAligned = (reinterpret_cast<size_t>(dst) & 15) == 0;
+
+  // 2) Main SSE loop (handle different alignment cases).
+  __m128 _y = _mm_set_ps1(y);
+  if (dstAligned) {
+    for (; length >= 4; length -= 4) {
+      _mm_store_ps(dst, OP::opSSE(*_x++, _y));
+      dst += 4;
+    }
+  }
+  else {
+    for (; length >= 4; length -= 4) {
+      _mm_storeu_ps(dst, OP::opSSE(*_x++, _y));
+      dst += 4;
+    }
+  }
+
+  // 3) Tail loop.
+  x = reinterpret_cast<const float32*>(_x);
+  while (length--) {
+    *dst++ = OP::op(*x++, y);
+  }
+}
+
+template <class OP>
+void op_f32_aa(float32 *dst, const float32 *x, const float32 *y, size_t length) {
+  // 1) Align x to a 16-byte boundary.
+  while ((reinterpret_cast<size_t>(x) & 15) && length--) {
+    *dst++ = OP::op(*x++, *y++);
+  }
+  const __m128 *_x = reinterpret_cast<const __m128*>(x);
+
+  // Check alignment.
+  bool dstAligned = (reinterpret_cast<size_t>(dst) & 15) == 0;
+  bool yAligned = (reinterpret_cast<size_t>(y) & 15) == 0;
+
+  // 2) Main SSE loop (handle different alignment cases).
+  if (dstAligned && yAligned) {
+    for (; length >= 4; length -= 4) {
+      _mm_store_ps(dst, OP::opSSE(*_x++, _mm_load_ps(y)));
+      dst += 4;
+      y += 4;
+    }
+  }
+  else if (dstAligned) {
+    for (; length >= 4; length -= 4) {
+      _mm_store_ps(dst, OP::opSSE(*_x++, _mm_loadu_ps(y)));
+      dst += 4;
+      y += 4;
+    }
+  }
+  else if (yAligned) {
+    for (; length >= 4; length -= 4) {
+      _mm_storeu_ps(dst, OP::opSSE(*_x++, _mm_load_ps(y)));
+      dst += 4;
+      y += 4;
+    }
+  }
+  else {
+    for (; length >= 4; length -= 4) {
+      _mm_storeu_ps(dst, OP::opSSE(*_x++, _mm_loadu_ps(y)));
+      dst += 4;
+      y += 4;
+    }
+  }
+
+  // 3) Tail loop.
+  x = reinterpret_cast<const float32*>(_x);
+  while (length--) {
+    *dst++ = OP::op(*x++, *y++);
+  }
+}
 
 
 //-----------------------------------------------------------------------------
 // Operation implementations.
 //-----------------------------------------------------------------------------
 
+struct AddOP {
+  static float32 op(float32 a, float32 b) {
+    return a + b;
+  }
+  static __m128 opSSE(__m128 a, __m128 b) {
+    return _mm_add_ps(a, b);
+  }
+};
+
+struct SubOP {
+  static float32 op(float32 a, float32 b) {
+    return a - b;
+  }
+  static __m128 opSSE(__m128 a, __m128 b) {
+    return _mm_sub_ps(a, b);
+  }
+};
+
+struct MulOP {
+  static float32 op(float32 a, float32 b) {
+    return a * b;
+  }
+  static __m128 opSSE(__m128 a, __m128 b) {
+    return _mm_mul_ps(a, b);
+  }
+};
+
 void ArrayMathSSE::add_f32_as(float32 *dst, const float32 *x, float32 y, size_t length) {
-  OP_F32_AS(*x++ + y, _mm_add_ps)
+  op_f32_as<AddOP>(dst, x, y, length);
 }
 
 void ArrayMathSSE::add_f32_aa(float32 *dst, const float32 *x, const float32 *y, size_t length) {
-  OP_F32_AA(*x++ + *y++, _mm_add_ps)
+  op_f32_aa<AddOP>(dst, x, y, length);
 }
 
 void ArrayMathSSE::sub_f32_as(float32 *dst, const float32 *x, float32 y, size_t length) {
-  OP_F32_AS(*x++ - y, _mm_sub_ps)
+  op_f32_as<SubOP>(dst, x, y, length);
 }
 
 void ArrayMathSSE::sub_f32_aa(float32 *dst, const float32 *x, const float32 *y, size_t length) {
-  OP_F32_AA(*x++ - *y++, _mm_sub_ps)
+  op_f32_aa<SubOP>(dst, x, y, length);
 }
 
 void ArrayMathSSE::mul_f32_as(float32 *dst, const float32 *x, float32 y, size_t length) {
-  OP_F32_AS(*x++ * y, _mm_mul_ps)
+  op_f32_as<MulOP>(dst, x, y, length);
 }
 
 void ArrayMathSSE::mul_f32_aa(float32 *dst, const float32 *x, const float32 *y, size_t length) {
-  OP_F32_AA(*x++ * *y++, _mm_mul_ps)
+  op_f32_aa<MulOP>(dst, x, y, length);
 }
 
 }  // namespace arraymath
