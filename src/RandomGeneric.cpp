@@ -26,12 +26,31 @@
 //------------------------------------------------------------------------------
 // This is an implementation of the WELL512 pseudo random number generator. Its
 // main characteristics are that it's very fast and has a very long period
-// (2^512-1 samples).
+// (2^512 - 1 samples).
+//
+// This particular implementation was inspired by an implementation by
+// Peter Pettersson: https://github.com/ppettersson/random_well512a_simd/
 //------------------------------------------------------------------------------
 
 #include "RandomGeneric.h"
 
 namespace arraymath {
+
+namespace {
+
+unsigned mutateLeft(unsigned value, unsigned shift) {
+  return value ^ (value << shift);
+}
+
+unsigned mutateRight(unsigned value, unsigned shift) {
+  return value ^ (value >> shift);
+}
+
+unsigned mutateLeftMix(unsigned value, unsigned shift, unsigned mix) {
+  return value ^ ((value << shift) & mix);
+}
+
+} // anoynmous namespace
 
 RandomGeneric::RandomGeneric() {
   // Seed the state (16 32-bit integers).
@@ -45,10 +64,6 @@ RandomGeneric::RandomGeneric() {
 }
 
 void RandomGeneric::random(float32 *dst, float32 low, float32 high, size_t length) {
-  #define MUTATE_LEFT(value, shift) value ^ (value << shift)
-  #define MUTATE_RIGHT(value, shift)  value ^ (value >> shift)
-  #define MUTATE_LEFT_MIX(value, shift, mix)  value ^ ((value << shift) & mix)
-
   float32 scale = (high - low) * (1.0f / 4294967296.0f);
   unsigned index = m_index;
   while (length--) {
@@ -61,19 +76,19 @@ void RandomGeneric::random(float32 *dst, float32 low, float32 high, size_t lengt
     unsigned state_index_13 = m_state[index_13];
     unsigned state_index_15 = m_state[index_15];
 
-    unsigned z1 = MUTATE_LEFT(state_index, 16);
-    z1 ^= MUTATE_LEFT(state_index_13, 15);
+    unsigned z1 = mutateLeft(state_index, 16);
+    z1 ^= mutateLeft(state_index_13, 15);
 
-    unsigned z2 = MUTATE_RIGHT(state_index_9, 11);
+    unsigned z2 = mutateRight(state_index_9, 11);
 
     unsigned result0 = z1 ^ z2;
     m_state[index] = result0;
 
-    unsigned result1 = MUTATE_LEFT(state_index_15, 2);
-    result1 ^= MUTATE_LEFT(z1, 18);;
+    unsigned result1 = mutateLeft(state_index_15, 2);
+    result1 ^= mutateLeft(z1, 18);;
     result1 ^= z2 << 28;
 
-    result1 ^= MUTATE_LEFT_MIX(result0, 5, 0xda442d24U);
+    result1 ^= mutateLeftMix(result0, 5, 0xda442d24U);
 
     index = index_15;
     m_state[index] = result1;
@@ -81,10 +96,6 @@ void RandomGeneric::random(float32 *dst, float32 low, float32 high, size_t lengt
     *dst++ = static_cast<float32>(result1) * scale + low;
   }
   m_index = index;
-
-  #undef MUTATE_LEFT
-  #undef MUTATE_RIGHT
-  #undef MUTATE_LEFT_MIX
 }
 
 }  // namespace arraymath
