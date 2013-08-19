@@ -29,10 +29,15 @@ CPP = g++
 CPPFLAGS = -c -O3 -ffast-math -W -Wall -Wextra
 RM = rm -rf
 
+# Automatically generate dependency files
+CPPFLAGS += -MMD -MP
+
 OBJS = ArrayMath.o \
        ArrayMathGeneric.o \
        ArrayMathSSE.o \
        CPUFeatureDetector.o \
+       FilterFactory.o \
+       FilterGeneric.o \
        RandomGeneric.o \
        Test.o
 
@@ -42,8 +47,12 @@ Test: $(OBJS)
 	$(CPP) -o $@ $(OBJS)
 
 clean:
-	$(RM) $(OBJS) Test
+	$(RM) $(OBJS) $(OBJS:.o=.d) Test
 
 %.o: %.cpp
 	$(CPP) $(CPPFLAGS) -o $@ $<
+
+# These dependency files are generated automatically when building the object
+# files.
+-include $(OBJS:.o=.d)
 

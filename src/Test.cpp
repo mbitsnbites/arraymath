@@ -27,33 +27,67 @@
 #include <vector>
 
 #include "ArrayMath.h"
+#include "FilterFactory.h"
 
-int main() {
-  arraymath::ArrayMath am;
+void testArrayMath() {
+  std::cout << std::endl << "Testing ArrayMath..." << std::endl;
+
+  arraymath::ArrayMath math;
 
   std::vector<float> x(100000), y(10000), z(123123);
 
-  am.ramp(&x[0], 0.0f, 1.0f, x.size());
-  am.mul(&x[0], 3.141592654f, &x[0], x.size());
-  am.sin(&x[0], &x[0], x.size());
+  math.ramp(&x[0], 0.0f, 1.0f, x.size());
+  math.mul(&x[0], 3.141592654f, &x[0], x.size());
+  math.sin(&x[0], &x[0], x.size());
 
-  am.ramp(&y[0], 0.0f, 1.0f, y.size());
-  am.madd(&y[0], 0.5f, &x[0], &y[0], std::min(x.size(), y.size()));
-  am.add(&y[0], &x[0], &y[0], std::min(x.size(), y.size()));
+  math.ramp(&y[0], 0.0f, 1.0f, y.size());
+  math.madd(&y[0], 0.5f, &x[0], &y[0], std::min(x.size(), y.size()));
+  math.add(&y[0], &x[0], &y[0], std::min(x.size(), y.size()));
 
-  am.random(&z[0], 0.0f, 10.0f, z.size());
+  math.random(&z[0], 0.0f, 10.0f, z.size());
 
-  std::cout << "sum(x) = " << am.sum(&x[0], x.size()) << std::endl;
-  std::cout << "min(x) = " << am.min(&x[0], x.size()) << std::endl;
-  std::cout << "max(x) = " << am.max(&x[0], x.size()) << std::endl;
+  std::cout << "sum(x) = " << math.sum(&x[0], x.size()) << std::endl;
+  std::cout << "min(x) = " << math.min(&x[0], x.size()) << std::endl;
+  std::cout << "max(x) = " << math.max(&x[0], x.size()) << std::endl;
 
-  std::cout << "sum(y) = " << am.sum(&y[0], y.size()) << std::endl;
-  std::cout << "min(y) = " << am.min(&y[0], y.size()) << std::endl;
-  std::cout << "max(y) = " << am.max(&y[0], y.size()) << std::endl;
+  std::cout << "sum(y) = " << math.sum(&y[0], y.size()) << std::endl;
+  std::cout << "min(y) = " << math.min(&y[0], y.size()) << std::endl;
+  std::cout << "max(y) = " << math.max(&y[0], y.size()) << std::endl;
 
-  std::cout << "mean(z) = " << (am.sum(&z[0], z.size()) / static_cast<float>(z.size())) << std::endl;
-  std::cout << "min(z) = " << am.min(&z[0], z.size()) << std::endl;
-  std::cout << "max(z) = " << am.max(&z[0], z.size()) << std::endl;
+  std::cout << "mean(z) = " << (math.sum(&z[0], z.size()) / static_cast<float>(z.size())) << std::endl;
+  std::cout << "min(z) = " << math.min(&z[0], z.size()) << std::endl;
+  std::cout << "max(z) = " << math.max(&z[0], z.size()) << std::endl;
+}
+
+void testFilterFactory() {
+  std::cout << std::endl << "Testing FilterFactory..." << std::endl;
+
+  arraymath::ArrayMath math;
+  arraymath::FilterFactory filterFactory;
+
+  arraymath::Filter* f = filterFactory.createFilter(8, 0);
+  if (!f) {
+    std::cout << "Unable to create filter." << std::endl;
+    return;
+  }
+
+  arraymath::float32 b[8] = { 0.1f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f };
+  f->setB(b, 8);
+
+  std::vector<float> x(100000), y(100000);
+  math.random(&x[0], -1.0f, 1.0f, x.size());
+  f->filter(&y[0], &x[0], x.size());
+
+  std::cout << "sum(y) = " << math.sum(&y[0], y.size()) << std::endl;
+  std::cout << "min(y) = " << math.min(&y[0], y.size()) << std::endl;
+  std::cout << "max(y) = " << math.max(&y[0], y.size()) << std::endl;
+
+  delete f;
+}
+
+int main() {
+  testArrayMath();
+  testFilterFactory();
 
   return 0;
 }
