@@ -68,25 +68,20 @@ void ArrayMathGeneric::mul_f32_aa(float32 *dst, const float32 *x, const float32 
 }
 
 void ArrayMathGeneric::mulCplx_f32_sa(float32 *dstReal, float32 *dstImag, float32 xReal, float32 xImag, const float32 *yReal, const float32 *yImag, size_t length) {
-  // TODO(m): Implement me!
-  (void)dstReal;
-  (void)dstImag;
-  (void)xReal;
-  (void)xImag;
-  (void)yReal;
-  (void)yImag;
-  (void)length;
+  float32 xr = xReal, xi = xImag;
+  while (length--) {
+    float32 yr = *yReal++, yi = *yImag++;
+    *dstReal++ = xr * yr - xi * yi;
+    *dstImag++ = xr * yi + xi * yr;
+  }
 }
 
 void ArrayMathGeneric::mulCplx_f32_aa(float32 *dstReal, float32 *dstImag, const float32 *xReal, const float32 *xImag, const float32 *yReal, const float32 *yImag, size_t length) {
-  // TODO(m): Implement me!
-  (void)dstReal;
-  (void)dstImag;
-  (void)xReal;
-  (void)xImag;
-  (void)yReal;
-  (void)yImag;
-  (void)length;
+  while (length--) {
+    float32 xr = *xReal++, xi = *xImag++, yr = *yReal++, yi = *yImag++;
+    *dstReal++ = xr * yr - xi * yi;
+    *dstImag++ = xr * yi + xi * yr;
+  }
 }
 
 void ArrayMathGeneric::div_f32_sa(float32 *dst, float32 x, const float32 *y, size_t length) {
@@ -102,25 +97,22 @@ void ArrayMathGeneric::div_f32_aa(float32 *dst, const float32 *x, const float32 
 }
 
 void ArrayMathGeneric::divCplx_f32_sa(float32 *dstReal, float32 *dstImag, float32 xReal, float32 xImag, const float32 *yReal, const float32 *yImag, size_t length) {
-  // TODO(m): Implement me!
-  (void)dstReal;
-  (void)dstImag;
-  (void)xReal;
-  (void)xImag;
-  (void)yReal;
-  (void)yImag;
-  (void)length;
+  float32 xr = xReal, xi = xImag;
+  while (length--) {
+    float32 yr = *yReal++, yi = *yImag++;
+    float32 denom = 1.0f / (yr * yr + yi * yi);
+    *dstReal++ = (xr * yr + xi * yi) * denom;
+    *dstImag++ = (xi * yr - xr * yi) * denom;
+  }
 }
 
 void ArrayMathGeneric::divCplx_f32_aa(float32 *dstReal, float32 *dstImag, const float32 *xReal, const float32 *xImag, const float32 *yReal, const float32 *yImag, size_t length) {
-  // TODO(m): Implement me!
-  (void)dstReal;
-  (void)dstImag;
-  (void)xReal;
-  (void)xImag;
-  (void)yReal;
-  (void)yImag;
-  (void)length;
+  while (length--) {
+    float32 xr = *xReal++, xi = *xImag++, yr = *yReal++, yi = *yImag++;
+    float32 denom = 1.0f / (yr * yr + yi * yi);
+    *dstReal++ = (xr * yr + xi * yi) * denom;
+    *dstImag++ = (xi * yr - xr * yi) * denom;
+  }
 }
 
 void ArrayMathGeneric::madd_f32_saa(float32 *dst, float32 x, const float32 *y, const float32 *z, size_t length) {
