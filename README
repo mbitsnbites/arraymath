@@ -1,4 +1,46 @@
-ArrayMath is a portable low level C++ library for performing primitive math operations on arrays.
+ArrayMath
+=========
+
+ArrayMath is a portable low level C++ library for performing primitive math
+operations on arrays.
 
 The idea is to provide a simple interface to highly optimized math kernels.
+
+
+1. Usage
+--------
+
+Provided that you've built all the .cpp files into object files or a library
+that you link to your project, here's some basic usage info:
+
+
+1.1 Using the ArrayMath interface
+---------------------------------
+
+#include <ArrayMath.h>
+
+void myFunction {
+  // Initialize the ArrayMath object. Note: This object may contain state (for
+  // instance for the random number generator), so it is *not* thread safe.
+  arraymath::ArrayMath math;
+
+  // Call array methods.
+  float a[128], b[128];
+  const unsigned len = sizeof(a) / sizeof(float);
+  math.ramp(a, 0.0f, 100.0f, len);    // a = [0.0 .. 100.0]
+  math.random(b, -1.0f, 1.0f, len);   // b = random, [-1.0, 1.0)
+  math.madd(a, 0.5f, a, b, len);      // a = 0.5 * a + b
+}
+
+
+2. License
+----------
+
+ArrayMath is released under the zlib/libpng license:
+
+ Copyright (c) 2013 Marcus Geelnard
+
+ This software is provided 'as-is', without any express or implied warranty.
+ In no event will the authors be held liable for any damages arising from the
+ use of this software.
 
