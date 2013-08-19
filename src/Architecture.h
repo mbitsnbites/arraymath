@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 // ArrayMath - an array math library
 //------------------------------------------------------------------------------
-// Copyright(c) 2013 Marcus Geelnard
+// Copyright (c) 2013 Marcus Geelnard
 //
 // This software is provided 'as-is', without any express or implied warranty.
 // In no event will the authors be held liable for any damages arising from the
@@ -23,54 +23,38 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //------------------------------------------------------------------------------
 
-#ifndef _ARRAYMATH_CPUFEATUREDETECTOR_H
-#define _ARRAYMATH_CPUFEATUREDETECTOR_H
+#ifndef _ARRAYMATH_ARCHITECTURE_H
+#define _ARRAYMATH_ARCHITECTURE_H
 
-#include "Architecture.h"
+// CPU architecture detection.
+#if defined(_M_IX86) || defined(__i386__) || defined(_X86_) || defined(_M_X64) || defined(__amd64__)
 
-namespace arraymath {
+// We're compiling for an x86 machine.
+# define AM_USE_X86 1
 
-class CPUFeatureDetector {
- public:
-  CPUFeatureDetector();
+// x86 compile time feature detection.
+// NOTE: These doesn't work for MSVC, so you have to set these defines manually
+// for the project.
+# if !defined(AM_HAS_SSE) && defined(__SSE__)
+#  define AM_HAS_SSE 1
+# endif
+# if !defined(AM_HAS_SSE2) && defined(__SSE2__)
+#  define AM_HAS_SSE2 1
+# endif
+# if !defined(AM_HAS_AVX) && defined(__AVX__)
+#  define AM_HAS_AVX 1
+# endif
 
-#ifdef AM_USE_X86
-  bool hasSSE() const {
-    return m_hasSSE;
-  }
+#elif defined(_M_ARM) || defined(__arm__)
 
-  bool hasSSE2() const {
-    return m_hasSSE2;
-  }
+// We're compiling for an ARM machine.
+# define AM_USE_ARM 1
 
-  bool hasAVX() const {
-    return m_hasAVX;
-  }
-#endif // AM_USE_X86
+// ARM compile time feature detection.
+# if !defined(AM_HAS_NEON) && defined(__ARM_NEON__)
+#  define AM_HAS_NEON 1
+# endif
 
-#ifdef AM_USE_ARM
-  bool hasNEON() const {
-    return m_hasNEON;
-  }
+#endif
 
-  bool hasNEON_FMA() const {
-    return m_hasNEON_FMA;
-  }
-#endif // AM_USE_ARM
-
- private:
-#ifdef AM_USE_X86
-  bool m_hasSSE;
-  bool m_hasSSE2;
-  bool m_hasAVX;
-#endif // AM_USE_X86
-
-#ifdef AM_USE_ARM
-  bool m_hasNEON;
-  bool m_hasNEON_FMA;
-#endif // AM_USE_ARM
-};
-
-}  // namespace arraymath
-
-#endif // _ARRAYMATH_CPUFEATUREDETECTOR_H
+#endif // _ARRAYMATH_ARCHITECTURE_H

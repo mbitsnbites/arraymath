@@ -26,23 +26,15 @@
 #ifndef _ARRAYMATH_TYPES_H
 #define _ARRAYMATH_TYPES_H
 
-// Needed for size_t.
-#include <cstdlib>
-
-// CPU architecture detection.
-#if defined(_M_IX86) || defined(__i386__) || defined(_X86_) \
-    || defined(_M_X64) || defined(__amd64__)
-# define AM_USE_X86 1
-#elif defined(_M_ARM) || defined(__arm__)
-# define AM_USE_ARM 1
-#endif
-
 // Function inline macro.
 #if defined(_MSC_VER)
 # define AM_INLINE __forceinline
 #else
 # define AM_INLINE inline
 #endif
+
+// Needed for size_t.
+#include <cstdlib>
 
 namespace arraymath {
 

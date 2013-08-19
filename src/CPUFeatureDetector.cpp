@@ -76,15 +76,15 @@ CPUFeatureDetector::CPUFeatureDetector() {
   }
 
   // Decode feature flags.
-  m_hasMMX = (d & (1 << 23)) != 0;
+//  m_hasMMX = (d & (1 << 23)) != 0;
   m_hasSSE = (d & (1 << 25)) != 0;
   m_hasSSE2 = (d & (1 << 26)) != 0;
-  m_hasSSE3 = (c & (1 << 0)) != 0;
-  m_hasSSSE3 = (c & (1 << 9)) != 0;
-  m_hasSSE4_1 = (c & (1 << 19)) != 0;
-  m_hasSSE4_2 = (c & (1 << 20)) != 0;
+//  m_hasSSE3 = (c & (1 << 0)) != 0;
+//  m_hasSSSE3 = (c & (1 << 9)) != 0;
+//  m_hasSSE4_1 = (c & (1 << 19)) != 0;
+//  m_hasSSE4_2 = (c & (1 << 20)) != 0;
   m_hasAVX = (c & (1 << 28)) != 0;
-  m_hasRDRND = (c & (1 << 30)) != 0;
+//  m_hasRDRND = (c & (1 << 30)) != 0;
 #endif // AM_USE_X86
 
 #ifdef AM_USE_ARM
@@ -97,13 +97,13 @@ CPUFeatureDetector::CPUFeatureDetector() {
   m_hasNEON_FMA = (features & ANDROID_CPU_ARM_FEATURE_NEON_FMA) != 0;
 # else
   // Fall back to compile-time detection. Can we do better?
-#  ifdef __ARM_NEON__
+#  ifdef AM_HAS_NEON
   m_hasNEON = true;
   m_hasNEON_FMA = false;  // TODO(m): Can we do better?
 #  else
   m_hasNEON = false;
   m_hasNEON_FMA = false;
-#  endif // __ARM_NEON__
+#  endif // AM_HAS_NEON
 # endif // __ANDROID__
 #endif // AM_USE_ARM
 }

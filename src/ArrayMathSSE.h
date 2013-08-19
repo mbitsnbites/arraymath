@@ -26,11 +26,11 @@
 #ifndef _ARRAYMATH_ARRAYMATHSSE_H
 #define _ARRAYMATH_ARRAYMATHSSE_H
 
-#include <cstdlib>
+#include "Architecture.h"
+
+#if defined(AM_USE_X86) && defined(AM_HAS_SSE)
 
 #include "Types.h"
-
-#ifdef AM_USE_X86
 
 namespace arraymath {
 
@@ -46,6 +46,6 @@ class ArrayMathSSE {
 
 }  // namespace arraymath
 
-#endif // AM_USE_X86
+#endif // AM_USE_X86 && AM_HAS_SSE
 
 #endif // _ARRAYMATH_ARRAYMATHSSE_H

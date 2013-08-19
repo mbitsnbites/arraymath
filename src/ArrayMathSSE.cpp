@@ -23,11 +23,9 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //------------------------------------------------------------------------------
 
-#include "Types.h"
-
-#ifdef AM_USE_X86
-
 #include "ArrayMathSSE.h"
+
+#if defined(AM_USE_X86) && defined(AM_HAS_SSE)
 
 #include <xmmintrin.h>
 
@@ -177,4 +175,4 @@ void ArrayMathSSE::mul_f32_aa(float32 *dst, const float32 *x, const float32 *y, 
 
 }  // namespace arraymath
 
-#endif // AM_USE_X86
+#endif // AM_USE_X86 && AM_HAS_SSE
