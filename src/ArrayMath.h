@@ -36,32 +36,32 @@ class ArrayMath {
   ArrayMath();
   ~ArrayMath();
 
-  AM_INLINE void add(float32 *dst, const float32 *x, float32 y, size_t length) {
-    p_add_f32_as(dst, x, y, length);
+  AM_INLINE void add(float32 *dst, float32 x, const float32 *y, size_t length) {
+    p_add_f32_sa(dst, x, y, length);
   }
 
   AM_INLINE void add(float32 *dst, const float32 *x, const float32 *y, size_t length) {
     p_add_f32_aa(dst, x, y, length);
   }
 
-  AM_INLINE void sub(float32 *dst, const float32 *x, float32 y, size_t length) {
-    p_sub_f32_as(dst, x, y, length);
+  AM_INLINE void sub(float32 *dst, float32 x, const float32 *y, size_t length) {
+    p_sub_f32_sa(dst, x, y, length);
   }
 
   AM_INLINE void sub(float32 *dst, const float32 *x, const float32 *y, size_t length) {
     p_sub_f32_aa(dst, x, y, length);
   }
 
-  AM_INLINE void mul(float32 *dst, const float32 *x, float32 y, size_t length) {
-    p_mul_f32_as(dst, x, y, length);
+  AM_INLINE void mul(float32 *dst, float32 x, const float32 *y, size_t length) {
+    p_mul_f32_sa(dst, x, y, length);
   }
 
   AM_INLINE void mul(float32 *dst, const float32 *x, const float32 *y, size_t length) {
     p_mul_f32_aa(dst, x, y, length);
   }
 
-  AM_INLINE void mulCplx(float32 *dstReal, float32 *dstImag, const float32 *xReal, const float32 *xImag, float32 yReal, float32 yImag, size_t length) {
-    p_mulCplx_f32_as(dstReal, dstImag, xReal, xImag, yReal, yImag, length);
+  AM_INLINE void mulCplx(float32 *dstReal, float32 *dstImag, float32 xReal, float32 xImag, const float32 *yReal, const float32 *yImag, size_t length) {
+    p_mulCplx_f32_sa(dstReal, dstImag, xReal, xImag, yReal, yImag, length);
   }
 
   AM_INLINE void mulCplx(float32 *dstReal, float32 *dstImag, const float32 *xReal, const float32 *xImag, const float32 *yReal, const float32 *yImag, size_t length) {
@@ -76,16 +76,16 @@ class ArrayMath {
     p_div_f32_aa(dst, x, y, length);
   }
 
-  AM_INLINE void divCplx(float32 *dstReal, float32 *dstImag, const float32 *xReal, const float32 *xImag, float32 yReal, float32 yImag, size_t length) {
-    p_divCplx_f32_as(dstReal, dstImag, xReal, xImag, yReal, yImag, length);
+  AM_INLINE void divCplx(float32 *dstReal, float32 *dstImag, float32 xReal, float32 xImag, const float32 *yReal, const float32 *yImag, size_t length) {
+    p_divCplx_f32_sa(dstReal, dstImag, xReal, xImag, yReal, yImag, length);
   }
 
   AM_INLINE void divCplx(float32 *dstReal, float32 *dstImag, const float32 *xReal, const float32 *xImag, const float32 *yReal, const float32 *yImag, size_t length) {
     p_divCplx_f32_aa(dstReal, dstImag, xReal, xImag, yReal, yImag, length);
   }
 
-  AM_INLINE void madd(float32 *dst, const float32 *x, const float32 *y, float32 z, size_t length) {
-    p_madd_f32_aas(dst, x, y, z, length);
+  AM_INLINE void madd(float32 *dst, float32 x, const float32 *y, const float32 *z, size_t length) {
+    p_madd_f32_saa(dst, x, y, z, length);
   }
 
   AM_INLINE void madd(float32 *dst, const float32 *x, const float32 *y, const float32 *z, size_t length) {
@@ -210,19 +210,19 @@ class ArrayMath {
 
  private:
   // Dispatch table (dynamically assigned function pointers).
-  void (*p_add_f32_as)(float32 *dst, const float32 *x, float32 y, size_t length);
+  void (*p_add_f32_sa)(float32 *dst, float32 x, const float32 *y, size_t length);
   void (*p_add_f32_aa)(float32 *dst, const float32 *x, const float32 *y, size_t length);
-  void (*p_sub_f32_as)(float32 *dst, const float32 *x, float32 y, size_t length);
+  void (*p_sub_f32_sa)(float32 *dst, float32 x, const float32 *y, size_t length);
   void (*p_sub_f32_aa)(float32 *dst, const float32 *x, const float32 *y, size_t length);
-  void (*p_mul_f32_as)(float32 *dst, const float32 *x, float32 y, size_t length);
+  void (*p_mul_f32_sa)(float32 *dst, float32 x, const float32 *y, size_t length);
   void (*p_mul_f32_aa)(float32 *dst, const float32 *x, const float32 *y, size_t length);
-  void (*p_mulCplx_f32_as)(float32 *dstReal, float32 *dstImag, const float32 *xReal, const float32 *xImag, float32 yReal, float32 yImag, size_t length);
+  void (*p_mulCplx_f32_sa)(float32 *dstReal, float32 *dstImag, float32 xReal, float32 xImag, const float32 *yReal, const float32 *yImag, size_t length);
   void (*p_mulCplx_f32_aa)(float32 *dstReal, float32 *dstImag, const float32 *xReal, const float32 *xImag, const float32 *yReal, const float32 *yImag, size_t length);
   void (*p_div_f32_sa)(float32 *dst, float32 x, const float32 *y, size_t length);
   void (*p_div_f32_aa)(float32 *dst, const float32 *x, const float32 *y, size_t length);
-  void (*p_divCplx_f32_as)(float32 *dstReal, float32 *dstImag, const float32 *xReal, const float32 *xImag, float32 yReal, float32 yImag, size_t length);
+  void (*p_divCplx_f32_sa)(float32 *dstReal, float32 *dstImag, float32 xReal, float32 xImag, const float32 *yReal, const float32 *yImag, size_t length);
   void (*p_divCplx_f32_aa)(float32 *dstReal, float32 *dstImag, const float32 *xReal, const float32 *xImag, const float32 *yReal, const float32 *yImag, size_t length);
-  void (*p_madd_f32_aas)(float32 *dst, const float32 *x, const float32 *y, float32 z, size_t length);
+  void (*p_madd_f32_saa)(float32 *dst, float32 x, const float32 *y, const float32 *z, size_t length);
   void (*p_madd_f32_aaa)(float32 *dst, const float32 *x, const float32 *y, const float32 *z, size_t length);
   void (*p_abs_f32)(float32 *dst, const float32 *x, size_t length);
   void (*p_absCplx_f32)(float32 *dst, const float32 *xReal, const float32 *xImag, size_t length);

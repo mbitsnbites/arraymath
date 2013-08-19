@@ -31,9 +31,9 @@
 
 namespace arraymath {
 
-void ArrayMathGeneric::add_f32_as(float32 *dst, const float32 *x, float32 y, size_t length) {
+void ArrayMathGeneric::add_f32_sa(float32 *dst, float32 x, const float32 *y, size_t length) {
   while (length--) {
-    *dst++ = *x++ + y;
+    *dst++ = x + *y++;
   }
 }
 
@@ -43,9 +43,9 @@ void ArrayMathGeneric::add_f32_aa(float32 *dst, const float32 *x, const float32 
   }
 }
 
-void ArrayMathGeneric::sub_f32_as(float32 *dst, const float32 *x, float32 y, size_t length) {
+void ArrayMathGeneric::sub_f32_sa(float32 *dst, float32 x, const float32 *y, size_t length) {
   while (length--) {
-    *dst++ = *x++ - y;
+    *dst++ = x - *y++;
   }
 }
 
@@ -55,9 +55,9 @@ void ArrayMathGeneric::sub_f32_aa(float32 *dst, const float32 *x, const float32 
   }
 }
 
-void ArrayMathGeneric::mul_f32_as(float32 *dst, const float32 *x, float32 y, size_t length) {
+void ArrayMathGeneric::mul_f32_sa(float32 *dst, float32 x, const float32 *y, size_t length) {
   while (length--) {
-    *dst++ = *x++ * y;
+    *dst++ = x * *y++;
   }
 }
 
@@ -67,7 +67,7 @@ void ArrayMathGeneric::mul_f32_aa(float32 *dst, const float32 *x, const float32 
   }
 }
 
-void ArrayMathGeneric::mulCplx_f32_as(float32 *dstReal, float32 *dstImag, const float32 *xReal, const float32 *xImag, float32 yReal, float32 yImag, size_t length) {
+void ArrayMathGeneric::mulCplx_f32_sa(float32 *dstReal, float32 *dstImag, float32 xReal, float32 xImag, const float32 *yReal, const float32 *yImag, size_t length) {
   // TODO(m): Implement me!
   (void)dstReal;
   (void)dstImag;
@@ -101,7 +101,7 @@ void ArrayMathGeneric::div_f32_aa(float32 *dst, const float32 *x, const float32 
   }
 }
 
-void ArrayMathGeneric::divCplx_f32_as(float32 *dstReal, float32 *dstImag, const float32 *xReal, const float32 *xImag, float32 yReal, float32 yImag, size_t length) {
+void ArrayMathGeneric::divCplx_f32_sa(float32 *dstReal, float32 *dstImag, float32 xReal, float32 xImag, const float32 *yReal, const float32 *yImag, size_t length) {
   // TODO(m): Implement me!
   (void)dstReal;
   (void)dstImag;
@@ -123,9 +123,9 @@ void ArrayMathGeneric::divCplx_f32_aa(float32 *dstReal, float32 *dstImag, const 
   (void)length;
 }
 
-void ArrayMathGeneric::madd_f32_aas(float32 *dst, const float32 *x, const float32 *y, float32 z, size_t length) {
+void ArrayMathGeneric::madd_f32_saa(float32 *dst, float32 x, const float32 *y, const float32 *z, size_t length) {
   while (length--) {
-    *dst++ = *x++ + *y++ * z;
+    *dst++ = x * *y++ + *z++;
   }
 }
 

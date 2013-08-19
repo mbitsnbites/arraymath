@@ -38,35 +38,35 @@ namespace arraymath {
 //-----------------------------------------------------------------------------
 
 template <class OP>
-void op_f32_as(float32 *dst, const float32 *x, float32 y, size_t length) {
-  // 1) Align x to a 16-byte boundary.
-  while ((reinterpret_cast<size_t>(x) & 15) && length--) {
-    *dst++ = OP::op(*x++, y);
+void op_f32_sa(float32 *dst, float32 x, const float32 *y, size_t length) {
+  // 1) Align y to a 16-byte boundary.
+  while ((reinterpret_cast<size_t>(y) & 15) && length--) {
+    *dst++ = OP::op(x, *y++);
   }
-  const __m128 *_x = reinterpret_cast<const __m128*>(x);
+  const __m128 *_y = reinterpret_cast<const __m128*>(y);
 
   // Check alignment.
   bool dstAligned = (reinterpret_cast<size_t>(dst) & 15) == 0;
 
   // 2) Main SSE loop (handle different alignment cases).
-  __m128 _y = _mm_set_ps1(y);
+  __m128 _x = _mm_set_ps1(x);
   if (dstAligned) {
     for (; length >= 4; length -= 4) {
-      _mm_store_ps(dst, OP::opSSE(*_x++, _y));
+      _mm_store_ps(dst, OP::opSSE(_x, *_y++));
       dst += 4;
     }
   }
   else {
     for (; length >= 4; length -= 4) {
-      _mm_storeu_ps(dst, OP::opSSE(*_x++, _y));
+      _mm_storeu_ps(dst, OP::opSSE(_x, *_y++));
       dst += 4;
     }
   }
 
   // 3) Tail loop.
-  x = reinterpret_cast<const float32*>(_x);
+  y = reinterpret_cast<const float32*>(_y);
   while (length--) {
-    *dst++ = OP::op(*x++, y);
+    *dst++ = OP::op(x, *y++);
   }
 }
 
@@ -151,24 +151,24 @@ struct MulOP {
   }
 };
 
-void ArrayMathSSE::add_f32_as(float32 *dst, const float32 *x, float32 y, size_t length) {
-  op_f32_as<AddOP>(dst, x, y, length);
+void ArrayMathSSE::add_f32_sa(float32 *dst, float32 x, const float32 *y, size_t length) {
+  op_f32_sa<AddOP>(dst, x, y, length);
 }
 
 void ArrayMathSSE::add_f32_aa(float32 *dst, const float32 *x, const float32 *y, size_t length) {
   op_f32_aa<AddOP>(dst, x, y, length);
 }
 
-void ArrayMathSSE::sub_f32_as(float32 *dst, const float32 *x, float32 y, size_t length) {
-  op_f32_as<SubOP>(dst, x, y, length);
+void ArrayMathSSE::sub_f32_sa(float32 *dst, float32 x, const float32 *y, size_t length) {
+  op_f32_sa<SubOP>(dst, x, y, length);
 }
 
 void ArrayMathSSE::sub_f32_aa(float32 *dst, const float32 *x, const float32 *y, size_t length) {
   op_f32_aa<SubOP>(dst, x, y, length);
 }
 
-void ArrayMathSSE::mul_f32_as(float32 *dst, const float32 *x, float32 y, size_t length) {
-  op_f32_as<MulOP>(dst, x, y, length);
+void ArrayMathSSE::mul_f32_sa(float32 *dst, float32 x, const float32 *y, size_t length) {
+  op_f32_sa<MulOP>(dst, x, y, length);
 }
 
 void ArrayMathSSE::mul_f32_aa(float32 *dst, const float32 *x, const float32 *y, size_t length) {

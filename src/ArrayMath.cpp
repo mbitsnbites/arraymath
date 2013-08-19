@@ -33,19 +33,19 @@ namespace arraymath {
 
 ArrayMath::ArrayMath() {
   // Set up pointers to generic routines.
-  p_add_f32_as = ArrayMathGeneric::add_f32_as;
+  p_add_f32_sa = ArrayMathGeneric::add_f32_sa;
   p_add_f32_aa = ArrayMathGeneric::add_f32_aa;
-  p_sub_f32_as = ArrayMathGeneric::sub_f32_as;
+  p_sub_f32_sa = ArrayMathGeneric::sub_f32_sa;
   p_sub_f32_aa = ArrayMathGeneric::sub_f32_aa;
-  p_mul_f32_as = ArrayMathGeneric::mul_f32_as;
+  p_mul_f32_sa = ArrayMathGeneric::mul_f32_sa;
   p_mul_f32_aa = ArrayMathGeneric::mul_f32_aa;
-  p_mulCplx_f32_as = ArrayMathGeneric::mulCplx_f32_as;
+  p_mulCplx_f32_sa = ArrayMathGeneric::mulCplx_f32_sa;
   p_mulCplx_f32_aa = ArrayMathGeneric::mulCplx_f32_aa;
   p_div_f32_sa = ArrayMathGeneric::div_f32_sa;
   p_div_f32_aa = ArrayMathGeneric::div_f32_aa;
-  p_divCplx_f32_as = ArrayMathGeneric::divCplx_f32_as;
+  p_divCplx_f32_sa = ArrayMathGeneric::divCplx_f32_sa;
   p_divCplx_f32_aa = ArrayMathGeneric::divCplx_f32_aa;
-  p_madd_f32_aas = ArrayMathGeneric::madd_f32_aas;
+  p_madd_f32_saa = ArrayMathGeneric::madd_f32_saa;
   p_madd_f32_aaa = ArrayMathGeneric::madd_f32_aaa;
   p_abs_f32 = ArrayMathGeneric::abs_f32;
   p_absCplx_f32 = ArrayMathGeneric::absCplx_f32;
@@ -83,11 +83,11 @@ ArrayMath::ArrayMath() {
   CPUFeatureDetector cpu;
   if (cpu.hasSSE()) {
     // Override generic routines with x86 SSE optimized versions.
-    p_add_f32_as = ArrayMathSSE::add_f32_as;
+    p_add_f32_sa = ArrayMathSSE::add_f32_sa;
     p_add_f32_aa = ArrayMathSSE::add_f32_aa;
-    p_sub_f32_as = ArrayMathSSE::sub_f32_as;
+    p_sub_f32_sa = ArrayMathSSE::sub_f32_sa;
     p_sub_f32_aa = ArrayMathSSE::sub_f32_aa;
-    p_mul_f32_as = ArrayMathSSE::mul_f32_as;
+    p_mul_f32_sa = ArrayMathSSE::mul_f32_sa;
     p_mul_f32_aa = ArrayMathSSE::mul_f32_aa;
   }
 #endif

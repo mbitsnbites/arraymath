@@ -34,11 +34,11 @@ int main() {
   std::vector<float> x(100000), y(10000), z(123123);
 
   am.ramp(&x[0], 0.0f, 1.0f, x.size());
-  am.mul(&x[0], &x[0], 3.141592654f,x.size());
+  am.mul(&x[0], 3.141592654f, &x[0], x.size());
   am.sin(&x[0], &x[0], x.size());
 
   am.ramp(&y[0], 0.0f, 1.0f, y.size());
-  am.madd(&y[0], &x[0], &y[0], 0.5f, std::min(x.size(), y.size()));
+  am.madd(&y[0], 0.5f, &x[0], &y[0], std::min(x.size(), y.size()));
   am.add(&y[0], &x[0], &y[0], std::min(x.size(), y.size()));
 
   am.random(&z[0], 0.0f, 10.0f, z.size());

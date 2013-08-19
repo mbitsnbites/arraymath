@@ -36,11 +36,11 @@ namespace arraymath {
 
 class ArrayMathSSE {
  public:
-  static void add_f32_as(float32 *dst, const float32 *x, float32 y, size_t length);
+  static void add_f32_sa(float32 *dst, float32 x, const float32 *y, size_t length);
   static void add_f32_aa(float32 *dst, const float32 *x, const float32 *y, size_t length);
-  static void sub_f32_as(float32 *dst, const float32 *x, float32 y, size_t length);
+  static void sub_f32_sa(float32 *dst, float32 x, const float32 *y, size_t length);
   static void sub_f32_aa(float32 *dst, const float32 *x, const float32 *y, size_t length);
-  static void mul_f32_as(float32 *dst, const float32 *x, float32 y, size_t length);
+  static void mul_f32_sa(float32 *dst, float32 x, const float32 *y, size_t length);
   static void mul_f32_aa(float32 *dst, const float32 *x, const float32 *y, size_t length);
 };
 
