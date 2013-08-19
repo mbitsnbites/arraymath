@@ -24,12 +24,8 @@
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-// This is an implementation of the WELL512 pseudo random number generator. Its
-// main characteristics are that it's very fast and has a very long period
-// (2^512 - 1 samples).
-//
-// This particular implementation was inspired by an implementation by
-// Peter Pettersson: https://github.com/ppettersson/random_well512a_simd/
+// This is an generic implementation of the Filter interface that works for all
+// CPU architectures. It can handle filters of any order (both FIR and IIR).
 //------------------------------------------------------------------------------
 
 #include "FilterGeneric.h"
