@@ -38,23 +38,35 @@ class FilterGeneric : public Filter {
 
   virtual void setA(const float32 *a);
 
-  virtual void filter(float32 *dst, const float32 *x, size_t length);
-
   virtual void clearHistory();
+
+  virtual void filter(float32 *dst, const float32 *x, size_t length);
 
  protected:
   FilterGeneric();
   virtual bool init(size_t bSize, size_t aSize);
 
+  size_t runIn(float32 *dst, const float32 *x, size_t length);
+  void updateHistory(float32 *dst, const float32 *x, size_t length);
+
   friend class FilterFactory;
 
- private:
   size_t m_bSize;
   size_t m_aSize;
   float32 *m_b;
   float32 *m_a;
   float32 *m_bHist;
   float32 *m_aHist;
+};
+
+class FilterGeneric_3_2 : public FilterGeneric {
+ public:
+  virtual void filter(float32 *dst, const float32 *x, size_t length);
+
+ protected:
+  FilterGeneric_3_2() : FilterGeneric() {}
+
+  friend class FilterFactory;
 };
 
 }  // namespace arraymath

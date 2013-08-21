@@ -34,11 +34,15 @@ Filter* FilterFactory::createFilter(size_t bSize, size_t aSize) {
     return NULL;
   }
 
-  // TODO(m): Add filter type & CPU architecture optimized filter
-  // implementations.
-
-  // Create a generic (fallback) filter.
-  Filter* filter = new FilterGeneric();
+  Filter* filter = NULL;
+  if (bSize == 3 && aSize == 2) {
+    // Optimized filter type: biquad filter.
+    filter = new FilterGeneric_3_2();
+  }
+  else {
+    // Generic (fallback) filter that can handle all filter orders.
+    filter = new FilterGeneric();
+  }
 
   // Initialize the filter object.
   if (filter) {

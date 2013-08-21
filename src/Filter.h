@@ -47,14 +47,14 @@ class Filter {
   /// \c aSize argument of the filter, as given when creating the filter.
   virtual void setA(const float32 *a) = 0;
 
+  /// Clear the history state of the filter.
+  virtual void clearHistory() = 0;
+
   /// Filter the given array.
   /// \param[out] dst The destination array (\c length elements).
   /// \param[in] x The source array (\c length elements).
   /// \param[in] length Number of elements to process.
   virtual void filter(float32 *dst, const float32 *x, size_t length) = 0;
-
-  /// Clear the history state of the filter.
-  virtual void clearHistory() = 0;
 
  protected:
   virtual bool init(size_t bSize, size_t aSize) = 0;

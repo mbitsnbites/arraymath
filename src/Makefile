@@ -26,7 +26,7 @@
 .PHONY: all clean
 
 CPP = g++
-CPPFLAGS = -c -O3 -ffast-math -W -Wall -Wextra
+CPPFLAGS = -c -O3 -ffast-math -W -Wall -Wextra -pedantic
 RM = rm -rf
 
 # Automatically generate dependency files

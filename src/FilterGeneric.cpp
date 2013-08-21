@@ -90,8 +90,15 @@ void FilterGeneric::setA(const float32 *a) {
   std::memcpy(m_a, a, sizeof(float32) * m_aSize);
 }
 
-void FilterGeneric::filter(float32 *dst, const float32 *x, size_t length) {
-  // Perform run-in part using the history (slow).
+void FilterGeneric::clearHistory() {
+  std::memset(m_bHist, 0, m_bSize * sizeof(float32));
+  if (m_aSize > 0) {
+    std::memset(m_aHist, 0, m_aSize * sizeof(float32));
+  }
+}
+
+AM_INLINE
+size_t FilterGeneric::runIn(float32 *dst, const float32 *x, size_t length) {
   size_t bHistRunIn = m_bSize - 1;
   size_t aHistRunIn = m_aSize;
   size_t k;
@@ -120,6 +127,30 @@ void FilterGeneric::filter(float32 *dst, const float32 *x, size_t length) {
     dst[k] = res;
   }
 
+  return k;
+}
+
+AM_INLINE
+void FilterGeneric::updateHistory(float32 *dst, const float32 *x, size_t length) {
+  size_t k;
+  size_t histCopy = std::min(m_bSize - 1, length);
+  for (k = m_bSize - 2; k >= histCopy; --k)
+    m_bHist[k] = m_bHist[k - histCopy];
+  for (k = 0; k < histCopy; ++k)
+    m_bHist[k] = x[length - 1 - k];
+  if (m_aSize > 0) {
+    histCopy = std::min(m_aSize, length);
+    for (k = m_aSize - 1; k >= histCopy; --k)
+      m_aHist[k] = m_aHist[k - histCopy];
+    for (k = 0; k < histCopy; ++k)
+      m_aHist[k] = dst[length - 1 - k];
+  }
+}
+
+void FilterGeneric::filter(float32 *dst, const float32 *x, size_t length) {
+  // Perform run-in part using the history (slow).
+  size_t k = runIn(dst, x, length);
+
   // Perform history-free part (fast).
   for (; k < length; ++k) {
     size_t m;
@@ -137,25 +168,30 @@ void FilterGeneric::filter(float32 *dst, const float32 *x, size_t length) {
   }
 
   // Update history state.
-  size_t histCopy = std::min(m_bSize - 1, length);
-  for (k = m_bSize - 2; k >= histCopy; --k)
-    m_bHist[k] = m_bHist[k - histCopy];
-  for (k = 0; k < histCopy; ++k)
-    m_bHist[k] = x[length - 1 - k];
-  if (m_aSize > 0) {
-    histCopy = std::min(m_aSize, length);
-    for (k = m_aSize - 1; k >= histCopy; --k)
-      m_aHist[k] = m_aHist[k - histCopy];
-    for (k = 0; k < histCopy; ++k)
-      m_aHist[k] = dst[length - 1 - k];
-  }
+  updateHistory(dst, x, length);
 }
 
-void FilterGeneric::clearHistory() {
-  std::memset(m_bHist, 0, m_bSize * sizeof(float32));
-  if (m_aSize > 0) {
-    std::memset(m_aHist, 0, m_aSize * sizeof(float32));
+void FilterGeneric_3_2::filter(float32 *dst, const float32 *x, size_t length) {
+  // Perform run-in part using the history (slow).
+  size_t k = runIn(dst, x, length);
+
+  // Optimized core loop for biquad filtes (bSize = 3, aSize = 2).
+  float32 b0 = m_b[0], b1 = m_b[1], b2 = m_b[2], a1 = m_a[0], a2 = m_a[1];
+  float32 x0 = x[k - 1], x1 = x[k - 2], x2;
+  float32 y0 = dst[k - 1], y1 = dst[k - 2], y2;
+  for (; k < length; ++k) {
+    x2 = x1;
+    x1 = x0;
+    x0 = x[k];
+    y2 = y1;
+    y1 = y0;
+    y0 = b0 * x0 + b1 * x1 + b2 * x2 - a1 * y1 - a2 * y2;
+    dst[k] = y0;
   }
+
+  // Update history state.
+  updateHistory(dst, x, length);
 }
+
 
 }  // namespace arraymath
