@@ -36,9 +36,13 @@ class FilterGeneric : public Filter {
   virtual ~FilterGeneric();
 
   virtual bool init(size_t bSize, size_t aSize);
-  virtual bool setB(float32 *b, size_t length);
-  virtual bool setA(float32 *a, size_t length);
+
+  virtual void setB(float32 *b);
+
+  virtual void setA(float32 *a);
+
   virtual void filter(float32 *dst, const float32 *x, size_t length);
+
   virtual void clearHistory();
 
  private:

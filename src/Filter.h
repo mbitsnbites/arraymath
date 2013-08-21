@@ -35,9 +35,13 @@ class Filter {
   virtual ~Filter() {}
 
   virtual bool init(size_t bSize, size_t aSize) = 0;
-  virtual bool setB(float32 *b, size_t length) = 0;
-  virtual bool setA(float32 *a, size_t length) = 0;
+
+  virtual void setB(float32 *b) = 0;
+
+  virtual void setA(float32 *a) = 0;
+
   virtual void filter(float32 *dst, const float32 *x, size_t length) = 0;
+
   virtual void clearHistory() = 0;
 };
 

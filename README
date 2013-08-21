@@ -52,7 +52,7 @@ void myFunction {
 
   // Set the filter coefficients.
   float b[6] = { 0.05f, 0.15f, 0.3f, 0.3f, 0.15f, 0.05f };
-  f->setB(b, 6);
+  f->setB(b);
 
   // Create an input array with white noise.
   ArrayMath math;
