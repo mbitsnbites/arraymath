@@ -11,62 +11,8 @@ The idea is to provide a simple interface to highly optimized math kernels.
 --------
 
 Provided that you've built all the .cpp files into object files or a library
-that you link to your project, here's some basic usage info:
-
-
-1.1 Using the ArrayMath interface
----------------------------------
-
-#include <ArrayMath.h>
-
-void myFunction {
-  // Initialize the ArrayMath object. Note: This object may contain state (for
-  // instance for the random number generator), so it is *not* thread safe.
-  arraymath::ArrayMath math;
-
-  // Call array methods.
-  const unsigned len = 128;
-  float a[len], b[len];
-  math.ramp(a, 0.0f, 100.0f, len);    // a = [0.0 .. 100.0]
-  math.random(b, -1.0f, 1.0f, len);   // b = random, [-1.0, 1.0)
-  math.madd(a, 0.5f, a, b, len);      // a = 0.5 * a + b
-}
-
-
-1.2 Using the FilterFactory interface
--------------------------------------
-
-#include <ArrayMath.h>
-#include <FilterFactory.h>
-
-void myFunction {
-  // Initialize the FilterFactory object.
-  arraymath::FilterFactory filterFactory;
-
-  // Create a filter object (a 5th order FIR filter).
-  arraymath::Filter* f = filterFactory.createFilter(6, 0);
-  if (!f) {
-    std::cout << "Unable to create filter." << std::endl;
-    return;
-  }
-
-  // Set the filter coefficients.
-  float b[6] = { 0.05f, 0.15f, 0.3f, 0.3f, 0.15f, 0.05f };
-  f->setB(b);
-
-  // Create an input array with white noise.
-  ArrayMath math;
-  const unsigned len = 128;
-  float x[len];
-  math.random(x, -1.0f, 1.0f, len);   // x = random, [-1.0, 1.0)
-
-  // Create a filtered output array.
-  float y[len];
-  f->filter(y, x, len);
-
-  // Delete the filter object.
-  delete f;
-}
+that you link to your project, you will find the necessary information in
+the doxygen documentation (see the doc/ folder).
 
 
 2. License
@@ -80,3 +26,16 @@ ArrayMath is released under the zlib/libpng license:
  In no event will the authors be held liable for any damages arising from the
  use of this software.
 
+ Permission is granted to anyone to use this software for any purpose,
+ including commercial applications, and to alter it and redistribute it
+ freely, subject to the following restrictions:
+
+ 1. The origin of this software must not be misrepresented; you must not claim
+    that you wrote the original software. If you use this software in a
+    product, an acknowledgment in the product documentation would be
+    appreciated but is not required.
+
+ 2. Altered source versions must be plainly marked as such, and must not be
+    misrepresented as being the original software.
+
+ 3. This notice may not be removed or altered from any source distribution.

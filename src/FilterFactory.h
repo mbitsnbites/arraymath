@@ -32,8 +32,49 @@
 
 namespace arraymath {
 
+/// \brief An interface for creating filters.
+///
+/// ### Using the FilterFactory interface
+///
+/// \code
+///    #include <ArrayMath.h>
+///    #include <FilterFactory.h>
+///
+///    void myFunction {
+///      // Initialize the FilterFactory object.
+///      arraymath::FilterFactory filterFactory;
+///
+///      // Create a filter object (a 5th order FIR filter).
+///      arraymath::Filter* f = filterFactory.createFilter(6, 0);
+///      if (!f) {
+///        std::cout << "Unable to create filter." << std::endl;
+///        return;
+///      }
+///
+///      // Set the filter coefficients.
+///      float b[6] = { 0.05f, 0.15f, 0.3f, 0.3f, 0.15f, 0.05f };
+///      f->setB(b);
+///
+///      // Create an input array with white noise.
+///      ArrayMath math;
+///      const unsigned len = 128;
+///      float x[len];
+///      math.random(x, -1.0f, 1.0f, len);   // x = random, [-1.0, 1.0)
+///
+///      // Create a filtered output array.
+///      float y[len];
+///      f->filter(y, x, len);
+///
+///      // Delete the filter object.
+///      delete f;
+///    }
+/// \endcode
 class FilterFactory {
  public:
+  /// Create a new filter object.
+  /// \param[in] bSize The number of \c b coefficients.
+  /// \param[in] aSize The number of \c a coefficients.
+  /// \return A new Filter object, or NULL if none could be created.
   Filter* createFilter(size_t bSize, size_t aSize);
 
  private:
