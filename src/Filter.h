@@ -30,19 +30,36 @@
 
 namespace arraymath {
 
+/// \brief Filter interface.
 class Filter {
  public:
   virtual ~Filter() {}
 
-  virtual bool init(size_t bSize, size_t aSize) = 0;
+  /// Set the \c b coefficients of the filter.
+  /// \param[in] b The \c b coefficients.
+  /// \note The number of elements in the array \c b must be equal to the
+  /// \c bSize argument of the filter, as given when creating the filter.
+  virtual void setB(const float32 *b) = 0;
 
-  virtual void setB(float32 *b) = 0;
+  /// Set the \c a coefficients of the filter.
+  /// \param[in] a The \c a coefficients.
+  /// \note The number of elements in the array \c a must be equal to the
+  /// \c bSize argument of the filter, as given when creating the filter.
+  virtual void setA(const float32 *a) = 0;
 
-  virtual void setA(float32 *a) = 0;
-
+  /// Filter the given array.
+  /// \param[out] dst The destination array (\c length elements).
+  /// \param[in] x The source array (\c length elements).
+  /// \param[in] length Number of elements to process.
   virtual void filter(float32 *dst, const float32 *x, size_t length) = 0;
 
+  /// Clear the history state of the filter.
   virtual void clearHistory() = 0;
+
+ protected:
+  virtual bool init(size_t bSize, size_t aSize) = 0;
+
+  friend class FilterFactory;
 };
 
 }  // namespace arraymath

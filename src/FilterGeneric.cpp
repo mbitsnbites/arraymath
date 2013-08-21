@@ -82,11 +82,11 @@ bool FilterGeneric::init(size_t bSize, size_t aSize) {
   return true;
 }
 
-void FilterGeneric::setB(float32 *b) {
+void FilterGeneric::setB(const float32 *b) {
   std::memcpy(m_b, b, sizeof(float32) * m_bSize);
 }
 
-void FilterGeneric::setA(float32 *a) {
+void FilterGeneric::setA(const float32 *a) {
   std::memcpy(m_a, a, sizeof(float32) * m_aSize);
 }
 

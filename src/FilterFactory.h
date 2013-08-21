@@ -32,7 +32,7 @@
 
 namespace arraymath {
 
-/// \brief An interface for creating filters.
+/// \brief A class for creating filters.
 ///
 /// ### Using the FilterFactory interface
 ///

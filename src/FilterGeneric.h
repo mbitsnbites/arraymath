@@ -32,18 +32,21 @@ namespace arraymath {
 
 class FilterGeneric : public Filter {
  public:
-  FilterGeneric();
   virtual ~FilterGeneric();
 
-  virtual bool init(size_t bSize, size_t aSize);
+  virtual void setB(const float32 *b);
 
-  virtual void setB(float32 *b);
-
-  virtual void setA(float32 *a);
+  virtual void setA(const float32 *a);
 
   virtual void filter(float32 *dst, const float32 *x, size_t length);
 
   virtual void clearHistory();
+
+ protected:
+  FilterGeneric();
+  virtual bool init(size_t bSize, size_t aSize);
+
+  friend class FilterFactory;
 
  private:
   size_t m_bSize;
