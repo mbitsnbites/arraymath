@@ -44,7 +44,7 @@ class Filter {
   /// Set the \c a coefficients of the filter.
   /// \param[in] a The \c a coefficients.
   /// \note The number of elements in the array \c a must be equal to the
-  /// \c bSize argument of the filter, as given when creating the filter.
+  /// \c aSize argument of the filter, as given when creating the filter.
   virtual void setA(const float32 *a) = 0;
 
   /// Filter the given array.
