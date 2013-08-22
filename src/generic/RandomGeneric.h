@@ -37,7 +37,7 @@ class RandomGeneric : public Random {
   virtual void random(float32 *dst, float32 low, float32 high, size_t length);
 
  private:
-  unsigned m_state[16];
+  uint32 m_state[16];
   unsigned m_index;
 };
 

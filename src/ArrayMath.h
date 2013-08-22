@@ -331,7 +331,7 @@ class ArrayMath {
   /// \param[in] high Highest value to produce (exclusive).
   /// \param[in] length Number of elements to process.
   AM_INLINE void random(float32 *dst, float32 low, float32 high, size_t length) {
-    m_random->random(dst, low, high, length);
+    m_random_f32->random(dst, low, high, length);
   }
 
   /// Compute round(x) and store the result in dst.
@@ -495,7 +495,7 @@ class ArrayMath {
   void (*p_sampleCubicRepeat_f32)(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength);
 
   // Random number generator.
-  Random *m_random;
+  Random *m_random_f32;
 };
 
 }  // namespace arraymath

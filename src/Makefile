@@ -41,6 +41,7 @@ OBJS = $(OUTDIR)/ArrayMath.o \
        $(OUTDIR)/FilterFactory.o \
        $(OUTDIR)/FilterGeneric.o \
        $(OUTDIR)/RandomGeneric.o \
+       $(OUTDIR)/RandomSSE2.o \
        $(OUTDIR)/Test.o
 
 all: $(OUTDIR)/Test

@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 // ArrayMath - an array math library
 //------------------------------------------------------------------------------
-// Copyright (c) 2013 Marcus Geelnard
+// Copyright(c) 2013 Marcus Geelnard
 //
 // This software is provided 'as-is', without any express or implied warranty.
 // In no event will the authors be held liable for any damages arising from the
@@ -23,27 +23,36 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //------------------------------------------------------------------------------
 
-#ifndef _ARRAYMATH_TYPES_H
-#define _ARRAYMATH_TYPES_H
+#ifndef _ARRAYMATH_RANDOMSSE2_H
+#define _ARRAYMATH_RANDOMSSE2_H
 
-// Function inline macro.
-#if defined(_MSC_VER)
-# define AM_INLINE __forceinline
-#else
-# define AM_INLINE inline
-#endif
+#include "Architecture.h"
 
-// Needed for size_t.
-#include <cstdlib>
+#if defined(AM_USE_X86) && defined(AM_HAS_SSE2)
+
+#include <emmintrin.h>
+
+#include "Random.h"
 
 namespace arraymath {
 
-typedef unsigned uint32;
+class RandomSSE2 : public Random {
+ public:
+  RandomSSE2();
 
-typedef float float32;
-typedef double float64;
+  virtual void random(float32 *dst, float32 low, float32 high, size_t length);
 
-}  // namespace arraymath
+ private:
+  void generate4();
 
-#endif // _ARRAYMATH_TYPES_H
+  __m128i m_state[16];
+  __m128i m_generated;
+  unsigned m_index;
+  unsigned m_generated_idx;
+};
 
+} // namespace arraymath
+
+#endif // AM_USE_X86 && AM_HAS_SSE2
+
+#endif // _ARRAYMATH_RANDOMSSE2_H

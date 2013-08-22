@@ -54,9 +54,8 @@ unsigned mutateLeftMix(unsigned value, unsigned shift, unsigned mix) {
 
 RandomGeneric::RandomGeneric() {
   // Seed the state (16 32-bit integers).
-  const unsigned seed = 5489;
-  unsigned* state = m_state;
-  unsigned x = *state++ = seed;
+  uint32* state = m_state;
+  uint32 x = *state++ = 5489;
   for (unsigned i = 1; i < 16; ++i) {
     x = *state++ = 1812433253 * (x ^ (x >> 30)) + i;
   }
@@ -71,20 +70,20 @@ void RandomGeneric::random(float32 *dst, float32 low, float32 high, size_t lengt
     unsigned index_13 = (index + 13) & 15;
     unsigned index_15 = (index + 15) & 15;
 
-    unsigned state_index = m_state[index];
-    unsigned state_index_9 = m_state[index_9];
-    unsigned state_index_13 = m_state[index_13];
-    unsigned state_index_15 = m_state[index_15];
+    uint32 state_index = m_state[index];
+    uint32 state_index_9 = m_state[index_9];
+    uint32 state_index_13 = m_state[index_13];
+    uint32 state_index_15 = m_state[index_15];
 
-    unsigned z1 = mutateLeft(state_index, 16);
+    uint32 z1 = mutateLeft(state_index, 16);
     z1 ^= mutateLeft(state_index_13, 15);
 
-    unsigned z2 = mutateRight(state_index_9, 11);
+    uint32 z2 = mutateRight(state_index_9, 11);
 
-    unsigned result0 = z1 ^ z2;
+    uint32 result0 = z1 ^ z2;
     m_state[index] = result0;
 
-    unsigned result1 = mutateLeft(state_index_15, 2);
+    uint32 result1 = mutateLeft(state_index_15, 2);
     result1 ^= mutateLeft(z1, 18);;
     result1 ^= z2 << 28;
 

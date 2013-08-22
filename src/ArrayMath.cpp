@@ -29,10 +29,13 @@
 #include "generic/ArrayMathGeneric.h"
 #include "generic/RandomGeneric.h"
 #include "x86/ArrayMathSSE.h"
+#include "x86/RandomSSE2.h"
 
 namespace arraymath {
 
 ArrayMath::ArrayMath() {
+  CPUFeatureDetector cpu;
+
   // Set up pointers to generic routines.
   p_add_f32_sa = ArrayMathGeneric::add_f32_sa;
   p_add_f32_aa = ArrayMathGeneric::add_f32_aa;
@@ -77,13 +80,7 @@ ArrayMath::ArrayMath() {
   p_sampleCubic_f32 = ArrayMathGeneric::sampleCubic_f32;
   p_sampleCubicRepeat_f32 = ArrayMathGeneric::sampleCubicRepeat_f32;
 
-  // Set up default random number generator.
-  m_random = new RandomGeneric();
-
-#ifdef AM_USE_X86
-  CPUFeatureDetector cpu;
-
-#ifdef AM_HAS_SSE
+#if defined(AM_USE_X86) && defined(AM_HAS_SSE)
   if (cpu.hasSSE()) {
     // Override generic routines with x86 SSE optimized versions.
     p_add_f32_sa = ArrayMathSSE::add_f32_sa;
@@ -93,27 +90,35 @@ ArrayMath::ArrayMath() {
     p_mul_f32_sa = ArrayMathSSE::mul_f32_sa;
     p_mul_f32_aa = ArrayMathSSE::mul_f32_aa;
   }
-#endif // AM_HAS_SSE
+#endif // AM_USE_X86 && AM_HAS_SSE
 
-#endif // AM_USE_X86
-
-#ifdef AM_USE_ARM
-  CPUFeatureDetector cpu;
-
-#ifdef AM_HAS_NEON
+#if defined(AM_USE_ARM) && defined(AM_HAS_NEON)
   if (cpu.hasNEON()) {
     // TODO(m): Override generic routines with ARM NEON optimized versions.
     if (cpu.hasNEON_FMA()) {
       // TODO(m): madd() should probably be implemented using vmla.
     }
   }
-#endif // AM_HAS_NEON
+#endif // AM_USE_ARM && AM_HAS_NEON
 
-#endif // AM_USE_ARM
+  // Set up random number generator.
+  m_random_f32 = NULL;
+
+#if defined(AM_USE_X86) && defined(AM_HAS_SSE2)
+  if (cpu.hasSSE2()) {
+    // Use an SSE2 optimized random number generator.
+    m_random_f32 = new RandomSSE2();
+  }
+#endif // AM_USE_X86 && AM_HAS_SSE2
+
+  // Fall back to generic random number generator if necessary.
+  if (!m_random_f32) {
+    m_random_f32 = new RandomGeneric();
+  }
 }
 
 ArrayMath::~ArrayMath() {
-  delete m_random;
+  delete m_random_f32;
 }
 
 }  // namespace arraymath
