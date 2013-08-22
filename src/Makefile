@@ -29,6 +29,9 @@ CPP = g++
 CPPFLAGS = -c -O3 -ffast-math -W -Wall -Wextra -pedantic -I.
 RM = rm -rf
 
+# Enable x86 SIMD operations
+CPPFLAGS += -msse -msse2 -mavx
+
 # Automatically generate dependency files
 CPPFLAGS += -MMD -MP
 
@@ -37,6 +40,7 @@ OUTDIR = out
 OBJS = $(OUTDIR)/ArrayMath.o \
        $(OUTDIR)/ArrayMathGeneric.o \
        $(OUTDIR)/ArrayMathSSE.o \
+       $(OUTDIR)/ArrayMathSSE2.o \
        $(OUTDIR)/CPUFeatureDetector.o \
        $(OUTDIR)/FilterFactory.o \
        $(OUTDIR)/FilterGeneric.o \

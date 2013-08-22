@@ -40,9 +40,10 @@ void testArrayMath() {
   math.mul(&x[0], 3.141592654f, &x[0], x.size());
   math.sin(&x[0], &x[0], x.size());
 
-  math.ramp(&y[0], 0.0f, 1.0f, y.size());
+  math.ramp(&y[0], 2.0f, 8.0f, y.size());
   math.madd(&y[0], 0.5f, &x[0], &y[0], std::min(x.size(), y.size()));
   math.add(&y[0], &x[0], &y[0], std::min(x.size(), y.size()));
+  math.div(&y[0], 3.5f, &y[0], y.size());
 
   math.random(&z[0], 0.0f, 10.0f, z.size());
 

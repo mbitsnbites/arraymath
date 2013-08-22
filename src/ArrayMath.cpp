@@ -29,6 +29,7 @@
 #include "generic/ArrayMathGeneric.h"
 #include "generic/RandomGeneric.h"
 #include "x86/ArrayMathSSE.h"
+#include "x86/ArrayMathSSE2.h"
 #include "x86/RandomSSE2.h"
 
 namespace arraymath {
@@ -91,6 +92,14 @@ ArrayMath::ArrayMath() {
     p_mul_f32_aa = ArrayMathSSE::mul_f32_aa;
   }
 #endif // AM_USE_X86 && AM_HAS_SSE
+
+#if defined(AM_USE_X86) && defined(AM_HAS_SSE2)
+  if (cpu.hasSSE2()) {
+    // Override generic routines with x86 SSE2 optimized versions.
+    p_div_f32_sa = ArrayMathSSE2::div_f32_sa;
+    p_div_f32_aa = ArrayMathSSE2::div_f32_aa;
+  }
+#endif // AM_USE_X86 && AM_HAS_SSE2
 
 #if defined(AM_USE_ARM) && defined(AM_HAS_NEON)
   if (cpu.hasNEON()) {
