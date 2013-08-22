@@ -96,6 +96,11 @@ void RandomSSE2::random(float32 *dst, float32 low, float32 high, size_t length) 
   while (m_generated_idx < 4 && length--) {
     *dst++ = static_cast<float32>(generated[m_generated_idx++]) * scale + low;
   }
+  if (m_generated_idx < 4) {
+    // If we didn't finish the current batch, exit now (we'll continue the line
+    // up operation during the next call).
+    return;
+  }
 
   // 2) Unrolled core loop.
   while (length >= 4) {
