@@ -25,10 +25,10 @@
 
 #include "Architecture.h"
 #include "ArrayMath.h"
-#include "ArrayMathGeneric.h"
-#include "ArrayMathSSE.h"
 #include "CPUFeatureDetector.h"
-#include "RandomGeneric.h"
+#include "generic/ArrayMathGeneric.h"
+#include "generic/RandomGeneric.h"
+#include "x86/ArrayMathSSE.h"
 
 namespace arraymath {
 

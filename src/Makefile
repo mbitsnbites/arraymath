@@ -26,33 +26,40 @@
 .PHONY: all clean
 
 CPP = g++
-CPPFLAGS = -c -O3 -ffast-math -W -Wall -Wextra -pedantic
+CPPFLAGS = -c -O3 -ffast-math -W -Wall -Wextra -pedantic -I.
 RM = rm -rf
 
 # Automatically generate dependency files
 CPPFLAGS += -MMD -MP
 
-OBJS = ArrayMath.o \
-       ArrayMathGeneric.o \
-       ArrayMathSSE.o \
-       CPUFeatureDetector.o \
-       FilterFactory.o \
-       FilterGeneric.o \
-       RandomGeneric.o \
-       Test.o
+OUTDIR = out
 
-all: Test
+OBJS = $(OUTDIR)/ArrayMath.o \
+       $(OUTDIR)/ArrayMathGeneric.o \
+       $(OUTDIR)/ArrayMathSSE.o \
+       $(OUTDIR)/CPUFeatureDetector.o \
+       $(OUTDIR)/FilterFactory.o \
+       $(OUTDIR)/FilterGeneric.o \
+       $(OUTDIR)/RandomGeneric.o \
+       $(OUTDIR)/Test.o
 
-Test: $(OBJS)
+all: $(OUTDIR)/Test
+
+$(OUTDIR)/Test: $(OBJS)
 	$(CPP) -o $@ $(OBJS)
 
 clean:
 	$(RM) $(OBJS) $(OBJS:.o=.d) Test
 
-%.o: %.cpp
+$(OUTDIR)/%.o: %.cpp
+	$(CPP) $(CPPFLAGS) -o $@ $<
+
+$(OUTDIR)/%.o: generic/%.cpp
+	$(CPP) $(CPPFLAGS) -o $@ $<
+
+$(OUTDIR)/%.o: x86/%.cpp
 	$(CPP) $(CPPFLAGS) -o $@ $<
 
 # These dependency files are generated automatically when building the object
 # files.
 -include $(OBJS:.o=.d)
-

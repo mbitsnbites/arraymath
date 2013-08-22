@@ -28,7 +28,7 @@
 // main characteristics are that it's very fast and has a very long period
 // (2^512 - 1 samples).
 //
-// This particular implementation was inspired by an implementation by
+// This particular implementation is based on an implementation by
 // Peter Pettersson: https://github.com/ppettersson/random_well512a_simd/
 //------------------------------------------------------------------------------
 
