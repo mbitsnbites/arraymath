@@ -27,7 +27,7 @@
 #define _ARRAYMATH_ARRAYMATH_H
 
 #include "Random.h"
-#include "Types.h"
+#include "common/Types.h"
 
 namespace arraymath {
 

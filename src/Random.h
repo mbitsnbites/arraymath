@@ -26,7 +26,7 @@
 #ifndef _ARRAYMATH_RANDOMGENERIC_H
 #define _ARRAYMATH_RANDOMGENERIC_H
 
-#include "Types.h"
+#include "common/Types.h"
 
 namespace arraymath {
 

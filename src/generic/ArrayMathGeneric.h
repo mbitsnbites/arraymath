@@ -26,7 +26,7 @@
 #ifndef _ARRAYMATH_ARRAYMATHGENERIC_H
 #define _ARRAYMATH_ARRAYMATHGENERIC_H
 
-#include "Types.h"
+#include "common/Types.h"
 
 namespace arraymath {
 

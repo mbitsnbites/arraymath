@@ -26,7 +26,7 @@
 #ifndef _ARRAYMATH_CPUFEATUREDETECTOR_H
 #define _ARRAYMATH_CPUFEATUREDETECTOR_H
 
-#include "Architecture.h"
+#include "common/Architecture.h"
 
 namespace arraymath {
 

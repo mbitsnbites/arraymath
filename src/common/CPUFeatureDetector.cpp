@@ -23,7 +23,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //------------------------------------------------------------------------------
 
-#include "CPUFeatureDetector.h"
+#include "common/CPUFeatureDetector.h"
 
 #ifdef AM_USE_X86
 namespace {

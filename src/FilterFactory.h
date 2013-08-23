@@ -26,9 +26,9 @@
 #ifndef _ARRAYMATH_FILTERFACTORY_H
 #define _ARRAYMATH_FILTERFACTORY_H
 
-#include "CPUFeatureDetector.h"
 #include "Filter.h"
-#include "Types.h"
+#include "common/CPUFeatureDetector.h"
+#include "common/Types.h"
 
 namespace arraymath {
 

@@ -26,7 +26,7 @@
 #ifndef _ARRAYMATH_RANDOMSSE2_H
 #define _ARRAYMATH_RANDOMSSE2_H
 
-#include "Architecture.h"
+#include "common/Architecture.h"
 
 #if defined(AM_USE_X86) && defined(AM_HAS_SSE2)
 

@@ -23,11 +23,12 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //------------------------------------------------------------------------------
 
+#include "generic/ArrayMathGeneric.h"
+
 #include <algorithm>
 #include <cmath>
 
-#include "ArrayMathGeneric.h"
-#include "Types.h"
+#include "common/Types.h"
 
 namespace arraymath {
 

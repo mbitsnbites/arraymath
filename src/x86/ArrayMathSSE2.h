@@ -26,11 +26,11 @@
 #ifndef _ARRAYMATH_ARRAYMATHSSE2_H
 #define _ARRAYMATH_ARRAYMATHSSE_H
 
-#include "Architecture.h"
+#include "common/Architecture.h"
 
 #if defined(AM_USE_X86) && defined(AM_HAS_SSE2)
 
-#include "Types.h"
+#include "common/Types.h"
 
 namespace arraymath {
 

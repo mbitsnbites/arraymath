@@ -28,7 +28,7 @@
 // CPU architectures. It can handle filters of any order (both FIR and IIR).
 //------------------------------------------------------------------------------
 
-#include "FilterGeneric.h"
+#include "generic/FilterGeneric.h"
 
 #include <algorithm>
 #include <cstring>

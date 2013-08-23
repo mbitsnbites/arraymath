@@ -32,7 +32,7 @@
 // Peter Pettersson: https://github.com/ppettersson/random_well512a_simd/
 //------------------------------------------------------------------------------
 
-#include "RandomGeneric.h"
+#include "generic/RandomGeneric.h"
 
 namespace arraymath {
 

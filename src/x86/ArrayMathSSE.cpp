@@ -23,7 +23,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //------------------------------------------------------------------------------
 
-#include "ArrayMathSSE.h"
+#include "x86/ArrayMathSSE.h"
 
 #if defined(AM_USE_X86) && defined(AM_HAS_SSE)
 

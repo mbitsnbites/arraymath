@@ -26,7 +26,7 @@
 #ifndef _ARRAYMATH_FILTER_H
 #define _ARRAYMATH_FILTER_H
 
-#include "Types.h"
+#include "common/Types.h"
 
 namespace arraymath {
 

@@ -24,6 +24,7 @@
 //------------------------------------------------------------------------------
 
 #include "FilterFactory.h"
+
 #include "generic/FilterGeneric.h"
 
 namespace arraymath {

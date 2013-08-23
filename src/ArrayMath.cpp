@@ -23,9 +23,10 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //------------------------------------------------------------------------------
 
-#include "Architecture.h"
 #include "ArrayMath.h"
-#include "CPUFeatureDetector.h"
+
+#include "common/Architecture.h"
+#include "common/CPUFeatureDetector.h"
 #include "generic/ArrayMathGeneric.h"
 #include "generic/RandomGeneric.h"
 #include "x86/ArrayMathSSE.h"

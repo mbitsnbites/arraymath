@@ -54,9 +54,12 @@ $(OUTDIR)/Test: $(OBJS)
 	$(CPP) -o $@ $(OBJS)
 
 clean:
-	$(RM) $(OBJS) $(OBJS:.o=.d) Test
+	$(RM) $(OBJS) $(OBJS:.o=.d) $(OUTDIR)/Test
 
 $(OUTDIR)/%.o: %.cpp
+	$(CPP) $(CPPFLAGS) -o $@ $<
+
+$(OUTDIR)/%.o: common/%.cpp
 	$(CPP) $(CPPFLAGS) -o $@ $<
 
 $(OUTDIR)/%.o: generic/%.cpp
@@ -65,6 +68,10 @@ $(OUTDIR)/%.o: generic/%.cpp
 $(OUTDIR)/%.o: x86/%.cpp
 	$(CPP) $(CPPFLAGS) -o $@ $<
 
+$(OUTDIR)/%.o: test/%.cpp
+	$(CPP) $(CPPFLAGS) -o $@ $<
+
 # These dependency files are generated automatically when building the object
 # files.
 -include $(OBJS:.o=.d)
+
