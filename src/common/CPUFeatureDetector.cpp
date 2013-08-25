@@ -56,9 +56,9 @@ void CPUID(CPUIDFunc func, unsigned &a, unsigned &b, unsigned &c, unsigned &d) {
 }  // anonymous namespace
 #endif // AM_USE_X86
 
-#if defined(AM_USE_ARM) && defined(__ANDROID__)
+#if defined(AM_USE_ARM) && defined(AM_OS_ANDROID)
 #include <cpu-features.h>
-#endif // AM_USE_ARM && __ANDROID__
+#endif // AM_USE_ARM && AM_OS_ANDROID
 
 
 namespace arraymath {
@@ -88,7 +88,7 @@ CPUFeatureDetector::CPUFeatureDetector() {
 #endif // AM_USE_X86
 
 #ifdef AM_USE_ARM
-# if defined(__ANDROID__)
+# if defined(AM_OS_ANDROID)
   // Get feature flags.
   uint64_t features = android_getCpuFeatures();
 
@@ -104,7 +104,7 @@ CPUFeatureDetector::CPUFeatureDetector() {
   m_hasNEON = false;
   m_hasNEON_FMA = false;
 #  endif // AM_HAS_NEON
-# endif // __ANDROID__
+# endif // AM_OS_ANDROID
 #endif // AM_USE_ARM
 }
 

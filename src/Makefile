@@ -29,11 +29,14 @@ CPP = g++
 CPPFLAGS = -c -O3 -ffast-math -W -Wall -Wextra -pedantic -I.
 RM = rm -rf
 
-# Enable x86 SIMD operations
-CPPFLAGS += -msse -msse2 -mavx
-
 # Automatically generate dependency files
 CPPFLAGS += -MMD -MP
+
+# x86 SIMD activation
+CPPGLAGS += -DAM_HAS_SSE -DAM_HAS_SSE2 -DAM_HAS_AVX
+CPPFLAGS_SSE = $(CPPFLAGS) -msse
+CPPFLAGS_SSE2 = $(CPPFLAGS) -msse -msse2
+CPPFLAGS_AVX = $(CPPFLAGS) -msse -msse2 -mavx
 
 OUTDIR = out
 
@@ -45,16 +48,18 @@ OBJS = $(OUTDIR)/ArrayMath.o \
        $(OUTDIR)/FilterFactory.o \
        $(OUTDIR)/FilterGeneric.o \
        $(OUTDIR)/RandomGeneric.o \
-       $(OUTDIR)/RandomSSE2.o \
-       $(OUTDIR)/Test.o
+       $(OUTDIR)/RandomSSE2.o
 
-all: $(OUTDIR)/Test
-
-$(OUTDIR)/Test: $(OBJS)
-	$(CPP) -o $@ $(OBJS)
+all: $(OUTDIR)/Benchmark $(OUTDIR)/Test
 
 clean:
-	$(RM) $(OBJS) $(OBJS:.o=.d) $(OUTDIR)/Test
+	$(RM) $(OBJS) $(OBJS:.o=.d) $(OUTDIR)/Test $(OUTDIR)/Benchmark
+
+$(OUTDIR)/Benchmark: $(OBJS) $(OUTDIR)/Benchmark.o
+	$(CPP) -o $@ $^
+
+$(OUTDIR)/Test: $(OBJS) $(OUTDIR)/Test.o
+	$(CPP) -o $@ $^
 
 $(OUTDIR)/%.o: %.cpp
 	$(CPP) $(CPPFLAGS) -o $@ $<
@@ -65,8 +70,14 @@ $(OUTDIR)/%.o: common/%.cpp
 $(OUTDIR)/%.o: generic/%.cpp
 	$(CPP) $(CPPFLAGS) -o $@ $<
 
-$(OUTDIR)/%.o: x86/%.cpp
-	$(CPP) $(CPPFLAGS) -o $@ $<
+$(OUTDIR)/ArrayMathSSE.o: x86/ArrayMathSSE.cpp
+	$(CPP) $(CPPFLAGS_SSE) -o $@ $<
+
+$(OUTDIR)/ArrayMathSSE2.o: x86/ArrayMathSSE2.cpp
+	$(CPP) $(CPPFLAGS_SSE2) -o $@ $<
+
+$(OUTDIR)/RandomSSE2.o: x86/RandomSSE2.cpp
+	$(CPP) $(CPPFLAGS_SSE2) -o $@ $<
 
 $(OUTDIR)/%.o: test/%.cpp
 	$(CPP) $(CPPFLAGS) -o $@ $<
