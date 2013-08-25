@@ -216,6 +216,103 @@ void benchmark_cplx_aa(ArrayMath& math, size_t arrayLength) {
             << (1e-6 * avgSpeed) << " average)" << std::endl;
 }
 
+template <class OP>
+void benchmark_a(ArrayMath& math, size_t arrayLength) {
+  Timer timer;
+
+  std::vector<float32> dst(arrayLength);
+  std::vector<float32> x(arrayLength);
+  math.ramp(&x[0], 0.5f, 2.0f, arrayLength);
+
+  size_t totalSamples = 0;
+  double totalT = 0.0, maxSpeed = 0.0;
+  while (totalT < 0.2) {
+    double t0 = timer.GetTime();
+    size_t samples = 0;
+    while (samples < 500000) {
+      OP::op(math, &dst[0], &x[0], arrayLength);
+      samples += arrayLength;
+    }
+    double dt = timer.GetTime() - t0;
+    double speed = double(samples) / dt;
+    if (speed > maxSpeed) {
+      maxSpeed = speed;
+    }
+    totalT += dt;
+    totalSamples += samples;
+  }
+  double avgSpeed = double(totalSamples) / totalT;
+
+  std::cout << arrayLength << ": " << (1e-6 * maxSpeed) << " Msamples/s ("
+            << (1e-6 * avgSpeed) << " average)" << std::endl;
+}
+
+void benchmark_madd_saa(ArrayMath& math, size_t arrayLength) {
+  Timer timer;
+
+  std::vector<float32> dst(arrayLength);
+  std::vector<float32> y(arrayLength);
+  std::vector<float32> z(arrayLength);
+  math.ramp(&y[0], 1.0f, 2.0f, arrayLength);
+  math.ramp(&z[0], 1.0f, 4.0f, arrayLength);
+
+  size_t totalSamples = 0;
+  double totalT = 0.0, maxSpeed = 0.0;
+  while (totalT < 0.2) {
+    double t0 = timer.GetTime();
+    size_t samples = 0;
+    while (samples < 500000) {
+      math.madd(&dst[0], 0.5f, &y[0], &z[0], arrayLength);
+      samples += arrayLength;
+    }
+    double dt = timer.GetTime() - t0;
+    double speed = double(samples) / dt;
+    if (speed > maxSpeed) {
+      maxSpeed = speed;
+    }
+    totalT += dt;
+    totalSamples += samples;
+  }
+  double avgSpeed = double(totalSamples) / totalT;
+
+  std::cout << arrayLength << ": " << (1e-6 * maxSpeed) << " Msamples/s ("
+            << (1e-6 * avgSpeed) << " average)" << std::endl;
+}
+
+void benchmark_madd_aaa(ArrayMath& math, size_t arrayLength) {
+  Timer timer;
+
+  std::vector<float32> dst(arrayLength);
+  std::vector<float32> x(arrayLength);
+  std::vector<float32> y(arrayLength);
+  std::vector<float32> z(arrayLength);
+  math.ramp(&x[0], 0.5f, 1.5f, arrayLength);
+  math.ramp(&y[0], 1.0f, 2.0f, arrayLength);
+  math.ramp(&z[0], 1.0f, 4.0f, arrayLength);
+
+  size_t totalSamples = 0;
+  double totalT = 0.0, maxSpeed = 0.0;
+  while (totalT < 0.2) {
+    double t0 = timer.GetTime();
+    size_t samples = 0;
+    while (samples < 500000) {
+      math.madd(&dst[0], &x[0], &y[0], &z[0], arrayLength);
+      samples += arrayLength;
+    }
+    double dt = timer.GetTime() - t0;
+    double speed = double(samples) / dt;
+    if (speed > maxSpeed) {
+      maxSpeed = speed;
+    }
+    totalT += dt;
+    totalSamples += samples;
+  }
+  double avgSpeed = double(totalSamples) / totalT;
+
+  std::cout << arrayLength << ": " << (1e-6 * maxSpeed) << " Msamples/s ("
+            << (1e-6 * avgSpeed) << " average)" << std::endl;
+}
+
 struct add_sa_OP {
   static void op(ArrayMath& math, float32* dst, float32 x, const float32* y, unsigned length) {
     math.add(dst, x, y, length);
@@ -288,40 +385,71 @@ struct div_cplx_aa_OP {
   }
 };
 
-#if 0
-// TODO:
-void (*p_madd_f32_saa)(float32 *dst, float32 x, const float32 *y, const float32 *z, size_t length);
-void (*p_madd_f32_aaa)(float32 *dst, const float32 *x, const float32 *y, const float32 *z, size_t length);
-void (*p_abs_f32)(float32 *dst, const float32 *x, size_t length);
-void (*p_absCplx_f32)(float32 *dst, const float32 *xReal, const float32 *xImag, size_t length);
-void (*p_acos_f32)(float32 *dst, const float32 *x, size_t length);
-void (*p_asin_f32)(float32 *dst, const float32 *x, size_t length);
-void (*p_atan_f32)(float32 *dst, const float32 *x, size_t length);
-void (*p_atan2_f32)(float32 *dst, const float32 *y, const float32 *x, size_t length);
-void (*p_ceil_f32)(float32 *dst, const float32 *x, size_t length);
-void (*p_cos_f32)(float32 *dst, const float32 *x, size_t length);
-void (*p_exp_f32)(float32 *dst, const float32 *x, size_t length);
-void (*p_floor_f32)(float32 *dst, const float32 *x, size_t length);
-void (*p_log_f32)(float32 *dst, const float32 *x, size_t length);
-float32 (*p_max_f32)(const float32 *x, size_t length);
-float32 (*p_min_f32)(const float32 *x, size_t length);
-void (*p_pow_f32_as)(float32 *dst, const float32 *x, float32 y, size_t length);
-void (*p_pow_f32_aa)(float32 *dst, const float32 *x, const float32 *y, size_t length);
-void (*p_round_f32)(float32 *dst, const float32 *x, size_t length);
-void (*p_sin_f32)(float32 *dst, const float32 *x, size_t length);
-void (*p_sqrt_f32)(float32 *dst, const float32 *x, size_t length);
-void (*p_tan_f32)(float32 *dst, const float32 *x, size_t length);
-void (*p_clamp_f32)(float32 *dst, const float32 *x, float32 xMin, float32 xMax, size_t length);
-void (*p_fract_f32)(float32 *dst, const float32 *x, size_t length);
-void (*p_ramp_f32)(float32 *dst, float32 first, float32 last, size_t length);
-void (*p_sign_f32)(float32 *dst, const float32 *x, size_t length);
-float32 (*p_sum_f32)(const float32 *x, size_t length);
-void (*p_sampleLinear_f32)(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength);
-void (*p_sampleLinearRepeat_f32)(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength);
-void (*p_sampleCubic_f32)(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength);
-void (*p_sampleCubicRepeat_f32)(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength);
-#endif
+struct abs_OP {
+  static void op(ArrayMath& math, float32* dst, const float32* x, unsigned length) {
+    math.abs(dst, x, length);
+  }
+};
 
+struct absCplx_OP {
+  static void op(ArrayMath& math, float32* dst, const float32* x, const float32* y, unsigned length) {
+    math.absCplx(dst, x, y, length);
+  }
+};
+
+struct acos_OP {
+  static void op(ArrayMath& math, float32* dst, const float32* x, unsigned length) {
+    math.acos(dst, x, length);
+  }
+};
+
+struct asin_OP {
+  static void op(ArrayMath& math, float32* dst, const float32* x, unsigned length) {
+    math.asin(dst, x, length);
+  }
+};
+
+struct atan_OP {
+  static void op(ArrayMath& math, float32* dst, const float32* x, unsigned length) {
+    math.atan(dst, x, length);
+  }
+};
+
+struct atan2_OP {
+  static void op(ArrayMath& math, float32* dst, const float32* x, const float32* y, unsigned length) {
+    math.atan2(dst, x, y, length);
+  }
+};
+
+struct ceil_OP {
+  static void op(ArrayMath& math, float32* dst, const float32* x, unsigned length) {
+    math.ceil(dst, x, length);
+  }
+};
+
+struct cos_OP {
+  static void op(ArrayMath& math, float32* dst, const float32* x, unsigned length) {
+    math.cos(dst, x, length);
+  }
+};
+
+struct exp_OP {
+  static void op(ArrayMath& math, float32* dst, const float32* x, unsigned length) {
+    math.exp(dst, x, length);
+  }
+};
+
+struct floor_OP {
+  static void op(ArrayMath& math, float32* dst, const float32* x, unsigned length) {
+    math.floor(dst, x, length);
+  }
+};
+
+struct log_OP {
+  static void op(ArrayMath& math, float32* dst, const float32* x, unsigned length) {
+    math.log(dst, x, length);
+  }
+};
 
 void benchmarkArrayMath() {
   std::cout << std::endl << "Benchmarking ArrayMath..." << std::endl;
@@ -387,6 +515,93 @@ void benchmarkArrayMath() {
   for (int i = 0; i < kNumArrayLengths; ++i) {
     benchmark_cplx_aa<div_cplx_aa_OP>(math, kArrayLengths[i]);
   }
+
+  std::cout << std::endl << "ArrayMath.madd(), scalar" << std::endl;
+  for (int i = 0; i < kNumArrayLengths; ++i) {
+    benchmark_madd_saa(math, kArrayLengths[i]);
+  }
+
+  std::cout << std::endl << "ArrayMath.madd()" << std::endl;
+  for (int i = 0; i < kNumArrayLengths; ++i) {
+    benchmark_madd_aaa(math, kArrayLengths[i]);
+  }
+
+  std::cout << std::endl << "ArrayMath.abs()" << std::endl;
+  for (int i = 0; i < kNumArrayLengths; ++i) {
+    benchmark_a<abs_OP>(math, kArrayLengths[i]);
+  }
+
+  std::cout << std::endl << "ArrayMath.absCplx()" << std::endl;
+  for (int i = 0; i < kNumArrayLengths; ++i) {
+    benchmark_aa<absCplx_OP>(math, kArrayLengths[i]);
+  }
+
+  std::cout << std::endl << "ArrayMath.acos()" << std::endl;
+  for (int i = 0; i < kNumArrayLengths; ++i) {
+    benchmark_a<acos_OP>(math, kArrayLengths[i]);
+  }
+
+  std::cout << std::endl << "ArrayMath.asin()" << std::endl;
+  for (int i = 0; i < kNumArrayLengths; ++i) {
+    benchmark_a<asin_OP>(math, kArrayLengths[i]);
+  }
+
+  std::cout << std::endl << "ArrayMath.atan()" << std::endl;
+  for (int i = 0; i < kNumArrayLengths; ++i) {
+    benchmark_a<atan_OP>(math, kArrayLengths[i]);
+  }
+
+  std::cout << std::endl << "ArrayMath.atan2()" << std::endl;
+  for (int i = 0; i < kNumArrayLengths; ++i) {
+    benchmark_aa<atan2_OP>(math, kArrayLengths[i]);
+  }
+
+  std::cout << std::endl << "ArrayMath.ceil()" << std::endl;
+  for (int i = 0; i < kNumArrayLengths; ++i) {
+    benchmark_a<ceil_OP>(math, kArrayLengths[i]);
+  }
+
+  std::cout << std::endl << "ArrayMath.cos()" << std::endl;
+  for (int i = 0; i < kNumArrayLengths; ++i) {
+    benchmark_a<cos_OP>(math, kArrayLengths[i]);
+  }
+
+  std::cout << std::endl << "ArrayMath.exp()" << std::endl;
+  for (int i = 0; i < kNumArrayLengths; ++i) {
+    benchmark_a<exp_OP>(math, kArrayLengths[i]);
+  }
+
+  std::cout << std::endl << "ArrayMath.floor()" << std::endl;
+  for (int i = 0; i < kNumArrayLengths; ++i) {
+    benchmark_a<floor_OP>(math, kArrayLengths[i]);
+  }
+
+  std::cout << std::endl << "ArrayMath.log()" << std::endl;
+  for (int i = 0; i < kNumArrayLengths; ++i) {
+    benchmark_a<log_OP>(math, kArrayLengths[i]);
+  }
+
+#if 0
+// TODO:
+float32 (*p_max_f32)(const float32 *x, size_t length);
+float32 (*p_min_f32)(const float32 *x, size_t length);
+void (*p_pow_f32_as)(float32 *dst, const float32 *x, float32 y, size_t length);
+void (*p_pow_f32_aa)(float32 *dst, const float32 *x, const float32 *y, size_t length);
+void (*p_round_f32)(float32 *dst, const float32 *x, size_t length);
+void (*p_sin_f32)(float32 *dst, const float32 *x, size_t length);
+void (*p_sqrt_f32)(float32 *dst, const float32 *x, size_t length);
+void (*p_tan_f32)(float32 *dst, const float32 *x, size_t length);
+void (*p_clamp_f32)(float32 *dst, const float32 *x, float32 xMin, float32 xMax, size_t length);
+void (*p_fract_f32)(float32 *dst, const float32 *x, size_t length);
+void (*p_ramp_f32)(float32 *dst, float32 first, float32 last, size_t length);
+void (*p_sign_f32)(float32 *dst, const float32 *x, size_t length);
+float32 (*p_sum_f32)(const float32 *x, size_t length);
+void (*p_sampleLinear_f32)(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength);
+void (*p_sampleLinearRepeat_f32)(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength);
+void (*p_sampleCubic_f32)(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength);
+void (*p_sampleCubicRepeat_f32)(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength);
+#endif
+
 }
 
 } // namespace arraymath
@@ -396,4 +611,3 @@ int main() {
 
   return 0;
 }
-
