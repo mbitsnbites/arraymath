@@ -38,6 +38,25 @@
 
 namespace arraymath {
 
+//------------------------------------------------------------------------------
+// Benchmark configuration.
+//------------------------------------------------------------------------------
+
+const size_t kArrayLengths[] = {
+  16, 128, 1024, 4096, 16384, 65536, 1048576
+};
+
+const int kNumArrayLengths = sizeof(kArrayLengths) / sizeof(size_t);
+
+const double kMinTimePerTest = 0.2;
+
+const size_t kMinSamplesPerTest = 500000;
+
+
+//------------------------------------------------------------------------------
+// The timer class is used for measuring time.
+//------------------------------------------------------------------------------
+
 class Timer {
  public:
   Timer() {
@@ -79,11 +98,10 @@ class Timer {
 #endif
 };
 
-const size_t kArrayLengths[] = {
-  16, 128, 1024, 4096, 16384, 65536, 1048576
-};
 
-const int kNumArrayLengths = sizeof(kArrayLengths) / sizeof(size_t);
+//------------------------------------------------------------------------------
+// Benchmark routines.
+//------------------------------------------------------------------------------
 
 template <class OP>
 void benchmark_sa(ArrayMath& math, size_t arrayLength) {
@@ -95,10 +113,10 @@ void benchmark_sa(ArrayMath& math, size_t arrayLength) {
 
   size_t totalSamples = 0;
   double totalT = 0.0, maxSpeed = 0.0;
-  while (totalT < 0.2) {
+  while (totalT < kMinTimePerTest) {
     double t0 = timer.GetTime();
     size_t samples = 0;
-    while (samples < 500000) {
+    while (samples < kMinSamplesPerTest) {
       OP::op(math, &dst[0], 0.5f, &y[0], arrayLength);
       samples += arrayLength;
     }
@@ -128,10 +146,10 @@ void benchmark_aa(ArrayMath& math, size_t arrayLength) {
 
   size_t totalSamples = 0;
   double totalT = 0.0, maxSpeed = 0.0;
-  while (totalT < 0.2) {
+  while (totalT < kMinTimePerTest) {
     double t0 = timer.GetTime();
     size_t samples = 0;
-    while (samples < 500000) {
+    while (samples < kMinSamplesPerTest) {
       OP::op(math, &dst[0], &x[0], &y[0], arrayLength);
       samples += arrayLength;
     }
@@ -160,10 +178,10 @@ void benchmark_cplx_sa(ArrayMath& math, size_t arrayLength) {
 
   size_t totalSamples = 0;
   double totalT = 0.0, maxSpeed = 0.0;
-  while (totalT < 0.2) {
+  while (totalT < kMinTimePerTest) {
     double t0 = timer.GetTime();
     size_t samples = 0;
-    while (samples < 500000) {
+    while (samples < kMinSamplesPerTest) {
       OP::op(math, &dstReal[0], &dstImag[0], 0.5f, -1.0f, &yReal[0], &yImag[0], arrayLength);
       samples += arrayLength;
     }
@@ -195,10 +213,10 @@ void benchmark_cplx_aa(ArrayMath& math, size_t arrayLength) {
 
   size_t totalSamples = 0;
   double totalT = 0.0, maxSpeed = 0.0;
-  while (totalT < 0.2) {
+  while (totalT < kMinTimePerTest) {
     double t0 = timer.GetTime();
     size_t samples = 0;
-    while (samples < 500000) {
+    while (samples < kMinSamplesPerTest) {
       OP::op(math, &dstReal[0], &dstImag[0], &xReal[0], &xImag[0], &yReal[0], &yImag[0], arrayLength);
       samples += arrayLength;
     }
@@ -226,11 +244,41 @@ void benchmark_a(ArrayMath& math, size_t arrayLength) {
 
   size_t totalSamples = 0;
   double totalT = 0.0, maxSpeed = 0.0;
-  while (totalT < 0.2) {
+  while (totalT < kMinTimePerTest) {
     double t0 = timer.GetTime();
     size_t samples = 0;
-    while (samples < 500000) {
+    while (samples < kMinSamplesPerTest) {
       OP::op(math, &dst[0], &x[0], arrayLength);
+      samples += arrayLength;
+    }
+    double dt = timer.GetTime() - t0;
+    double speed = double(samples) / dt;
+    if (speed > maxSpeed) {
+      maxSpeed = speed;
+    }
+    totalT += dt;
+    totalSamples += samples;
+  }
+  double avgSpeed = double(totalSamples) / totalT;
+
+  std::cout << arrayLength << ": " << (1e-6 * maxSpeed) << " Msamples/s ("
+            << (1e-6 * avgSpeed) << " average)" << std::endl;
+}
+
+template <class OP>
+void benchmark_const(ArrayMath& math, size_t arrayLength) {
+  Timer timer;
+
+  std::vector<float32> x(arrayLength);
+  math.ramp(&x[0], 0.5f, 2.0f, arrayLength);
+
+  size_t totalSamples = 0;
+  double totalT = 0.0, maxSpeed = 0.0;
+  while (totalT < kMinTimePerTest) {
+    double t0 = timer.GetTime();
+    size_t samples = 0;
+    while (samples < kMinSamplesPerTest) {
+      OP::op(math, &x[0], arrayLength);
       samples += arrayLength;
     }
     double dt = timer.GetTime() - t0;
@@ -258,10 +306,10 @@ void benchmark_madd_saa(ArrayMath& math, size_t arrayLength) {
 
   size_t totalSamples = 0;
   double totalT = 0.0, maxSpeed = 0.0;
-  while (totalT < 0.2) {
+  while (totalT < kMinTimePerTest) {
     double t0 = timer.GetTime();
     size_t samples = 0;
-    while (samples < 500000) {
+    while (samples < kMinSamplesPerTest) {
       math.madd(&dst[0], 0.5f, &y[0], &z[0], arrayLength);
       samples += arrayLength;
     }
@@ -292,11 +340,163 @@ void benchmark_madd_aaa(ArrayMath& math, size_t arrayLength) {
 
   size_t totalSamples = 0;
   double totalT = 0.0, maxSpeed = 0.0;
-  while (totalT < 0.2) {
+  while (totalT < kMinTimePerTest) {
     double t0 = timer.GetTime();
     size_t samples = 0;
-    while (samples < 500000) {
+    while (samples < kMinSamplesPerTest) {
       math.madd(&dst[0], &x[0], &y[0], &z[0], arrayLength);
+      samples += arrayLength;
+    }
+    double dt = timer.GetTime() - t0;
+    double speed = double(samples) / dt;
+    if (speed > maxSpeed) {
+      maxSpeed = speed;
+    }
+    totalT += dt;
+    totalSamples += samples;
+  }
+  double avgSpeed = double(totalSamples) / totalT;
+
+  std::cout << arrayLength << ": " << (1e-6 * maxSpeed) << " Msamples/s ("
+            << (1e-6 * avgSpeed) << " average)" << std::endl;
+}
+
+void benchmark_pow_as(ArrayMath& math, size_t arrayLength) {
+  Timer timer;
+
+  std::vector<float32> dst(arrayLength);
+  std::vector<float32> x(arrayLength);
+  math.ramp(&x[0], 0.5f, 2.0f, arrayLength);
+  math.sin(&x[0], &x[0], arrayLength);
+
+  size_t totalSamples = 0;
+  double totalT = 0.0, maxSpeed = 0.0;
+  while (totalT < kMinTimePerTest) {
+    double t0 = timer.GetTime();
+    size_t samples = 0;
+    while (samples < kMinSamplesPerTest) {
+      math.pow(&dst[0], &x[0], 5.0f, arrayLength);
+      samples += arrayLength;
+    }
+    double dt = timer.GetTime() - t0;
+    double speed = double(samples) / dt;
+    if (speed > maxSpeed) {
+      maxSpeed = speed;
+    }
+    totalT += dt;
+    totalSamples += samples;
+  }
+  double avgSpeed = double(totalSamples) / totalT;
+
+  std::cout << arrayLength << ": " << (1e-6 * maxSpeed) << " Msamples/s ("
+            << (1e-6 * avgSpeed) << " average)" << std::endl;
+}
+
+void benchmark_random(ArrayMath& math, size_t arrayLength) {
+  Timer timer;
+
+  std::vector<float32> dst(arrayLength);
+
+  size_t totalSamples = 0;
+  double totalT = 0.0, maxSpeed = 0.0;
+  while (totalT < kMinTimePerTest) {
+    double t0 = timer.GetTime();
+    size_t samples = 0;
+    while (samples < kMinSamplesPerTest) {
+      math.random(&dst[0], -0.9f, 0.9f, arrayLength);
+      samples += arrayLength;
+    }
+    double dt = timer.GetTime() - t0;
+    double speed = double(samples) / dt;
+    if (speed > maxSpeed) {
+      maxSpeed = speed;
+    }
+    totalT += dt;
+    totalSamples += samples;
+  }
+  double avgSpeed = double(totalSamples) / totalT;
+
+  std::cout << arrayLength << ": " << (1e-6 * maxSpeed) << " Msamples/s ("
+            << (1e-6 * avgSpeed) << " average)" << std::endl;
+}
+
+void benchmark_clamp(ArrayMath& math, size_t arrayLength) {
+  Timer timer;
+
+  std::vector<float32> dst(arrayLength);
+  std::vector<float32> x(arrayLength);
+  math.ramp(&x[0], 0.0f, 20.0f, arrayLength);
+  math.sin(&x[0], &x[0], arrayLength);
+
+  size_t totalSamples = 0;
+  double totalT = 0.0, maxSpeed = 0.0;
+  while (totalT < kMinTimePerTest) {
+    double t0 = timer.GetTime();
+    size_t samples = 0;
+    while (samples < kMinSamplesPerTest) {
+      math.clamp(&dst[0], &x[0], -0.9f, 0.9f, arrayLength);
+      samples += arrayLength;
+    }
+    double dt = timer.GetTime() - t0;
+    double speed = double(samples) / dt;
+    if (speed > maxSpeed) {
+      maxSpeed = speed;
+    }
+    totalT += dt;
+    totalSamples += samples;
+  }
+  double avgSpeed = double(totalSamples) / totalT;
+
+  std::cout << arrayLength << ": " << (1e-6 * maxSpeed) << " Msamples/s ("
+            << (1e-6 * avgSpeed) << " average)" << std::endl;
+}
+
+void benchmark_ramp(ArrayMath& math, size_t arrayLength) {
+  Timer timer;
+
+  std::vector<float32> dst(arrayLength);
+
+  size_t totalSamples = 0;
+  double totalT = 0.0, maxSpeed = 0.0;
+  while (totalT < kMinTimePerTest) {
+    double t0 = timer.GetTime();
+    size_t samples = 0;
+    while (samples < kMinSamplesPerTest) {
+      math.ramp(&dst[0], -0.9f, 0.9f, arrayLength);
+      samples += arrayLength;
+    }
+    double dt = timer.GetTime() - t0;
+    double speed = double(samples) / dt;
+    if (speed > maxSpeed) {
+      maxSpeed = speed;
+    }
+    totalT += dt;
+    totalSamples += samples;
+  }
+  double avgSpeed = double(totalSamples) / totalT;
+
+  std::cout << arrayLength << ": " << (1e-6 * maxSpeed) << " Msamples/s ("
+            << (1e-6 * avgSpeed) << " average)" << std::endl;
+}
+
+template <class OP>
+void benchmark_sampler(ArrayMath& math, size_t arrayLength) {
+  Timer timer;
+
+  size_t xLength = arrayLength + 100;
+  std::vector<float32> dst(arrayLength);
+  std::vector<float32> x(xLength);
+  std::vector<float32> t(arrayLength);
+  math.ramp(&x[0], 1.0f, 4.0f, xLength);
+  math.ramp(&t[0], -2.5f, static_cast<float32>(xLength + 2), arrayLength);
+
+  size_t totalSamples = 0;
+  double totalT = 0.0, maxSpeed = 0.0;
+  while (totalT < kMinTimePerTest) {
+    double t0 = timer.GetTime();
+    size_t samples = 0;
+    while (samples < kMinSamplesPerTest) {
+      OP::op(math, &dst[0], &x[0], &t[0], arrayLength, xLength);
       samples += arrayLength;
     }
     double dt = timer.GetTime() - t0;
@@ -451,6 +651,95 @@ struct log_OP {
   }
 };
 
+struct pow_aa_OP {
+  static void op(ArrayMath& math, float32* dst, const float32* x, const float32* y, unsigned length) {
+    math.pow(dst, x, y, length);
+  }
+};
+
+struct round_OP {
+  static void op(ArrayMath& math, float32* dst, const float32* x, unsigned length) {
+    math.round(dst, x, length);
+  }
+};
+
+struct sin_OP {
+  static void op(ArrayMath& math, float32* dst, const float32* x, unsigned length) {
+    math.sin(dst, x, length);
+  }
+};
+
+struct sqrt_OP {
+  static void op(ArrayMath& math, float32* dst, const float32* x, unsigned length) {
+    math.sqrt(dst, x, length);
+  }
+};
+
+struct tan_OP {
+  static void op(ArrayMath& math, float32* dst, const float32* x, unsigned length) {
+    math.tan(dst, x, length);
+  }
+};
+
+struct fract_OP {
+  static void op(ArrayMath& math, float32* dst, const float32* x, unsigned length) {
+    math.fract(dst, x, length);
+  }
+};
+
+struct sign_OP {
+  static void op(ArrayMath& math, float32* dst, const float32* x, unsigned length) {
+    math.sign(dst, x, length);
+  }
+};
+
+struct max_OP {
+  static float32 op(ArrayMath& math, const float32* x, unsigned length) {
+    return math.max(x, length);
+  }
+};
+
+struct min_OP {
+  static float32 op(ArrayMath& math, const float32* x, unsigned length) {
+    return math.min(x, length);
+  }
+};
+
+struct sum_OP {
+  static float32 op(ArrayMath& math, const float32* x, unsigned length) {
+    return math.sum(x, length);
+  }
+};
+
+struct sampleLinear_OP {
+  static void op(ArrayMath& math, float32* dst, const float32* x, const float32* t, unsigned length, unsigned xLength) {
+    math.sampleLinear(dst, x, t, length, xLength);
+  }
+};
+
+struct sampleLinearRepeat_OP {
+  static void op(ArrayMath& math, float32* dst, const float32* x, const float32* t, unsigned length, unsigned xLength) {
+    math.sampleLinearRepeat(dst, x, t, length, xLength);
+  }
+};
+
+struct sampleCubic_OP {
+  static void op(ArrayMath& math, float32* dst, const float32* x, const float32* t, unsigned length, unsigned xLength) {
+    math.sampleCubic(dst, x, t, length, xLength);
+  }
+};
+
+struct sampleCubicRepeat_OP {
+  static void op(ArrayMath& math, float32* dst, const float32* x, const float32* t, unsigned length, unsigned xLength) {
+    math.sampleCubicRepeat(dst, x, t, length, xLength);
+  }
+};
+
+
+//------------------------------------------------------------------------------
+// ArrayMath benhcmark.
+//------------------------------------------------------------------------------
+
 void benchmarkArrayMath() {
   std::cout << std::endl << "Benchmarking ArrayMath..." << std::endl;
 
@@ -581,27 +870,95 @@ void benchmarkArrayMath() {
     benchmark_a<log_OP>(math, kArrayLengths[i]);
   }
 
-#if 0
-// TODO:
-float32 (*p_max_f32)(const float32 *x, size_t length);
-float32 (*p_min_f32)(const float32 *x, size_t length);
-void (*p_pow_f32_as)(float32 *dst, const float32 *x, float32 y, size_t length);
-void (*p_pow_f32_aa)(float32 *dst, const float32 *x, const float32 *y, size_t length);
-void (*p_round_f32)(float32 *dst, const float32 *x, size_t length);
-void (*p_sin_f32)(float32 *dst, const float32 *x, size_t length);
-void (*p_sqrt_f32)(float32 *dst, const float32 *x, size_t length);
-void (*p_tan_f32)(float32 *dst, const float32 *x, size_t length);
-void (*p_clamp_f32)(float32 *dst, const float32 *x, float32 xMin, float32 xMax, size_t length);
-void (*p_fract_f32)(float32 *dst, const float32 *x, size_t length);
-void (*p_ramp_f32)(float32 *dst, float32 first, float32 last, size_t length);
-void (*p_sign_f32)(float32 *dst, const float32 *x, size_t length);
-float32 (*p_sum_f32)(const float32 *x, size_t length);
-void (*p_sampleLinear_f32)(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength);
-void (*p_sampleLinearRepeat_f32)(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength);
-void (*p_sampleCubic_f32)(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength);
-void (*p_sampleCubicRepeat_f32)(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength);
-#endif
+  std::cout << std::endl << "ArrayMath.max()" << std::endl;
+  for (int i = 0; i < kNumArrayLengths; ++i) {
+    benchmark_const<max_OP>(math, kArrayLengths[i]);
+  }
 
+  std::cout << std::endl << "ArrayMath.min()" << std::endl;
+  for (int i = 0; i < kNumArrayLengths; ++i) {
+    benchmark_const<min_OP>(math, kArrayLengths[i]);
+  }
+
+  std::cout << std::endl << "ArrayMath.pow(), scalar" << std::endl;
+  for (int i = 0; i < kNumArrayLengths; ++i) {
+    benchmark_pow_as(math, kArrayLengths[i]);
+  }
+
+  std::cout << std::endl << "ArrayMath.pow()" << std::endl;
+  for (int i = 0; i < kNumArrayLengths; ++i) {
+    benchmark_aa<pow_aa_OP>(math, kArrayLengths[i]);
+  }
+
+  std::cout << std::endl << "ArrayMath.random()" << std::endl;
+  for (int i = 0; i < kNumArrayLengths; ++i) {
+    benchmark_random(math, kArrayLengths[i]);
+  }
+
+  std::cout << std::endl << "ArrayMath.round()" << std::endl;
+  for (int i = 0; i < kNumArrayLengths; ++i) {
+    benchmark_a<round_OP>(math, kArrayLengths[i]);
+  }
+
+  std::cout << std::endl << "ArrayMath.sin()" << std::endl;
+  for (int i = 0; i < kNumArrayLengths; ++i) {
+    benchmark_a<sin_OP>(math, kArrayLengths[i]);
+  }
+
+  std::cout << std::endl << "ArrayMath.sqrt()" << std::endl;
+  for (int i = 0; i < kNumArrayLengths; ++i) {
+    benchmark_a<sqrt_OP>(math, kArrayLengths[i]);
+  }
+
+  std::cout << std::endl << "ArrayMath.tan()" << std::endl;
+  for (int i = 0; i < kNumArrayLengths; ++i) {
+    benchmark_a<tan_OP>(math, kArrayLengths[i]);
+  }
+
+  std::cout << std::endl << "ArrayMath.clamp()" << std::endl;
+  for (int i = 0; i < kNumArrayLengths; ++i) {
+    benchmark_clamp(math, kArrayLengths[i]);
+  }
+
+  std::cout << std::endl << "ArrayMath.fract()" << std::endl;
+  for (int i = 0; i < kNumArrayLengths; ++i) {
+    benchmark_a<fract_OP>(math, kArrayLengths[i]);
+  }
+
+  std::cout << std::endl << "ArrayMath.ramp()" << std::endl;
+  for (int i = 0; i < kNumArrayLengths; ++i) {
+    benchmark_ramp(math, kArrayLengths[i]);
+  }
+
+  std::cout << std::endl << "ArrayMath.sign()" << std::endl;
+  for (int i = 0; i < kNumArrayLengths; ++i) {
+    benchmark_a<sign_OP>(math, kArrayLengths[i]);
+  }
+
+  std::cout << std::endl << "ArrayMath.sum()" << std::endl;
+  for (int i = 0; i < kNumArrayLengths; ++i) {
+    benchmark_const<sum_OP>(math, kArrayLengths[i]);
+  }
+
+  std::cout << std::endl << "ArrayMath.sampleLinear()" << std::endl;
+  for (int i = 0; i < kNumArrayLengths; ++i) {
+    benchmark_sampler<sampleLinear_OP>(math, kArrayLengths[i]);
+  }
+
+  std::cout << std::endl << "ArrayMath.sampleLinearRepeat()" << std::endl;
+  for (int i = 0; i < kNumArrayLengths; ++i) {
+    benchmark_sampler<sampleLinearRepeat_OP>(math, kArrayLengths[i]);
+  }
+
+  std::cout << std::endl << "ArrayMath.sampleCubic()" << std::endl;
+  for (int i = 0; i < kNumArrayLengths; ++i) {
+    benchmark_sampler<sampleCubic_OP>(math, kArrayLengths[i]);
+  }
+
+  std::cout << std::endl << "ArrayMath.sampleCubicRepeat()" << std::endl;
+  for (int i = 0; i < kNumArrayLengths; ++i) {
+    benchmark_sampler<sampleCubicRepeat_OP>(math, kArrayLengths[i]);
+  }
 }
 
 } // namespace arraymath
