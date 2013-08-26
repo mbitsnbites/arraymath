@@ -49,21 +49,19 @@ namespace arraymath {
 class RandomSSE2 : public Random {
  public:
   RandomSSE2();
+  virtual ~RandomSSE2();
+
   virtual void random(float32 *dst, float32 low, float32 high, size_t length);
 
  private:
   void generate4();
 
-  __m128i m_state[16];
-  __m128i m_generated;
+  __m128i* m_state;
+  __m128i* m_generated;
 
   unsigned m_index;
   unsigned m_generated_idx;
 };
-
-Random* RandomSSE2Factory::create() {
-  return new RandomSSE2();
-}
 
 AM_INLINE
 void RandomSSE2::generate4() {
@@ -90,7 +88,7 @@ void RandomSSE2::generate4() {
   m_index = index_15;
   m_state[m_index] = result1;
 
-  _mm_store_si128(&m_generated, result1);
+  _mm_store_si128(m_generated, result1);
 
   #undef MUTATE_LEFT
   #undef MUTATE_RIGHT
@@ -98,8 +96,14 @@ void RandomSSE2::generate4() {
 }
 
 RandomSSE2::RandomSSE2() {
+  // Allocate memory for the SSE state. Note: It has to be aligned, which it
+  // might not be if we put it directly in the class and we're compiling for
+  // a 32-bit architecture (which only guarantees 8-byte struct alignment).
+  m_state = new __m128i[17];
+  m_generated = &m_state[16];
+
   // Seed the state (64 32-bit integers).
-  uint32* state = reinterpret_cast<uint32*>(&m_state[0]);
+  uint32* state = reinterpret_cast<uint32*>(m_state);
   uint32 x = *state++ = 5489;
   for (unsigned i = 1; i < 64; ++i) {
     x = *state++ = 1812433253 * (x ^ (x >> 30)) + i;
@@ -111,9 +115,13 @@ RandomSSE2::RandomSSE2() {
   m_generated_idx = 0;
 }
 
+RandomSSE2::~RandomSSE2() {
+  delete[] m_state;
+}
+
 void RandomSSE2::random(float32 *dst, float32 low, float32 high, size_t length) {
   float32 scale = (high - low) * (1.0f / 4294967296.0f);
-  uint32* generated = reinterpret_cast<uint32*>(&m_generated);
+  uint32* generated = reinterpret_cast<uint32*>(m_generated);
 
   // 1) Line up with the batch generator.
   while (m_generated_idx < 4 && length--) {
@@ -144,6 +152,10 @@ void RandomSSE2::random(float32 *dst, float32 low, float32 high, size_t length) 
   while (length--) {
     *dst++ = static_cast<float32>(generated[m_generated_idx++]) * scale + low;
   }
+}
+
+Random* RandomSSE2Factory::create() {
+  return new RandomSSE2();
 }
 
 } // namespace arraymath
