@@ -117,7 +117,7 @@ ArrayMath::ArrayMath() {
 #if defined(AM_USE_X86) && defined(AM_HAS_SSE2)
   if (cpu.hasSSE2()) {
     // Use an SSE2 optimized random number generator.
-    m_random_f32 = RandomSSE2::create();
+    m_random_f32 = RandomSSE2Factory::create();
   }
 #endif // AM_USE_X86 && AM_HAS_SSE2
 

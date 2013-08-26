@@ -30,11 +30,11 @@
 
 #if defined(AM_USE_X86) && defined(AM_HAS_SSE2)
 
-#include "Random.h"
-
 namespace arraymath {
 
-class RandomSSE2 : public Random {
+class Random;
+
+class RandomSSE2Factory {
  public:
   static Random* create();
 };

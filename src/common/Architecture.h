@@ -44,33 +44,9 @@
 
 // CPU architecture detection.
 #if defined(_M_IX86) || defined(__i386__) || defined(_X86_) || defined(_M_X64) || defined(__amd64__)
-
-// We're compiling for an x86 machine.
 # define AM_USE_X86 1
-
-// x86 compile time feature detection.
-// NOTE: You should set these manually in your build config / project.
-# if !defined(AM_HAS_SSE) && (defined(__SSE__) || defined(_M_X64))
-#  define AM_HAS_SSE 1
-# endif
-# if !defined(AM_HAS_SSE2) && (defined(__SSE2__) || defined(_M_X64))
-#  define AM_HAS_SSE2 1
-# endif
-# if !defined(AM_HAS_AVX) && defined(__AVX__)
-#  define AM_HAS_AVX 1
-# endif
-
 #elif defined(_M_ARM) || defined(__arm__)
-
-// We're compiling for an ARM machine.
 # define AM_USE_ARM 1
-
-// ARM compile time feature detection.
-// NOTE: You should set these manually in your build config / project.
-# if !defined(AM_HAS_NEON) && defined(__ARM_NEON__)
-#  define AM_HAS_NEON 1
-# endif
-
 #endif
 
 
