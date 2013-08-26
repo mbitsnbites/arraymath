@@ -30,25 +30,13 @@
 
 #if defined(AM_USE_X86) && defined(AM_HAS_SSE2)
 
-#include <emmintrin.h>
-
 #include "Random.h"
 
 namespace arraymath {
 
 class RandomSSE2 : public Random {
  public:
-  RandomSSE2();
-
-  virtual void random(float32 *dst, float32 low, float32 high, size_t length);
-
- private:
-  void generate4();
-
-  __m128i m_state[16];
-  __m128i m_generated;
-  unsigned m_index;
-  unsigned m_generated_idx;
+  static Random* create();
 };
 
 } // namespace arraymath

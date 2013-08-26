@@ -40,10 +40,31 @@
 
 #if defined(AM_USE_X86) && defined(AM_HAS_SSE2)
 
+#include <emmintrin.h>
+
 namespace arraymath {
 
+class RandomSSE2Impl : public RandomSSE2 {
+ public:
+  RandomSSE2Impl();
+  virtual void random(float32 *dst, float32 low, float32 high, size_t length);
+
+ private:
+  void generate4();
+
+  __m128i m_state[16];
+  __m128i m_generated;
+
+  unsigned m_index;
+  unsigned m_generated_idx;
+};
+
+Random* RandomSSE2::create() {
+  return new RandomSSE2Impl();
+}
+
 AM_INLINE
-void RandomSSE2::generate4() {
+void RandomSSE2Impl::generate4() {
   #define MUTATE_LEFT(value, shift) _mm_xor_si128(value, _mm_slli_epi32(value, shift))
   #define MUTATE_RIGHT(value, shift) _mm_xor_si128(value, _mm_srli_epi32(value, shift))
   #define MUTATE_LEFT_MIX(value, shift, mix) _mm_xor_si128(value, _mm_and_si128(_mm_slli_epi32(value, shift), mix))
@@ -74,7 +95,7 @@ void RandomSSE2::generate4() {
   #undef MUTATE_LEFT_MIX
 }
 
-RandomSSE2::RandomSSE2() {
+RandomSSE2Impl::RandomSSE2Impl() {
   // Seed the state (64 32-bit integers).
   uint32* state = reinterpret_cast<uint32*>(&m_state[0]);
   uint32 x = *state++ = 5489;
@@ -88,7 +109,7 @@ RandomSSE2::RandomSSE2() {
   m_generated_idx = 0;
 }
 
-void RandomSSE2::random(float32 *dst, float32 low, float32 high, size_t length) {
+void RandomSSE2Impl::random(float32 *dst, float32 low, float32 high, size_t length) {
   float32 scale = (high - low) * (1.0f / 4294967296.0f);
   uint32* generated = reinterpret_cast<uint32*>(&m_generated);
 

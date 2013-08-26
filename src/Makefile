@@ -33,7 +33,7 @@ RM = rm -rf
 CPPFLAGS += -MMD -MP
 
 # x86 SIMD activation
-CPPGLAGS += -DAM_HAS_SSE -DAM_HAS_SSE2 -DAM_HAS_AVX
+CPPFLAGS += -DAM_HAS_SSE -DAM_HAS_SSE2 -DAM_HAS_AVX
 CPPFLAGS_SSE = $(CPPFLAGS) -msse
 CPPFLAGS_SSE2 = $(CPPFLAGS) -msse -msse2
 CPPFLAGS_AVX = $(CPPFLAGS) -msse -msse2 -mavx
@@ -53,7 +53,7 @@ OBJS = $(OUTDIR)/ArrayMath.o \
 all: $(OUTDIR)/Benchmark $(OUTDIR)/Test
 
 clean:
-	$(RM) $(OBJS) $(OBJS:.o=.d) $(OUTDIR)/Test $(OUTDIR)/Benchmark
+	$(RM) $(OBJS) $(OBJS:.o=.d) $(OUTDIR)/Test.d $(OUTDIR)/Test.o $(OUTDIR)/Test $(OUTDIR)/Benchmark.d $(OUTDIR)/Benchmark.o $(OUTDIR)/Benchmark
 
 $(OUTDIR)/Benchmark: $(OBJS) $(OUTDIR)/Benchmark.o
 	$(CPP) -o $@ $^
