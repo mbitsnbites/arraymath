@@ -213,41 +213,8 @@ float32 ArrayMathGeneric::min_f32(const float32 *x, size_t length) {
 }
 
 void ArrayMathGeneric::pow_f32_as(float32 *dst, const float32 *x, float32 y, size_t length) {
-  // Fast cases.
-  if (y == 2.0f) {
-    while (length--) {
-      float32 val = *x++;
-      *dst++ = val * val;
-    }
-  }
-  else if (y == 3.0f) {
-    while (length--) {
-      float32 val = *x++;
-      *dst++ = val * val * val;
-    }
-  }
-  else if (y == 4.0f) {
-    while (length--) {
-      float32 val = *x++;
-      *dst++ = (val * val) * (val * val);
-    }
-  }
-  else if (y == -1.0f) {
-    while (length--) {
-      *dst++ = 1.0f / *x++;
-    }
-  }
-  else if (y == -2.0f) {
-    while (length--) {
-      float32 val = *x++;
-      *dst++ = 1.0f / (val * val);
-    }
-  }
-  else {
-    // Default case.
-    while (length--) {
-      *dst++ = std::pow(*x++, y);
-    }
+  while (length--) {
+    *dst++ = std::pow(*x++, y);
   }
 }
 
