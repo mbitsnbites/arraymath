@@ -42,6 +42,7 @@ class ArrayMathSSE {
   static void sub_f32_aa(float32 *dst, const float32 *x, const float32 *y, size_t length);
   static void mul_f32_sa(float32 *dst, float32 x, const float32 *y, size_t length);
   static void mul_f32_aa(float32 *dst, const float32 *x, const float32 *y, size_t length);
+  static void sqrt_f32(float32 *dst, const float32 *x, size_t length);
 };
 
 }  // namespace arraymath

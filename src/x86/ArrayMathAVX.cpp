@@ -23,6 +23,14 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //------------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------
+// TODO: We get a significant performance hit for the run in/out loops if this
+// unit is compiled for x87 or SSE/SSE2 standard math (which is usually the
+// default setting), which is painful for short arrays. This is due to the
+// expensive switch between SSE & AVX. We should implement pure AVX solutions
+// wherever possible!
+//------------------------------------------------------------------------------
+
 #include "x86/ArrayMathAVX.h"
 
 #if defined(AM_USE_X86) && defined(AM_HAS_AVX)
@@ -368,6 +376,48 @@ void ArrayMathAVX::madd_f32_aaa(float32 *dst, const float32 *x, const float32 *y
   // 3) Tail loop.
   while (length--) {
     *dst++ = *x++ * *y++ + *z++;
+  }
+}
+
+void ArrayMathAVX::sqrt_f32(float32 *dst, const float32 *x, size_t length) {
+  // 1) Align x to a 32-byte boundary.
+  while ((reinterpret_cast<size_t>(x) & 31) && length--) {
+    *dst++ = std::sqrt(*x++);
+  }
+
+  // Check alignment.
+  bool dstAligned = (reinterpret_cast<size_t>(dst) & 31) == 0;
+
+  // 2) Main SSE loop (handle different alignment cases).
+  const __m256 kZero = _mm256_setzero_ps();
+  const __m256 kMinus3 = _mm256_set1_ps(-3.0f);
+  const __m256 kMinus05 = _mm256_set1_ps(-0.5f);
+  if (dstAligned) {
+    for (; length >= 8; length -= 8) {
+      __m256 a = _mm256_load_ps(x);
+      __m256 r = _mm256_and_ps(_mm256_rsqrt_ps(a), _mm256_cmp_ps(kZero, a, _CMP_NEQ_UQ));
+      a = _mm256_mul_ps(r, a);
+      r = _mm256_mul_ps(a, r);
+      r = _mm256_mul_ps(_mm256_mul_ps(kMinus05, a), _mm256_add_ps(kMinus3, r));
+      _mm256_store_ps(dst, r);
+      dst += 8; x += 8;
+    }
+  }
+  else {
+    for (; length >= 8; length -= 8) {
+      __m256 a = _mm256_load_ps(x);
+      __m256 r = _mm256_and_ps(_mm256_rsqrt_ps(a), _mm256_cmp_ps(kZero, a, _CMP_NEQ_UQ));
+      a = _mm256_mul_ps(r, a);
+      r = _mm256_mul_ps(a, r);
+      r = _mm256_mul_ps(_mm256_mul_ps(kMinus05, a), _mm256_add_ps(kMinus3, r));
+      _mm256_storeu_ps(dst, r);
+      dst += 8; x += 8;
+    }
+  }
+
+  // 3) Tail loop.
+  while (length--) {
+    *dst++ = std::sqrt(*x++);
   }
 }
 

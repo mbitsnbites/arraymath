@@ -58,6 +58,12 @@ void testArrayMath() {
   std::cout << "mean(z) = " << (math.sum(&z[0], z.size()) / static_cast<float>(z.size())) << std::endl;
   std::cout << "min(z) = " << math.min(&z[0], z.size()) << std::endl;
   std::cout << "max(z) = " << math.max(&z[0], z.size()) << std::endl;
+
+  std::cout << std::endl << "sqrt([2.0, 4.0])" << std::endl;
+  math.ramp(&x[0], 2.0f, 4.0f, x.size());
+  math.sqrt(&x[0], &x[0], x.size());
+  std::cout << "min(x) = " << math.min(&x[0], x.size()) << std::endl;
+  std::cout << "max(x) = " << math.max(&x[0], x.size()) << std::endl;
 }
 
 void testFilterFactory() {

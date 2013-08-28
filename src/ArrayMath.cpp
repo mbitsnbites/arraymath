@@ -92,6 +92,7 @@ ArrayMath::ArrayMath() {
     p_sub_f32_aa = ArrayMathSSE::sub_f32_aa;
     p_mul_f32_sa = ArrayMathSSE::mul_f32_sa;
     p_mul_f32_aa = ArrayMathSSE::mul_f32_aa;
+    p_sqrt_f32 = ArrayMathSSE::sqrt_f32;
   }
 #endif // AM_USE_X86 && AM_HAS_SSE
 
@@ -116,6 +117,7 @@ ArrayMath::ArrayMath() {
     p_div_f32_aa = ArrayMathAVX::div_f32_aa;
     p_madd_f32_saa = ArrayMathAVX::madd_f32_saa;
     p_madd_f32_aaa = ArrayMathAVX::madd_f32_aaa;
+    p_sqrt_f32 = ArrayMathAVX::sqrt_f32;
     p_ceil_f32 = ArrayMathAVX::ceil_f32;
     p_floor_f32 = ArrayMathAVX::floor_f32;
     p_round_f32 = ArrayMathAVX::round_f32;
