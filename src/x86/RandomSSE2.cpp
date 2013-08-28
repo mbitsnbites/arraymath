@@ -48,27 +48,40 @@ namespace arraymath {
 
 class RandomSSE2 : public Random {
  public:
-  RandomSSE2();
   virtual ~RandomSSE2();
 
   virtual void random(float32 *dst, float32 low, float32 high, size_t length);
 
+  bool init();
+
  private:
-  void generate4();
+  __m128 generate4();
 
   __m128i* m_state;
-  __m128i* m_generated;
+  float32* m_generated;
 
   unsigned m_index;
   unsigned m_generated_idx;
 };
 
-AM_INLINE
-void RandomSSE2::generate4() {
-  #define MUTATE_LEFT(value, shift) _mm_xor_si128(value, _mm_slli_epi32(value, shift))
-  #define MUTATE_RIGHT(value, shift) _mm_xor_si128(value, _mm_srli_epi32(value, shift))
-  #define MUTATE_LEFT_MIX(value, shift, mix) _mm_xor_si128(value, _mm_and_si128(_mm_slli_epi32(value, shift), mix))
+namespace {
 
+__m128i mutateLeft(__m128i value, int shift) {
+  return _mm_xor_si128(value, _mm_slli_epi32(value, shift));
+}
+
+__m128i mutateRight(__m128i value, int shift) {
+  return _mm_xor_si128(value, _mm_srli_epi32(value, shift));
+}
+
+__m128i mutateLeftMix(__m128i value, int shift, __m128i mix) {
+  return _mm_xor_si128(value, _mm_and_si128(_mm_slli_epi32(value, shift), mix));
+}
+
+} // anonymous namespace
+
+AM_INLINE
+__m128 RandomSSE2::generate4() {
   unsigned index_15 = (m_index + 15) & 15;
   __m128i state_index = m_state[m_index];
   __m128i state_index_9 = m_state[(m_index +  9) & 15];
@@ -76,31 +89,36 @@ void RandomSSE2::generate4() {
   __m128i state_index_15 = m_state[m_index];
   const __m128i kMix = _mm_set1_epi32(0xda442d24);
 
-  __m128i z1 = _mm_xor_si128(MUTATE_LEFT(state_index, 16), MUTATE_LEFT(state_index_13, 15));
-  __m128i z2 = MUTATE_RIGHT(state_index_9, 11);
+  __m128i z1 = _mm_xor_si128(mutateLeft(state_index, 16), mutateLeft(state_index_13, 15));
+  __m128i z2 = mutateRight(state_index_9, 11);
   __m128i result0 = _mm_xor_si128(z1, z2);
   m_state[m_index] = result0;
 
-  __m128i result1 = MUTATE_LEFT(state_index_15, 2);
-  result1 = _mm_xor_si128(result1, MUTATE_LEFT(z1, 18));
+  __m128i result1 = mutateLeft(state_index_15, 2);
+  result1 = _mm_xor_si128(result1, mutateLeft(z1, 18));
   result1 = _mm_xor_si128(result1, _mm_slli_epi32(z2, 28));
-  result1 = _mm_xor_si128(result1, MUTATE_LEFT_MIX(result0, 5, kMix));
+  result1 = _mm_xor_si128(result1, mutateLeftMix(result0, 5, kMix));
   m_index = index_15;
   m_state[m_index] = result1;
 
-  _mm_store_si128(m_generated, result1);
-
-  #undef MUTATE_LEFT
-  #undef MUTATE_RIGHT
-  #undef MUTATE_LEFT_MIX
+  // Convert the integers to floating point numbers in the range [0.5, 1.0)
+  // using some bit trickery.
+  const __m128i kExponentMask = _mm_set1_epi32(0x007fffff);
+  const __m128i kExponent = _mm_set1_epi32(0x3f000000);
+  result1 = _mm_or_si128(_mm_and_si128(result1, kExponentMask), kExponent);
+  return _mm_castsi128_ps(result1);
 }
 
-RandomSSE2::RandomSSE2() {
-  // Allocate memory for the SSE state. Note: It has to be aligned, which it
-  // might not be if we put it directly in the class and we're compiling for
-  // a 32-bit architecture (which only guarantees 8-byte struct alignment).
-  m_state = new __m128i[17];
-  m_generated = &m_state[16];
+bool RandomSSE2::init() {
+  // Allocate memory for the SSE state and the 4-float batch buffer.
+  // Note: They have to be 16-byte aligned, which they might not be if we put
+  // it directly in the class and we're compiling for a 32-bit architecture,
+  // which only guarantees 8-byte struct alignment.
+  m_state = new __m128i[16 + 1];
+  if (!m_state) {
+    return false;
+  }
+  m_generated = reinterpret_cast<float32*>(&m_state[16]);
 
   // Seed the state (64 32-bit integers).
   uint32* state = reinterpret_cast<uint32*>(m_state);
@@ -111,8 +129,10 @@ RandomSSE2::RandomSSE2() {
   m_index = 0;
 
   // Generate initial batch.
-  generate4();
+  _mm_store_ps(m_generated, generate4());
   m_generated_idx = 0;
+
+  return true;
 }
 
 RandomSSE2::~RandomSSE2() {
@@ -120,12 +140,13 @@ RandomSSE2::~RandomSSE2() {
 }
 
 void RandomSSE2::random(float32 *dst, float32 low, float32 high, size_t length) {
-  float32 scale = (high - low) * (1.0f / 4294967296.0f);
-  uint32* generated = reinterpret_cast<uint32*>(m_generated);
+  // Scaling factors for turning the range [0.5, 1.0) to [low, high).
+  float32 scale = (high - low) * 2.0f;
+  float32 offset = low - 0.5f * scale;
 
   // 1) Line up with the batch generator.
   while (m_generated_idx < 4 && length--) {
-    *dst++ = static_cast<float32>(generated[m_generated_idx++]) * scale + low;
+    *dst++ = m_generated[m_generated_idx++] * scale + offset;
   }
   if (m_generated_idx < 4) {
     // If we didn't finish the current batch, exit now (we'll continue the line
@@ -134,28 +155,32 @@ void RandomSSE2::random(float32 *dst, float32 low, float32 high, size_t length) 
   }
 
   // 2) Unrolled core loop.
+  __m128 _scale = _mm_set1_ps(scale);
+  __m128 _offset = _mm_set1_ps(offset);
   while (length >= 4) {
-    generate4();
-    // TODO(m): Can we SIMDify this somehow?
-    *dst++ = static_cast<float32>(generated[0]) * scale + low;
-    *dst++ = static_cast<float32>(generated[1]) * scale + low;
-    *dst++ = static_cast<float32>(generated[2]) * scale + low;
-    *dst++ = static_cast<float32>(generated[3]) * scale + low;
+    __m128 rnd = generate4();
+    _mm_storeu_ps(dst, _mm_add_ps(_mm_mul_ps(rnd, _scale), _offset));
+    dst += 4;
     length -= 4;
   }
 
-  // 3) At this point we're aligned, and need to generate a new batch.
-  generate4();
+  // 3) At this point we need to generate a new batch.
+  _mm_store_ps(m_generated, generate4());
   m_generated_idx = 0;
 
   // 4) Tail loop (max 3 elements).
   while (length--) {
-    *dst++ = static_cast<float32>(generated[m_generated_idx++]) * scale + low;
+    *dst++ = m_generated[m_generated_idx++] * scale + offset;
   }
 }
 
 Random* RandomSSE2Factory::create() {
-  return new RandomSSE2();
+  RandomSSE2* random = new RandomSSE2();
+  if (random && !random->init()) {
+    delete random;
+    return NULL;
+  }
+  return random;
 }
 
 } // namespace arraymath

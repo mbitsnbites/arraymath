@@ -50,7 +50,7 @@ unsigned mutateLeftMix(unsigned value, unsigned shift, unsigned mix) {
   return value ^ ((value << shift) & mix);
 }
 
-} // anoynmous namespace
+} // anonymous namespace
 
 RandomGeneric::RandomGeneric() {
   // Seed the state (16 32-bit integers).
