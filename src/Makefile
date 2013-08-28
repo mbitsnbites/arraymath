@@ -41,6 +41,7 @@ CPPFLAGS_AVX = $(CPPFLAGS) -msse -msse2 -mavx
 OUTDIR = out
 
 OBJS = $(OUTDIR)/ArrayMath.o \
+       $(OUTDIR)/ArrayMathAVX.o \
        $(OUTDIR)/ArrayMathGeneric.o \
        $(OUTDIR)/ArrayMathSSE.o \
        $(OUTDIR)/ArrayMathSSE2.o \
@@ -75,6 +76,9 @@ $(OUTDIR)/ArrayMathSSE.o: x86/ArrayMathSSE.cpp
 
 $(OUTDIR)/ArrayMathSSE2.o: x86/ArrayMathSSE2.cpp
 	$(CPP) $(CPPFLAGS_SSE2) -o $@ $<
+
+$(OUTDIR)/ArrayMathAVX.o: x86/ArrayMathAVX.cpp
+	$(CPP) $(CPPFLAGS_AVX) -o $@ $<
 
 $(OUTDIR)/RandomSSE2.o: x86/RandomSSE2.cpp
 	$(CPP) $(CPPFLAGS_SSE2) -o $@ $<

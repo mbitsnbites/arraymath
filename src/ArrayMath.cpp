@@ -29,6 +29,7 @@
 #include "common/CPUFeatureDetector.h"
 #include "generic/ArrayMathGeneric.h"
 #include "generic/RandomGeneric.h"
+#include "x86/ArrayMathAVX.h"
 #include "x86/ArrayMathSSE.h"
 #include "x86/ArrayMathSSE2.h"
 #include "x86/RandomSSE2.h"
@@ -101,6 +102,25 @@ ArrayMath::ArrayMath() {
     p_div_f32_aa = ArrayMathSSE2::div_f32_aa;
   }
 #endif // AM_USE_X86 && AM_HAS_SSE2
+
+#if defined(AM_USE_X86) && defined(AM_HAS_AVX)
+  if (true) { // cpu.hasAVX()) {
+    // Override generic routines with x86 SSE optimized versions.
+    p_add_f32_sa = ArrayMathAVX::add_f32_sa;
+    p_add_f32_aa = ArrayMathAVX::add_f32_aa;
+    p_sub_f32_sa = ArrayMathAVX::sub_f32_sa;
+    p_sub_f32_aa = ArrayMathAVX::sub_f32_aa;
+    p_mul_f32_sa = ArrayMathAVX::mul_f32_sa;
+    p_mul_f32_aa = ArrayMathAVX::mul_f32_aa;
+    p_div_f32_sa = ArrayMathAVX::div_f32_sa;
+    p_div_f32_aa = ArrayMathAVX::div_f32_aa;
+    p_madd_f32_saa = ArrayMathAVX::madd_f32_saa;
+    p_madd_f32_aaa = ArrayMathAVX::madd_f32_aaa;
+    p_ceil_f32 = ArrayMathAVX::ceil_f32;
+    p_floor_f32 = ArrayMathAVX::floor_f32;
+    p_round_f32 = ArrayMathAVX::round_f32;
+  }
+#endif // AM_USE_X86 && AM_HAS_AVX
 
 #if defined(AM_USE_ARM) && defined(AM_HAS_NEON)
   if (cpu.hasNEON()) {
