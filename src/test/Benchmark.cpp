@@ -27,6 +27,7 @@
 #include <vector>
 
 #include "ArrayMath.h"
+#include "FilterFactory.h"
 #include "common/Architecture.h"
 
 #ifdef AM_OS_WINDOWS
@@ -735,6 +736,40 @@ struct sampleCubicRepeat_OP {
   }
 };
 
+void benchmark_filter(ArrayMath& math, FilterFactory& factory, int bSize, int aSize, size_t arrayLength) {
+  Timer timer;
+
+  std::vector<float32> dst(arrayLength);
+  std::vector<float32> x(arrayLength);
+  math.random(&x[0], -1.0f, 1.0f, arrayLength);
+
+  Filter *filter = factory.createFilter(bSize, aSize);
+
+  size_t totalSamples = 0;
+  double totalT = 0.0, maxSpeed = 0.0;
+  while (totalT < kMinTimePerTest) {
+    double t0 = timer.GetTime();
+    size_t samples = 0;
+    while (samples < kMinSamplesPerTest) {
+      filter->filter(&dst[0], &x[0], arrayLength);
+      samples += arrayLength;
+    }
+    double dt = timer.GetTime() - t0;
+    double speed = double(samples) / dt;
+    if (speed > maxSpeed) {
+      maxSpeed = speed;
+    }
+    totalT += dt;
+    totalSamples += samples;
+  }
+  double avgSpeed = double(totalSamples) / totalT;
+
+  std::cout << arrayLength << ": " << (1e-6 * maxSpeed) << " Msamples/s ("
+            << (1e-6 * avgSpeed) << " average)" << std::endl;
+
+  delete filter;
+}
+
 
 //------------------------------------------------------------------------------
 // ArrayMath benhcmark.
@@ -961,10 +996,52 @@ void benchmarkArrayMath() {
   }
 }
 
+//------------------------------------------------------------------------------
+// ArrayMath benhcmark.
+//------------------------------------------------------------------------------
+
+void benchmarkFilter() {
+  std::cout << std::endl << "Benchmarking Filter..." << std::endl;
+
+  ArrayMath math;
+  FilterFactory factory;
+
+  std::cout << std::endl << "Filter(1,1)" << std::endl;
+  for (int i = 0; i < kNumArrayLengths; ++i) {
+    benchmark_filter(math, factory, 1, 1, kArrayLengths[i]);
+  }
+
+  std::cout << std::endl << "Filter(2,1)" << std::endl;
+  for (int i = 0; i < kNumArrayLengths; ++i) {
+    benchmark_filter(math, factory, 2, 1, kArrayLengths[i]);
+  }
+
+  std::cout << std::endl << "Filter(2,2)" << std::endl;
+  for (int i = 0; i < kNumArrayLengths; ++i) {
+    benchmark_filter(math, factory, 2, 2, kArrayLengths[i]);
+  }
+
+  std::cout << std::endl << "Filter(3,2)" << std::endl;
+  for (int i = 0; i < kNumArrayLengths; ++i) {
+    benchmark_filter(math, factory, 3, 2, kArrayLengths[i]);
+  }
+
+  std::cout << std::endl << "Filter(16,0)" << std::endl;
+  for (int i = 0; i < kNumArrayLengths; ++i) {
+    benchmark_filter(math, factory, 16, 0, kArrayLengths[i]);
+  }
+
+  std::cout << std::endl << "Filter(128,0)" << std::endl;
+  for (int i = 0; i < kNumArrayLengths; ++i) {
+    benchmark_filter(math, factory, 128, 0, kArrayLengths[i]);
+  }
+}
+
 } // namespace arraymath
 
 int main() {
   arraymath::benchmarkArrayMath();
+  arraymath::benchmarkFilter();
 
   return 0;
 }
