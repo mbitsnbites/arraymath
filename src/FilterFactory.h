@@ -75,7 +75,7 @@ class FilterFactory {
   /// \param[in] bSize The number of \c b coefficients.
   /// \param[in] aSize The number of \c a coefficients.
   /// \return A new Filter object, or NULL if none could be created.
-  Filter* createFilter(size_t bSize, size_t aSize);
+  Filter* createFilter(int bSize, int aSize);
 
  private:
   CPUFeatureDetector m_cpu;

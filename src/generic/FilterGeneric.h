@@ -44,19 +44,19 @@ class FilterGeneric : public Filter {
 
  protected:
   FilterGeneric();
-  virtual bool init(size_t bSize, size_t aSize);
+  virtual bool init(int bSize, int aSize);
 
-  size_t runIn(float32 *dst, const float32 *x, size_t length);
+  int runIn(float32 *dst, const float32 *x, size_t length);
   void updateHistory(float32 *dst, const float32 *x, size_t length);
 
   friend class FilterFactory;
 
-  size_t m_bSize;
-  size_t m_aSize;
   float32 *m_b;
   float32 *m_a;
   float32 *m_bHist;
   float32 *m_aHist;
+  int m_bSize;
+  int m_aSize;
 };
 
 class FilterGeneric_3_2 : public FilterGeneric {

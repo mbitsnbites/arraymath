@@ -57,7 +57,7 @@ class Filter {
   virtual void filter(float32 *dst, const float32 *x, size_t length) = 0;
 
  protected:
-  virtual bool init(size_t bSize, size_t aSize) = 0;
+  virtual bool init(int bSize, int aSize) = 0;
 
   friend class FilterFactory;
 };

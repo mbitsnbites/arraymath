@@ -29,9 +29,9 @@
 
 namespace arraymath {
 
-Filter* FilterFactory::createFilter(size_t bSize, size_t aSize) {
+Filter* FilterFactory::createFilter(int bSize, int aSize) {
   // Sanity check.
-  if (bSize < 1) {
+  if (bSize < 1 || aSize < 0) {
     return NULL;
   }
 

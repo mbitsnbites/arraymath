@@ -36,7 +36,7 @@
 namespace arraymath {
 
 FilterGeneric::FilterGeneric()
-    : m_bSize(0), m_aSize(0), m_b(NULL), m_a(NULL), m_bHist(NULL), m_aHist(NULL) {
+    : m_b(NULL), m_a(NULL), m_bHist(NULL), m_aHist(NULL), m_bSize(0), m_aSize(0) {
 }
 
 FilterGeneric::~FilterGeneric() {
@@ -50,7 +50,7 @@ FilterGeneric::~FilterGeneric() {
     delete[] m_aHist;
 }
 
-bool FilterGeneric::init(size_t bSize, size_t aSize) {
+bool FilterGeneric::init(int bSize, int aSize) {
   // Set filter size.
   m_bSize = bSize;
   m_aSize = aSize;
@@ -98,12 +98,12 @@ void FilterGeneric::clearHistory() {
 }
 
 AM_INLINE
-size_t FilterGeneric::runIn(float32 *dst, const float32 *x, size_t length) {
-  size_t bHistRunIn = m_bSize - 1;
-  size_t aHistRunIn = m_aSize;
-  size_t k;
-  for (k = 0; (bHistRunIn || aHistRunIn) && k < length; ++k) {
-    size_t noHistLen, m;
+int FilterGeneric::runIn(float32 *dst, const float32 *x, size_t length) {
+  int bHistRunIn = m_bSize - 1;
+  int aHistRunIn = m_aSize;
+  int k, len = static_cast<int>(length);
+  for (k = 0; (bHistRunIn || aHistRunIn) && k < len; ++k) {
+    int noHistLen, m;
 
     // FIR part.
     noHistLen = m_bSize - bHistRunIn;
@@ -132,28 +132,28 @@ size_t FilterGeneric::runIn(float32 *dst, const float32 *x, size_t length) {
 
 AM_INLINE
 void FilterGeneric::updateHistory(float32 *dst, const float32 *x, size_t length) {
-  size_t k;
-  size_t histCopy = std::min(m_bSize - 1, length);
+  int k, len = static_cast<int>(length);
+  int histCopy = std::min(m_bSize - 1, len);
   for (k = m_bSize - 2; k >= histCopy; --k)
     m_bHist[k] = m_bHist[k - histCopy];
   for (k = 0; k < histCopy; ++k)
-    m_bHist[k] = x[length - 1 - k];
+    m_bHist[k] = x[len - 1 - k];
   if (m_aSize > 0) {
-    histCopy = std::min(m_aSize, length);
+    histCopy = std::min(m_aSize, len);
     for (k = m_aSize - 1; k >= histCopy; --k)
       m_aHist[k] = m_aHist[k - histCopy];
     for (k = 0; k < histCopy; ++k)
-      m_aHist[k] = dst[length - 1 - k];
+      m_aHist[k] = dst[len - 1 - k];
   }
 }
 
 void FilterGeneric::filter(float32 *dst, const float32 *x, size_t length) {
   // Perform run-in part using the history (slow).
-  size_t k = runIn(dst, x, length);
+  int k = runIn(dst, x, length);
 
   // Perform history-free part (fast).
-  for (; k < length; ++k) {
-    size_t m;
+  for (; k < static_cast<int>(length); ++k) {
+    int m;
 
     // FIR part.
     float32 res = m_b[0] * x[k];
@@ -173,13 +173,13 @@ void FilterGeneric::filter(float32 *dst, const float32 *x, size_t length) {
 
 void FilterGeneric_3_2::filter(float32 *dst, const float32 *x, size_t length) {
   // Perform run-in part using the history (slow).
-  size_t k = runIn(dst, x, length);
+  int k = runIn(dst, x, length);
 
   // Optimized core loop for biquad filtes (bSize = 3, aSize = 2).
   float32 b0 = m_b[0], b1 = m_b[1], b2 = m_b[2], a1 = m_a[0], a2 = m_a[1];
   float32 x0 = x[k - 1], x1 = x[k - 2], x2;
   float32 y0 = dst[k - 1], y1 = dst[k - 2], y2;
-  for (; k < length; ++k) {
+  for (; k < static_cast<int>(length); ++k) {
     x2 = x1;
     x1 = x0;
     x0 = x[k];
@@ -192,6 +192,5 @@ void FilterGeneric_3_2::filter(float32 *dst, const float32 *x, size_t length) {
   // Update history state.
   updateHistory(dst, x, length);
 }
-
 
 }  // namespace arraymath
