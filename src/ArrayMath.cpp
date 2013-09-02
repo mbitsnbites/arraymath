@@ -105,7 +105,7 @@ ArrayMath::ArrayMath() {
 #endif // AM_USE_X86 && AM_HAS_SSE2
 
 #if defined(AM_USE_X86) && defined(AM_HAS_AVX)
-  if (true) { // cpu.hasAVX()) {
+  if (cpu.hasAVX()) {
     // Override generic routines with x86 SSE optimized versions.
     p_add_f32_sa = ArrayMathAVX::add_f32_sa;
     p_add_f32_aa = ArrayMathAVX::add_f32_aa;
