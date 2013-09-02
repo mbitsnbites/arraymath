@@ -47,32 +47,30 @@ namespace arraymath {
 
 template <class OP>
 void op_f32_sa(float32 *dst, float32 x, const float32 *y, size_t length) {
-  // 1) Align y to a 32-byte boundary.
-  while ((reinterpret_cast<size_t>(y) & 31) && length--) {
+  // 1) Align dst to a 32-byte boundary.
+  while ((reinterpret_cast<size_t>(dst) & 31) && length--) {
     *dst++ = OP::op(x, *y++);
   }
-  const __m256 *_y = reinterpret_cast<const __m256*>(y);
 
   // Check alignment.
-  bool dstAligned = (reinterpret_cast<size_t>(dst) & 31) == 0;
+  bool aligned = (reinterpret_cast<size_t>(y) & 31) == 0;
 
   // 2) Main AVX loop (handle different alignment cases).
   __m256 _x = _mm256_set1_ps(x);
-  if (dstAligned) {
+  if (aligned) {
     for (; length >= 8; length -= 8) {
-      _mm256_store_ps(dst, OP::opAVX(_x, *_y++));
-      dst += 8;
+      _mm256_store_ps(dst, OP::opAVX(_x, _mm256_load_ps(y)));
+      dst += 8; y += 8;
     }
   }
   else {
     for (; length >= 8; length -= 8) {
-      _mm256_storeu_ps(dst, OP::opAVX(_x, *_y++));
-      dst += 8;
+      _mm256_store_ps(dst, OP::opAVX(_x, _mm256_loadu_ps(y)));
+      dst += 8; y += 8;
     }
   }
 
   // 3) Tail loop.
-  y = reinterpret_cast<const float32*>(_y);
   while (length--) {
     *dst++ = OP::op(x, *y++);
   }
@@ -80,48 +78,47 @@ void op_f32_sa(float32 *dst, float32 x, const float32 *y, size_t length) {
 
 template <class OP>
 void op_f32_aa(float32 *dst, const float32 *x, const float32 *y, size_t length) {
-  // 1) Align x to a 32-byte boundary.
-  while ((reinterpret_cast<size_t>(x) & 31) && length--) {
+  // 1) Align dst to a 32-byte boundary.
+  while ((reinterpret_cast<size_t>(dst) & 31) && length--) {
     *dst++ = OP::op(*x++, *y++);
   }
-  const __m256 *_x = reinterpret_cast<const __m256*>(x);
 
   // Check alignment.
-  bool dstAligned = (reinterpret_cast<size_t>(dst) & 31) == 0;
-  bool yAligned = (reinterpret_cast<size_t>(y) & 31) == 0;
+  int alignment = ((reinterpret_cast<size_t>(x) & 31) == 0 ? 1 : 0) |
+                  ((reinterpret_cast<size_t>(y) & 31) == 0 ? 2 : 0);
 
   // 2) Main AVX loop (handle different alignment cases).
-  if (dstAligned && yAligned) {
-    for (; length >= 8; length -= 8) {
-      _mm256_store_ps(dst, OP::opAVX(*_x++, _mm256_load_ps(y)));
-      dst += 8;
-      y += 8;
-    }
-  }
-  else if (dstAligned) {
-    for (; length >= 8; length -= 8) {
-      _mm256_store_ps(dst, OP::opAVX(*_x++, _mm256_loadu_ps(y)));
-      dst += 8;
-      y += 8;
-    }
-  }
-  else if (yAligned) {
-    for (; length >= 8; length -= 8) {
-      _mm256_storeu_ps(dst, OP::opAVX(*_x++, _mm256_load_ps(y)));
-      dst += 8;
-      y += 8;
-    }
-  }
-  else {
-    for (; length >= 8; length -= 8) {
-      _mm256_storeu_ps(dst, OP::opAVX(*_x++, _mm256_loadu_ps(y)));
-      dst += 8;
-      y += 8;
-    }
+  switch (alignment) {
+    case 1:
+      // x aligned
+      for (; length >= 8; length -= 8) {
+        _mm256_store_ps(dst, OP::opAVX(_mm256_load_ps(x), _mm256_loadu_ps(y)));
+        dst += 8; x += 8; y += 8;
+      }
+      break;
+    case 2:
+      // y aligned
+      for (; length >= 8; length -= 8) {
+        _mm256_store_ps(dst, OP::opAVX(_mm256_loadu_ps(x), _mm256_load_ps(y)));
+        dst += 8; x += 8; y += 8;
+      }
+      break;
+    case 3:
+      // x aligned && y aligned
+      for (; length >= 8; length -= 8) {
+        _mm256_store_ps(dst, OP::opAVX(_mm256_load_ps(x), _mm256_load_ps(y)));
+        dst += 8; x += 8; y += 8;
+      }
+      break;
+    default:
+      // None aligned
+      for (; length >= 8; length -= 8) {
+        _mm256_store_ps(dst, OP::opAVX(_mm256_loadu_ps(x), _mm256_loadu_ps(y)));
+        dst += 8; x += 8; y += 8;
+      }
   }
 
   // 3) Tail loop.
-  x = reinterpret_cast<const float32*>(_x);
   while (length--) {
     *dst++ = OP::op(*x++, *y++);
   }
@@ -129,16 +126,16 @@ void op_f32_aa(float32 *dst, const float32 *x, const float32 *y, size_t length) 
 
 template <class OP>
 void op_f32_a(float32 *dst, const float32 *x, size_t length) {
-  // 1) Align x to a 32-byte boundary.
-  while ((reinterpret_cast<size_t>(x) & 31) && length--) {
+  // 1) Align dst to a 32-byte boundary.
+  while ((reinterpret_cast<size_t>(dst) & 31) && length--) {
     *dst++ = OP::op(*x++);
   }
 
   // Check alignment.
-  bool dstAligned = (reinterpret_cast<size_t>(dst) & 31) == 0;
+  bool aligned = (reinterpret_cast<size_t>(x) & 31) == 0;
 
   // 2) Main AVX loop (handle different alignment cases).
-  if (dstAligned) {
+  if (aligned) {
     for (; length >= 8; length -= 8) {
       _mm256_store_ps(dst, OP::opAVX(_mm256_load_ps(x)));
       dst += 8; x += 8;
@@ -146,7 +143,7 @@ void op_f32_a(float32 *dst, const float32 *x, size_t length) {
   }
   else {
     for (; length >= 8; length -= 8) {
-      _mm256_storeu_ps(dst, OP::opAVX(_mm256_load_ps(x)));
+      _mm256_store_ps(dst, OP::opAVX(_mm256_loadu_ps(x)));
       dst += 8; x += 8;
     }
   }
@@ -264,38 +261,43 @@ void ArrayMathAVX::madd_f32_saa(float32 *dst, float32 x, const float32 *y, const
   }
 
   // Check alignment.
-  bool yAligned = (reinterpret_cast<size_t>(y) & 31) == 0;
-  bool zAligned = (reinterpret_cast<size_t>(z) & 31) == 0;
+  int alignment = ((reinterpret_cast<size_t>(y) & 31) == 0 ? 1 : 0) |
+                  ((reinterpret_cast<size_t>(z) & 31) == 0 ? 2 : 0);
 
   // 2) Main AVX loop (handle different alignment cases).
   __m256 _x = _mm256_set1_ps(x);
-  if (yAligned && zAligned) {
-    for (; length >= 8; length -= 8) {
-      __m256 prod = _mm256_mul_ps(_x, _mm256_load_ps(y));
-      _mm256_store_ps(dst, _mm256_add_ps(prod, _mm256_load_ps(z)));
-      dst += 8; y += 8; z += 8;
-    }
-  }
-  else if (yAligned) {
-    for (; length >= 8; length -= 8) {
-      __m256 prod = _mm256_mul_ps(_x, _mm256_load_ps(y));
-      _mm256_store_ps(dst, _mm256_add_ps(prod, _mm256_loadu_ps(z)));
-      dst += 8; y += 8; z += 8;
-    }
-  }
-  else if (zAligned) {
-    for (; length >= 8; length -= 8) {
-      __m256 prod = _mm256_mul_ps(_x, _mm256_loadu_ps(y));
-      _mm256_store_ps(dst, _mm256_add_ps(prod, _mm256_load_ps(z)));
-      dst += 8; y += 8; z += 8;
-    }
-  }
-  else {
-    for (; length >= 8; length -= 8) {
-      __m256 prod = _mm256_mul_ps(_x, _mm256_loadu_ps(y));
-      _mm256_store_ps(dst, _mm256_add_ps(prod, _mm256_loadu_ps(z)));
-      dst += 8; y += 8; z += 8;
-    }
+  switch (alignment) {
+    case 1:
+      // y aligned
+      for (; length >= 8; length -= 8) {
+        __m256 prod = _mm256_mul_ps(_x, _mm256_load_ps(y));
+        _mm256_store_ps(dst, _mm256_add_ps(prod, _mm256_loadu_ps(z)));
+        dst += 8; y += 8; z += 8;
+      }
+      break;
+    case 2:
+      // z aligned
+      for (; length >= 8; length -= 8) {
+        __m256 prod = _mm256_mul_ps(_x, _mm256_loadu_ps(y));
+        _mm256_store_ps(dst, _mm256_add_ps(prod, _mm256_load_ps(z)));
+        dst += 8; y += 8; z += 8;
+      }
+      break;
+    case 3:
+      // y aligned && z aligned
+      for (; length >= 8; length -= 8) {
+        __m256 prod = _mm256_mul_ps(_x, _mm256_load_ps(y));
+        _mm256_store_ps(dst, _mm256_add_ps(prod, _mm256_load_ps(z)));
+        dst += 8; y += 8; z += 8;
+      }
+      break;
+    default:
+      // None aligned
+      for (; length >= 8; length -= 8) {
+        __m256 prod = _mm256_mul_ps(_x, _mm256_loadu_ps(y));
+        _mm256_store_ps(dst, _mm256_add_ps(prod, _mm256_loadu_ps(z)));
+        dst += 8; y += 8; z += 8;
+      }
   }
 
   // 3) Tail loop.
@@ -311,66 +313,76 @@ void ArrayMathAVX::madd_f32_aaa(float32 *dst, const float32 *x, const float32 *y
   }
 
   // Check alignment.
-  bool xAligned = (reinterpret_cast<size_t>(x) & 31) == 0;
-  bool yAligned = (reinterpret_cast<size_t>(y) & 31) == 0;
-  bool zAligned = (reinterpret_cast<size_t>(z) & 31) == 0;
+  // Check alignment.
+  int alignment = ((reinterpret_cast<size_t>(x) & 31) == 0 ? 1 : 0) |
+                  ((reinterpret_cast<size_t>(y) & 31) == 0 ? 2 : 0) |
+                  ((reinterpret_cast<size_t>(z) & 31) == 0 ? 4 : 0);
 
   // 2) Main AVX loop (handle different alignment cases).
-  if (xAligned && yAligned && zAligned) {
-    for (; length >= 8; length -= 8) {
-      __m256 prod = _mm256_mul_ps(_mm256_load_ps(x), _mm256_load_ps(y));
-      _mm256_store_ps(dst, _mm256_add_ps(prod, _mm256_load_ps(z)));
-      dst += 8; x += 8; y += 8; z += 8;
-    }
-  }
-  else if (xAligned && yAligned) {
-    for (; length >= 8; length -= 8) {
-      __m256 prod = _mm256_mul_ps(_mm256_load_ps(x), _mm256_load_ps(y));
-      _mm256_store_ps(dst, _mm256_add_ps(prod, _mm256_loadu_ps(z)));
-      dst += 8; x += 8; y += 8; z += 8;
-    }
-  }
-  else if (xAligned && zAligned) {
-    for (; length >= 8; length -= 8) {
-      __m256 prod = _mm256_mul_ps(_mm256_load_ps(x), _mm256_loadu_ps(y));
-      _mm256_store_ps(dst, _mm256_add_ps(prod, _mm256_load_ps(z)));
-      dst += 8; x += 8; y += 8; z += 8;
-    }
-  }
-  else if (yAligned && zAligned) {
-    for (; length >= 8; length -= 8) {
-      __m256 prod = _mm256_mul_ps(_mm256_loadu_ps(x), _mm256_load_ps(y));
-      _mm256_store_ps(dst, _mm256_add_ps(prod, _mm256_load_ps(z)));
-      dst += 8; x += 8; y += 8; z += 8;
-    }
-  }
-  else if (xAligned) {
-    for (; length >= 8; length -= 8) {
-      __m256 prod = _mm256_mul_ps(_mm256_load_ps(x), _mm256_loadu_ps(y));
-      _mm256_store_ps(dst, _mm256_add_ps(prod, _mm256_loadu_ps(z)));
-      dst += 8; x += 8; y += 8; z += 8;
-    }
-  }
-  else if (yAligned) {
-    for (; length >= 8; length -= 8) {
-      __m256 prod = _mm256_mul_ps(_mm256_loadu_ps(x), _mm256_load_ps(y));
-      _mm256_store_ps(dst, _mm256_add_ps(prod, _mm256_loadu_ps(z)));
-      dst += 8; x += 8; y += 8; z += 8;
-    }
-  }
-  else if (zAligned) {
-    for (; length >= 8; length -= 8) {
-      __m256 prod = _mm256_mul_ps(_mm256_loadu_ps(x), _mm256_loadu_ps(y));
-      _mm256_store_ps(dst, _mm256_add_ps(prod, _mm256_load_ps(z)));
-      dst += 8; x += 8; y += 8; z += 8;
-    }
-  }
-  else {
-    for (; length >= 8; length -= 8) {
-      __m256 prod = _mm256_mul_ps(_mm256_loadu_ps(x), _mm256_loadu_ps(y));
-      _mm256_store_ps(dst, _mm256_add_ps(prod, _mm256_loadu_ps(z)));
-      dst += 8; x += 8; y += 8; z += 8;
-    }
+  switch (alignment) {
+    case 1:
+      // x aligned
+      for (; length >= 8; length -= 8) {
+        __m256 prod = _mm256_mul_ps(_mm256_load_ps(x), _mm256_loadu_ps(y));
+        _mm256_store_ps(dst, _mm256_add_ps(prod, _mm256_loadu_ps(z)));
+        dst += 8; x += 8; y += 8; z += 8;
+      }
+      break;
+    case 2:
+      // y aligned
+      for (; length >= 8; length -= 8) {
+        __m256 prod = _mm256_mul_ps(_mm256_loadu_ps(x), _mm256_load_ps(y));
+        _mm256_store_ps(dst, _mm256_add_ps(prod, _mm256_loadu_ps(z)));
+        dst += 8; x += 8; y += 8; z += 8;
+      }
+      break;
+    case 3:
+      // x aligned && y aligned
+      for (; length >= 8; length -= 8) {
+        __m256 prod = _mm256_mul_ps(_mm256_load_ps(x), _mm256_load_ps(y));
+        _mm256_store_ps(dst, _mm256_add_ps(prod, _mm256_loadu_ps(z)));
+        dst += 8; x += 8; y += 8; z += 8;
+      }
+      break;
+    case 4:
+      // z aligned
+      for (; length >= 8; length -= 8) {
+        __m256 prod = _mm256_mul_ps(_mm256_loadu_ps(x), _mm256_loadu_ps(y));
+        _mm256_store_ps(dst, _mm256_add_ps(prod, _mm256_load_ps(z)));
+        dst += 8; x += 8; y += 8; z += 8;
+      }
+      break;
+    case 5:
+      // x aligned && z aligned
+      for (; length >= 8; length -= 8) {
+        __m256 prod = _mm256_mul_ps(_mm256_load_ps(x), _mm256_loadu_ps(y));
+        _mm256_store_ps(dst, _mm256_add_ps(prod, _mm256_load_ps(z)));
+        dst += 8; x += 8; y += 8; z += 8;
+      }
+      break;
+    case 6:
+      // y aligned && z aligned
+      for (; length >= 8; length -= 8) {
+        __m256 prod = _mm256_mul_ps(_mm256_loadu_ps(x), _mm256_load_ps(y));
+        _mm256_store_ps(dst, _mm256_add_ps(prod, _mm256_load_ps(z)));
+        dst += 8; x += 8; y += 8; z += 8;
+      }
+      break;
+    case 7:
+      // x aligned && y aligned && z aligned
+      for (; length >= 8; length -= 8) {
+        __m256 prod = _mm256_mul_ps(_mm256_load_ps(x), _mm256_load_ps(y));
+        _mm256_store_ps(dst, _mm256_add_ps(prod, _mm256_load_ps(z)));
+        dst += 8; x += 8; y += 8; z += 8;
+      }
+      break;
+    default:
+      // None aligned
+      for (; length >= 8; length -= 8) {
+        __m256 prod = _mm256_mul_ps(_mm256_loadu_ps(x), _mm256_loadu_ps(y));
+        _mm256_store_ps(dst, _mm256_add_ps(prod, _mm256_loadu_ps(z)));
+        dst += 8; x += 8; y += 8; z += 8;
+      }
   }
 
   // 3) Tail loop.
