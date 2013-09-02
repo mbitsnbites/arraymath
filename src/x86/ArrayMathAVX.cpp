@@ -393,18 +393,18 @@ void ArrayMathAVX::madd_f32_aaa(float32 *dst, const float32 *x, const float32 *y
 
 void ArrayMathAVX::sqrt_f32(float32 *dst, const float32 *x, size_t length) {
   // 1) Align x to a 32-byte boundary.
-  while ((reinterpret_cast<size_t>(x) & 31) && length--) {
+  while ((reinterpret_cast<size_t>(dst) & 31) && length--) {
     *dst++ = std::sqrt(*x++);
   }
 
   // Check alignment.
-  bool dstAligned = (reinterpret_cast<size_t>(dst) & 31) == 0;
+  bool aligned = (reinterpret_cast<size_t>(x) & 31) == 0;
 
   // 2) Main SSE loop (handle different alignment cases).
-  const __m256 kZero = _mm256_setzero_ps();
-  const __m256 kMinus3 = _mm256_set1_ps(-3.0f);
-  const __m256 kMinus05 = _mm256_set1_ps(-0.5f);
-  if (dstAligned) {
+  static const __m256 kZero = _mm256_setzero_ps();
+  static const __m256 kMinus3 = _mm256_set1_ps(-3.0f);
+  static const __m256 kMinus05 = _mm256_set1_ps(-0.5f);
+  if (aligned) {
     for (; length >= 8; length -= 8) {
       __m256 a = _mm256_load_ps(x);
       __m256 r = _mm256_and_ps(_mm256_rsqrt_ps(a), _mm256_cmp_ps(kZero, a, _CMP_NEQ_UQ));
@@ -417,12 +417,12 @@ void ArrayMathAVX::sqrt_f32(float32 *dst, const float32 *x, size_t length) {
   }
   else {
     for (; length >= 8; length -= 8) {
-      __m256 a = _mm256_load_ps(x);
+      __m256 a = _mm256_loadu_ps(x);
       __m256 r = _mm256_and_ps(_mm256_rsqrt_ps(a), _mm256_cmp_ps(kZero, a, _CMP_NEQ_UQ));
       a = _mm256_mul_ps(r, a);
       r = _mm256_mul_ps(a, r);
       r = _mm256_mul_ps(_mm256_mul_ps(kMinus05, a), _mm256_add_ps(kMinus3, r));
-      _mm256_storeu_ps(dst, r);
+      _mm256_store_ps(dst, r);
       dst += 8; x += 8;
     }
   }
