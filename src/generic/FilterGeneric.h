@@ -59,6 +59,16 @@ class FilterGeneric : public Filter {
   int m_aSize;
 };
 
+class FilterGeneric_1_1 : public FilterGeneric {
+ public:
+  virtual void filter(float32 *dst, const float32 *x, size_t length);
+
+ protected:
+  FilterGeneric_1_1() : FilterGeneric() {}
+
+  friend class FilterFactory;
+};
+
 class FilterGeneric_3_2 : public FilterGeneric {
  public:
   virtual void filter(float32 *dst, const float32 *x, size_t length);

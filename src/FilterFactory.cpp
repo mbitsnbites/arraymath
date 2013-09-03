@@ -36,7 +36,11 @@ Filter* FilterFactory::createFilter(int bSize, int aSize) {
   }
 
   Filter* filter = NULL;
-  if (bSize == 3 && aSize == 2) {
+  if (bSize == 1 && aSize == 1) {
+    // Optimized filter type: first order filter.
+    filter = new FilterGeneric_1_1();
+  }
+  else if (bSize == 3 && aSize == 2) {
     // Optimized filter type: biquad filter.
     filter = new FilterGeneric_3_2();
   }

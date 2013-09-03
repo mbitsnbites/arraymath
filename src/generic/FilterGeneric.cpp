@@ -173,6 +173,39 @@ void FilterGeneric::filter(float32 *dst, const float32 *x, size_t length) {
   updateHistory(dst, x, length);
 }
 
+void FilterGeneric_1_1::filter(float32 *dst, const float32 *x, size_t length) {
+  // Perform run-in part using the history (slow).
+  int k = runIn(dst, x, length);
+  int samplesLeft = static_cast<int>(length) - k;
+
+  // Optimized core loop for first order IIR filtes (bSize = 1, aSize = 1).
+  float32 b0 = m_b[0], a1 = m_a[0];
+  float32 y = dst[k - 1];
+  const float32* in = &x[k];
+  float32* out = &dst[k];
+  for(; samplesLeft >= 4; samplesLeft -= 4) {
+    float32 x1 = *in++;
+    float32 x2 = *in++;
+    float32 x3 = *in++;
+    float32 x4 = *in++;
+    y = b0 * x1 - a1 * y;
+    *out++ = y;
+    y = b0 * x2 - a1 * y;
+    *out++ = y;
+    y = b0 * x3 - a1 * y;
+    *out++ = y;
+    y = b0 * x4 - a1 * y;
+    *out++ = y;
+  }
+  while(samplesLeft--) {
+    y = b0 * *in++ - a1 * y;
+    *out++ = y;
+  }
+
+  // Update history state.
+  updateHistory(dst, x, length);
+}
+
 void FilterGeneric_3_2::filter(float32 *dst, const float32 *x, size_t length) {
   // Perform run-in part using the history (slow).
   int k = runIn(dst, x, length);
