@@ -79,7 +79,7 @@ void testFilterFactory() {
   }
 
   arraymath::float32 b[8] = { 0.1f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f };
-  f->setB(b);
+  f->setB(b, 8);
 
   std::vector<float> x(100000), y(100000);
   math.random(&x[0], -1.0f, 1.0f, x.size());

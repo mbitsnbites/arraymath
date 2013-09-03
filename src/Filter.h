@@ -37,15 +37,23 @@ class Filter {
 
   /// Set the \c b coefficients of the filter.
   /// \param[in] b The \c b coefficients.
-  /// \note The number of elements in the array \c b must be equal to the
-  /// \c bSize argument of the filter, as given when creating the filter.
-  virtual void setB(const float32 *b) = 0;
+  /// \param[in] length Number of coefficients to set.
+  /// The number of coefficients that are set is the smallest of the argument
+  /// \c length and the \c bSize argument of the filter, as given when creating
+  /// the filter.
+  /// If not all coefficients are set (i.e. if \c length is less than \c bSize),
+  /// then the rest of the coefficients remain unchanged.
+  virtual void setB(const float32 *b, size_t length) = 0;
 
   /// Set the \c a coefficients of the filter.
   /// \param[in] a The \c a coefficients.
-  /// \note The number of elements in the array \c a must be equal to the
-  /// \c aSize argument of the filter, as given when creating the filter.
-  virtual void setA(const float32 *a) = 0;
+  /// \param[in] length Number of coefficients to set.
+  /// The number of coefficients that are set is the smallest of the argument
+  /// \c length and the \c aSize argument of the filter, as given when creating
+  /// the filter.
+  /// If not all coefficients are set (i.e. if \c length is less than \c aSize),
+  /// then the rest of the coefficients remain unchanged.
+  virtual void setA(const float32 *a, size_t length) = 0;
 
   /// Clear the history state of the filter.
   virtual void clearHistory() = 0;

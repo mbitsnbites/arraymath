@@ -34,9 +34,9 @@ class FilterGeneric : public Filter {
  public:
   virtual ~FilterGeneric();
 
-  virtual void setB(const float32 *b);
+  virtual void setB(const float32 *b, size_t length);
 
-  virtual void setA(const float32 *a);
+  virtual void setA(const float32 *a, size_t length);
 
   virtual void clearHistory();
 
