@@ -25,7 +25,9 @@
 
 #include "FFTFactory.h"
 
+#ifdef AM_USE_KISS_FFT
 #include "generic/FFTKiss.h"
+#endif // AM_USE_KISS_FFT
 
 namespace arraymath {
 
@@ -35,8 +37,12 @@ FFT* FFTFactory::createFFT(size_t size) {
     return NULL;
   }
 
-  // Generic (fallback) filter that can handle all filter orders.
+#if defined(AM_USE_KISS_FFT)
+  // Create a Kiss FFT object.
   FFT* fft = new FFTKiss();
+#else
+  FFT* fft = NULL;
+#endif
 
   // Initialize the filter object.
   if (fft) {

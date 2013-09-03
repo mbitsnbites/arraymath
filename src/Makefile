@@ -31,7 +31,7 @@ CFLAGS = --std=c99 -c -O3 -ffast-math -W -Wall -Wextra -pedantic -I. -Ikiss_fft
 
 # C++ compiler settings
 CPP = g++
-CPPFLAGS = -c -O3 -ffast-math -W -Wall -Wextra -pedantic -I.
+CPPFLAGS = -c -O3 -ffast-math -W -Wall -Wextra -pedantic -I. -Ikiss_fft
 RM = rm -rf
 
 # Automatically generate dependency files

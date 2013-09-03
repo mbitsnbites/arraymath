@@ -26,7 +26,12 @@
 #ifndef _ARRAYMATH_FFTKISS_H
 #define _ARRAYMATH_FFTKISS_H
 
+#ifdef AM_USE_KISS_FFT
+
 #include "FFT.h"
+
+#include "kiss_fft.h"
+#include "tools/kiss_fftr.h"
 
 namespace arraymath {
 
@@ -50,8 +55,14 @@ class FFTKiss : public FFT {
 
  private:
   size_t m_size;
+  kiss_fft_cfg m_cfg;
+  kiss_fft_cfg m_cfgInv;
+  kiss_fft_cpx* m_inBuf;
+  kiss_fft_cpx* m_outBuf;
 };
 
 }  // namespace arraymath
+
+#endif // AM_USE_KISS_FFT
 
 #endif // _ARRAYMATH_FFTKISS_H
