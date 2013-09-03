@@ -25,21 +25,33 @@
 
 .PHONY: all clean
 
+# C compiler settings
+CC = gcc
+CFLAGS = --std=c99 -c -O3 -ffast-math -W -Wall -Wextra -pedantic -I. -Ikiss_fft
+
+# C++ compiler settings
 CPP = g++
 CPPFLAGS = -c -O3 -ffast-math -W -Wall -Wextra -pedantic -I.
 RM = rm -rf
 
 # Automatically generate dependency files
+CFLAGS += -MMD -MP
 CPPFLAGS += -MMD -MP
 
 # x86 SIMD activation
-CPPFLAGS += -DAM_HAS_SSE -DAM_HAS_SSE2 -DAM_HAS_AVX
+CPPFLAGS += -DAM_HAS_SSE -DAM_HAS_SSE2 -DAM_HAS_AVX -DAM_USE_KISS_FFT
 CPPFLAGS_SSE = $(CPPFLAGS) -msse
 CPPFLAGS_SSE2 = $(CPPFLAGS) -msse -msse2
 CPPFLAGS_AVX = $(CPPFLAGS) -msse -msse2 -mavx
 
 OUTDIR = out
 
+# FFT objects
+FFT_OBJS = $(OUTDIR)/kiss_fft.o \
+           $(OUTDIR)/kiss_fftr.o \
+           $(OUTDIR)/FFTKiss.o
+
+# Core ArrayMath objects
 OBJS = $(OUTDIR)/ArrayMath.o \
        $(OUTDIR)/ArrayMathAVX.o \
        $(OUTDIR)/ArrayMathGeneric.o \
@@ -48,8 +60,10 @@ OBJS = $(OUTDIR)/ArrayMath.o \
        $(OUTDIR)/CPUFeatureDetector.o \
        $(OUTDIR)/FilterFactory.o \
        $(OUTDIR)/FilterGeneric.o \
+       $(OUTDIR)/FFTFactory.o \
        $(OUTDIR)/RandomGeneric.o \
-       $(OUTDIR)/RandomSSE2.o
+       $(OUTDIR)/RandomSSE2.o \
+       $(FFT_OBJS)
 
 all: $(OUTDIR)/Benchmark $(OUTDIR)/Test
 
@@ -85,6 +99,14 @@ $(OUTDIR)/RandomSSE2.o: x86/RandomSSE2.cpp
 
 $(OUTDIR)/%.o: test/%.cpp
 	$(CPP) $(CPPFLAGS) -o $@ $<
+
+# Kiss FFT compilation rules
+$(OUTDIR)/%.o: kiss_fft/%.c
+	$(CC) $(CFLAGS) -o $@ $<
+
+$(OUTDIR)/%.o: kiss_fft/tools/%.c
+	$(CC) $(CFLAGS) -o $@ $<
+
 
 # These dependency files are generated automatically when building the object
 # files.
