@@ -23,11 +23,13 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //------------------------------------------------------------------------------
 
+#include <cmath>
 #include <iostream>
 #include <vector>
 
 #include "ArrayMath.h"
 #include "FilterFactory.h"
+#include "FFTFactory.h"
 
 void testArrayMath() {
   std::cout << std::endl << "Testing ArrayMath..." << std::endl;
@@ -92,9 +94,67 @@ void testFilterFactory() {
   delete f;
 }
 
+void testFFTFactory() {
+  std::cout << std::endl << "Testing FFTFactory..." << std::endl;
+
+  // Initialize the FFTFactory object.
+  arraymath::FFTFactory fftFactory;
+
+  // Create an FFT object for doing 256-sized transforms.
+  const unsigned len = 256;
+  arraymath::FFT* fft = fftFactory.createFFT(len);
+  if (!fft) {
+    std::cout << "Unable to create FFT object." << std::endl;
+    return;
+  }
+
+  // Create an input array with a sine tone.
+  arraymath::ArrayMath math;
+  std::vector<float> x(len);
+  math.ramp(&x[0], 0.0f, 31.41592654f, len);
+  math.sin(&x[0], &x[0], len);
+
+  // Original signal.
+  {
+    std::vector<float> tmp(len);
+    math.mul(&tmp[0], &x[0], &x[0], len);
+    float rms = std::sqrt(math.sum(&tmp[0], len) / static_cast<float>(len));
+    std::cout << "rms(x) = " << rms << std::endl;
+  }
+
+  // Calculate the forward transform of the input signal.
+  std::vector<float> yReal(len), yImag(len);
+  fft->forward(&yReal[0], &yImag[0], &x[0]);
+
+  // Fourier transform.
+  {
+    std::vector<float> tmp(len);
+    math.mul(&tmp[0], &yReal[0], &yReal[0], len);
+    math.madd(&tmp[0], &yImag[0], &yImag[0], &tmp[0], len);
+    float rms = std::sqrt(math.sum(&tmp[0], len) / static_cast<float>(len));
+    std::cout << "rms(y) = " << rms << std::endl;
+  }
+
+  // Calculate the inverse transform of the frequency signal.
+  std::vector<float> x2(len);
+  fft->inverse(&x2[0], &yReal[0], &yImag[0]);
+
+  // Re-transformed signal.
+  {
+    std::vector<float> tmp(len);
+    math.mul(&tmp[0], &x2[0], &x2[0], len);
+    float rms = std::sqrt(math.sum(&tmp[0], len) / static_cast<float>(len));
+    std::cout << "rms(x2) = " << rms << std::endl;
+  }
+
+  // Delete the FFT object.
+  delete fft;
+}
+
 int main() {
   testArrayMath();
   testFilterFactory();
+  testFFTFactory();
 
   return 0;
 }

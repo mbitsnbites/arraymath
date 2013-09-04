@@ -27,7 +27,6 @@
 #define _ARRAYMATH_FFTFACTORY_H
 
 #include "FFT.h"
-#include "common/CPUFeatureDetector.h"
 #include "common/Types.h"
 
 namespace arraymath {
@@ -40,7 +39,7 @@ namespace arraymath {
 ///    #include <ArrayMath.h>
 ///    #include <FFTFactory.h>
 ///
-///    void myFunction {
+///    void myFunction() {
 ///      // Initialize the FFTFactory object.
 ///      arraymath::FFTFactory fftFactory;
 ///
@@ -53,16 +52,16 @@ namespace arraymath {
 ///      }
 ///
 ///      // Create an input array with a sine tone.
-///      ArrayMath math;
+///      arraymath::ArrayMath math;
 ///      float x[len];
-///      math.ramp(x, 0.0f, 30.0f, len);
+///      math.ramp(x, 0.0f, 31.41592654f, len);
 ///      math.sin(x, x, len);
 ///
 ///      // Calculate the forward transform of the input signal.
 ///      float yReal[len], yImag[len];
-///      fft->forward(yReal, yImag, x, len);
+///      fft->forward(yReal, yImag, x);
 ///
-///      // Delete the filter object.
+///      // Delete the FFT object.
 ///      delete fft;
 ///    }
 /// \endcode
@@ -72,9 +71,6 @@ class FFTFactory {
   /// \param[in] size The size of the transform.
   /// \return A new FFT object, or NULL if none could be created.
   FFT* createFFT(size_t size);
-
- private:
-  CPUFeatureDetector m_cpu;
 };
 
 }  // namespace arraymath

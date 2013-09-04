@@ -40,7 +40,7 @@ namespace arraymath {
 ///    #include <ArrayMath.h>
 ///    #include <FilterFactory.h>
 ///
-///    void myFunction {
+///    void myFunction() {
 ///      // Initialize the FilterFactory object.
 ///      arraymath::FilterFactory filterFactory;
 ///
@@ -56,7 +56,7 @@ namespace arraymath {
 ///      f->setB(b);
 ///
 ///      // Create an input array with white noise.
-///      ArrayMath math;
+///      arraymath::ArrayMath math;
 ///      const unsigned len = 128;
 ///      float x[len];
 ///      math.random(x, -1.0f, 1.0f, len);   // x = random, [-1.0, 1.0)

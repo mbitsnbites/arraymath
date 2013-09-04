@@ -57,6 +57,8 @@ class FFTKiss : public FFT {
   size_t m_size;
   kiss_fft_cfg m_cfg;
   kiss_fft_cfg m_cfgInv;
+  kiss_fftr_cfg m_cfgReal;
+  kiss_fftr_cfg m_cfgRealInv;
   kiss_fft_cpx* m_inBuf;
   kiss_fft_cpx* m_outBuf;
 };

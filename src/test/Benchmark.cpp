@@ -28,6 +28,7 @@
 
 #include "ArrayMath.h"
 #include "FilterFactory.h"
+#include "FFTFactory.h"
 #include "common/Architecture.h"
 
 #ifdef AM_OS_WINDOWS
@@ -743,7 +744,11 @@ void benchmark_filter(ArrayMath& math, FilterFactory& factory, int bSize, int aS
   std::vector<float32> x(arrayLength);
   math.random(&x[0], -1.0f, 1.0f, arrayLength);
 
-  Filter *filter = factory.createFilter(bSize, aSize);
+  Filter* filter = factory.createFilter(bSize, aSize);
+  if (!filter) {
+    std::cout << "ERROR: Unable to create Filter object." << std::endl;
+    return;
+  }
 
   size_t totalSamples = 0;
   double totalT = 0.0, maxSpeed = 0.0;
@@ -768,6 +773,86 @@ void benchmark_filter(ArrayMath& math, FilterFactory& factory, int bSize, int aS
             << (1e-6 * avgSpeed) << " average)" << std::endl;
 
   delete filter;
+}
+
+void benchmark_fft(ArrayMath& math, FFTFactory& factory, size_t size) {
+  Timer timer;
+
+  std::vector<float32> dstReal(size);
+  std::vector<float32> dstImag(size);
+  std::vector<float32> x(size);
+  math.random(&x[0], -1.0f, 1.0f, size);
+
+  FFT* fft = factory.createFFT(size);
+  if (!fft) {
+    std::cout << "ERROR: Unable to create FFT object." << std::endl;
+    return;
+  }
+
+  size_t totalSamples = 0;
+  double totalT = 0.0, maxSpeed = 0.0;
+  while (totalT < kMinTimePerTest) {
+    double t0 = timer.GetTime();
+    size_t samples = 0;
+    while (samples < kMinSamplesPerTest) {
+      fft->forward(&dstReal[0], &dstImag[0], &x[0]);
+      samples += size;
+    }
+    double dt = timer.GetTime() - t0;
+    double speed = double(samples) / dt;
+    if (speed > maxSpeed) {
+      maxSpeed = speed;
+    }
+    totalT += dt;
+    totalSamples += samples;
+  }
+  double avgSpeed = double(totalSamples) / totalT;
+
+  std::cout << size << ": " << (1e-6 * maxSpeed) << " Msamples/s ("
+            << (1e-6 * avgSpeed) << " average)" << std::endl;
+
+  delete fft;
+}
+
+void benchmark_fftComplex(ArrayMath& math, FFTFactory& factory, size_t size) {
+  Timer timer;
+
+  std::vector<float32> dstReal(size);
+  std::vector<float32> dstImag(size);
+  std::vector<float32> xReal(size);
+  std::vector<float32> xImag(size);
+  math.random(&xReal[0], -1.0f, 1.0f, size);
+  math.random(&xImag[0], -1.0f, 1.0f, size);
+
+  FFT* fft = factory.createFFT(size);
+  if (!fft) {
+    std::cout << "ERROR: Unable to create FFT object." << std::endl;
+    return;
+  }
+
+  size_t totalSamples = 0;
+  double totalT = 0.0, maxSpeed = 0.0;
+  while (totalT < kMinTimePerTest) {
+    double t0 = timer.GetTime();
+    size_t samples = 0;
+    while (samples < kMinSamplesPerTest) {
+      fft->forwardCplx(&dstReal[0], &dstImag[0], &xReal[0], &xImag[0]);
+      samples += size;
+    }
+    double dt = timer.GetTime() - t0;
+    double speed = double(samples) / dt;
+    if (speed > maxSpeed) {
+      maxSpeed = speed;
+    }
+    totalT += dt;
+    totalSamples += samples;
+  }
+  double avgSpeed = double(totalSamples) / totalT;
+
+  std::cout << size << ": " << (1e-6 * maxSpeed) << " Msamples/s ("
+            << (1e-6 * avgSpeed) << " average)" << std::endl;
+
+  delete fft;
 }
 
 
@@ -997,7 +1082,7 @@ void benchmarkArrayMath() {
 }
 
 //------------------------------------------------------------------------------
-// ArrayMath benhcmark.
+// Filter benhcmark.
 //------------------------------------------------------------------------------
 
 void benchmarkFilter() {
@@ -1037,11 +1122,38 @@ void benchmarkFilter() {
   }
 }
 
+//------------------------------------------------------------------------------
+// FFT benhcmark.
+//------------------------------------------------------------------------------
+
+void benchmarkFFT() {
+  std::cout << std::endl << "Benchmarking FFT..." << std::endl;
+
+  ArrayMath math;
+  FFTFactory factory;
+
+  static const size_t kFFTSizes[] = { 16, 47, 48, 49, 50, 128, 256,
+                                      1000, 1024, 2048, 10000, 16384 };
+  static const int kNumFFTSizes = sizeof(kFFTSizes) / sizeof(size_t);
+
+  std::cout << std::endl << "FFT - real" << std::endl;
+  for (int i = 0; i < kNumFFTSizes; ++i) {
+    benchmark_fft(math, factory, kFFTSizes[i]);
+  }
+
+  std::cout << std::endl << "FFT - complex" << std::endl;
+  for (int i = 0; i < kNumFFTSizes; ++i) {
+    benchmark_fftComplex(math, factory, kFFTSizes[i]);
+  }
+}
+
 } // namespace arraymath
+
 
 int main() {
   arraymath::benchmarkArrayMath();
   arraymath::benchmarkFilter();
+  arraymath::benchmarkFFT();
 
   return 0;
 }

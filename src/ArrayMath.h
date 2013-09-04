@@ -38,7 +38,7 @@ namespace arraymath {
 /// \code
 ///    #include <ArrayMath.h>
 ///
-///    void myFunction {
+///    void myFunction() {
 ///      // Initialize the ArrayMath object. Note: This object may contain state (for
 ///      // instance for the random number generator), so it is *not* thread safe.
 ///      arraymath::ArrayMath math;
