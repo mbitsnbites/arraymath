@@ -58,12 +58,22 @@ void op_f32_sa(float32 *dst, float32 x, const float32 *y, size_t length) {
   // 2) Main AVX loop (handle different alignment cases).
   __m256 _x = _mm256_set1_ps(x);
   if (aligned) {
+    for (; length >= 16; length -= 16) {
+      _mm256_store_ps(dst, OP::opAVX(_x, _mm256_load_ps(y)));
+      _mm256_store_ps(dst + 8, OP::opAVX(_x, _mm256_load_ps(y + 8)));
+      dst += 16; y += 16;
+    }
     for (; length >= 8; length -= 8) {
       _mm256_store_ps(dst, OP::opAVX(_x, _mm256_load_ps(y)));
       dst += 8; y += 8;
     }
   }
   else {
+    for (; length >= 16; length -= 16) {
+      _mm256_store_ps(dst, OP::opAVX(_x, _mm256_loadu_ps(y)));
+      _mm256_store_ps(dst + 8, OP::opAVX(_x, _mm256_loadu_ps(y + 8)));
+      dst += 16; y += 16;
+    }
     for (; length >= 8; length -= 8) {
       _mm256_store_ps(dst, OP::opAVX(_x, _mm256_loadu_ps(y)));
       dst += 8; y += 8;
@@ -136,12 +146,22 @@ void op_f32_a(float32 *dst, const float32 *x, size_t length) {
 
   // 2) Main AVX loop (handle different alignment cases).
   if (aligned) {
+    for (; length >= 16; length -= 16) {
+      _mm256_store_ps(dst, OP::opAVX(_mm256_load_ps(x)));
+      _mm256_store_ps(dst + 8, OP::opAVX(_mm256_load_ps(x + 8)));
+      dst += 16; x += 16;
+    }
     for (; length >= 8; length -= 8) {
       _mm256_store_ps(dst, OP::opAVX(_mm256_load_ps(x)));
       dst += 8; x += 8;
     }
   }
   else {
+    for (; length >= 16; length -= 16) {
+      _mm256_store_ps(dst, OP::opAVX(_mm256_loadu_ps(x)));
+      _mm256_store_ps(dst + 8, OP::opAVX(_mm256_loadu_ps(x + 8)));
+      dst += 16; x += 16;
+    }
     for (; length >= 8; length -= 8) {
       _mm256_store_ps(dst, OP::opAVX(_mm256_loadu_ps(x)));
       dst += 8; x += 8;
@@ -392,7 +412,7 @@ void ArrayMathAVX::madd_f32_aaa(float32 *dst, const float32 *x, const float32 *y
 }
 
 void ArrayMathAVX::sqrt_f32(float32 *dst, const float32 *x, size_t length) {
-  // 1) Align x to a 32-byte boundary.
+  // 1) Align dst to a 32-byte boundary.
   while ((reinterpret_cast<size_t>(dst) & 31) && length--) {
     *dst++ = std::sqrt(*x++);
   }
