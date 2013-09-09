@@ -39,32 +39,44 @@ namespace arraymath {
 
 template <class OP>
 void op_f32_sa(float32 *dst, float32 x, const float32 *y, size_t length) {
-  // 1) Align y to a 16-byte boundary.
-  while ((reinterpret_cast<size_t>(y) & 15) && length--) {
+  // 1) Align dst to a 16-byte boundary.
+  while ((reinterpret_cast<size_t>(dst) & 15) && length--) {
     *dst++ = OP::op(x, *y++);
   }
-  const __m128 *_y = reinterpret_cast<const __m128*>(y);
 
   // Check alignment.
-  bool dstAligned = (reinterpret_cast<size_t>(dst) & 15) == 0;
+  bool aligned = (reinterpret_cast<size_t>(y) & 15) == 0;
 
   // 2) Main SSE loop (handle different alignment cases).
   __m128 _x = _mm_set_ps1(x);
-  if (dstAligned) {
+  if (aligned) {
+    for (; length >= 16; length -= 16) {
+      _mm_store_ps(dst, OP::opSSE(_x, _mm_load_ps(y)));
+      _mm_store_ps(dst + 4, OP::opSSE(_x, _mm_load_ps(y + 4)));
+      _mm_store_ps(dst + 8, OP::opSSE(_x, _mm_load_ps(y + 8)));
+      _mm_store_ps(dst + 12, OP::opSSE(_x, _mm_load_ps(y + 12)));
+      dst += 16; y += 16;
+    }
     for (; length >= 4; length -= 4) {
-      _mm_store_ps(dst, OP::opSSE(_x, *_y++));
-      dst += 4;
+      _mm_store_ps(dst, OP::opSSE(_x, _mm_load_ps(y)));
+      dst += 4; y += 4;
     }
   }
   else {
+    for (; length >= 16; length -= 16) {
+      _mm_store_ps(dst, OP::opSSE(_x, _mm_loadu_ps(y)));
+      _mm_store_ps(dst + 4, OP::opSSE(_x, _mm_loadu_ps(y + 4)));
+      _mm_store_ps(dst + 8, OP::opSSE(_x, _mm_loadu_ps(y + 8)));
+      _mm_store_ps(dst + 12, OP::opSSE(_x, _mm_loadu_ps(y + 12)));
+      dst += 16; y += 16;
+    }
     for (; length >= 4; length -= 4) {
-      _mm_storeu_ps(dst, OP::opSSE(_x, *_y++));
-      dst += 4;
+      _mm_store_ps(dst, OP::opSSE(_x, _mm_loadu_ps(y)));
+      dst += 4; y += 4;
     }
   }
 
   // 3) Tail loop.
-  y = reinterpret_cast<const float32*>(_y);
   while (length--) {
     *dst++ = OP::op(x, *y++);
   }
@@ -72,48 +84,47 @@ void op_f32_sa(float32 *dst, float32 x, const float32 *y, size_t length) {
 
 template <class OP>
 void op_f32_aa(float32 *dst, const float32 *x, const float32 *y, size_t length) {
-  // 1) Align x to a 16-byte boundary.
-  while ((reinterpret_cast<size_t>(x) & 15) && length--) {
+  // 1) Align dst to a 16-byte boundary.
+  while ((reinterpret_cast<size_t>(dst) & 15) && length--) {
     *dst++ = OP::op(*x++, *y++);
   }
-  const __m128 *_x = reinterpret_cast<const __m128*>(x);
 
   // Check alignment.
-  bool dstAligned = (reinterpret_cast<size_t>(dst) & 15) == 0;
-  bool yAligned = (reinterpret_cast<size_t>(y) & 15) == 0;
+  int alignment = ((reinterpret_cast<size_t>(x) & 15) == 0 ? 1 : 0) |
+                  ((reinterpret_cast<size_t>(y) & 15) == 0 ? 2 : 0);
 
   // 2) Main SSE loop (handle different alignment cases).
-  if (dstAligned && yAligned) {
-    for (; length >= 4; length -= 4) {
-      _mm_store_ps(dst, OP::opSSE(*_x++, _mm_load_ps(y)));
-      dst += 4;
-      y += 4;
-    }
-  }
-  else if (dstAligned) {
-    for (; length >= 4; length -= 4) {
-      _mm_store_ps(dst, OP::opSSE(*_x++, _mm_loadu_ps(y)));
-      dst += 4;
-      y += 4;
-    }
-  }
-  else if (yAligned) {
-    for (; length >= 4; length -= 4) {
-      _mm_storeu_ps(dst, OP::opSSE(*_x++, _mm_load_ps(y)));
-      dst += 4;
-      y += 4;
-    }
-  }
-  else {
-    for (; length >= 4; length -= 4) {
-      _mm_storeu_ps(dst, OP::opSSE(*_x++, _mm_loadu_ps(y)));
-      dst += 4;
-      y += 4;
-    }
+  switch (alignment) {
+    case 1:
+      // x aligned
+      for (; length >= 4; length -= 4) {
+        _mm_store_ps(dst, OP::opSSE(_mm_load_ps(x), _mm_loadu_ps(y)));
+        dst += 4; x += 4; y += 4;
+      }
+      break;
+    case 2:
+      // y aligned
+      for (; length >= 4; length -= 4) {
+        _mm_store_ps(dst, OP::opSSE(_mm_loadu_ps(x), _mm_load_ps(y)));
+        dst += 4; x += 4; y += 4;
+      }
+      break;
+    case 3:
+      // x aligned && y aligned
+      for (; length >= 4; length -= 4) {
+        _mm_store_ps(dst, OP::opSSE(_mm_load_ps(x), _mm_load_ps(y)));
+        dst += 4; x += 4; y += 4;
+      }
+      break;
+    default:
+      // None aligned
+      for (; length >= 4; length -= 4) {
+        _mm_store_ps(dst, OP::opSSE(_mm_loadu_ps(x), _mm_loadu_ps(y)));
+        dst += 4; x += 4; y += 4;
+      }
   }
 
   // 3) Tail loop.
-  x = reinterpret_cast<const float32*>(_x);
   while (length--) {
     *dst++ = OP::op(*x++, *y++);
   }
@@ -176,19 +187,19 @@ void ArrayMathSSE::mul_f32_aa(float32 *dst, const float32 *x, const float32 *y, 
 }
 
 void ArrayMathSSE::sqrt_f32(float32 *dst, const float32 *x, size_t length) {
-  // 1) Align x to a 16-byte boundary.
-  while ((reinterpret_cast<size_t>(x) & 15) && length--) {
+  // 1) Align dst to a 16-byte boundary.
+  while ((reinterpret_cast<size_t>(dst) & 15) && length--) {
     *dst++ = std::sqrt(*x++);
   }
 
   // Check alignment.
-  bool dstAligned = (reinterpret_cast<size_t>(dst) & 15) == 0;
+  bool aligned = (reinterpret_cast<size_t>(x) & 15) == 0;
 
   // 2) Main SSE loop (handle different alignment cases).
   const __m128 kZero = _mm_setzero_ps();
   const __m128 kMinus3 = _mm_set_ps1(-3.0f);
   const __m128 kMinus05 = _mm_set_ps1(-0.5f);
-  if (dstAligned) {
+  if (aligned) {
     for (; length >= 4; length -= 4) {
       __m128 a = _mm_load_ps(x);
       __m128 r = _mm_and_ps(_mm_rsqrt_ps(a), _mm_cmpneq_ps(kZero, a));
@@ -201,12 +212,12 @@ void ArrayMathSSE::sqrt_f32(float32 *dst, const float32 *x, size_t length) {
   }
   else {
     for (; length >= 4; length -= 4) {
-      __m128 a = _mm_load_ps(x);
+      __m128 a = _mm_loadu_ps(x);
       __m128 r = _mm_and_ps(_mm_rsqrt_ps(a), _mm_cmpneq_ps(kZero, a));
       a = _mm_mul_ps(r, a);
       r = _mm_mul_ps(a, r);
       r = _mm_mul_ps(_mm_mul_ps(kMinus05, a), _mm_add_ps(kMinus3, r));
-      _mm_storeu_ps(dst, r);
+      _mm_store_ps(dst, r);
       dst += 4; x += 4;
     }
   }
