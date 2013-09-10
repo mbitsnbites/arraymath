@@ -465,6 +465,55 @@ void ArrayMathAVX::round_f32(float32 *dst, const float32 *x, size_t length) {
   op_f32_a<RoundOP>(dst, x, length);
 }
 
+void ArrayMathAVX::sampleLinear_f32(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength) {
+  size_t maxIdx = xLength - 1;
+  __m256 _maxIdx = _mm256_set1_ps(static_cast<float32>(maxIdx));
+  const __m256 kZero = _mm256_set1_ps(0.0f);
+  const __m256 kOne = _mm256_set1_ps(1.0f);
+
+  union {
+    __m256i v;
+    int i[8];
+  } idx1, idx2;
+
+  union {
+    __m256 v;
+    float f[8];
+  } p1, p2;
+
+  // 1) Main AVX loop.
+  for (; length >= 8; length -= 8) {
+    __m256 _t2 = _mm256_loadu_ps(t);
+    _t2 = _mm256_max_ps(kZero, _mm256_min_ps(_maxIdx, _t2));
+    __m256 _w = _mm256_floor_ps(_t2);
+
+    idx1.v = _mm256_cvtps_epi32(_w);
+    idx2.v = _mm256_cvtps_epi32(_mm256_min_ps(_maxIdx, _mm256_add_ps(_w, kOne)));
+
+    // TODO(m): Can we do this in a better way?
+    for (int k = 0; k < 8; ++k) {
+      p1.f[k] = x[idx1.i[k]];
+      p2.f[k] = x[idx2.i[k]];
+    }
+
+    _w = _mm256_sub_ps(_t2, _w);
+    _mm256_storeu_ps(dst, _mm256_add_ps(p1.v, _mm256_mul_ps(_w, _mm256_sub_ps(p2.v, p1.v))));
+
+    dst += 8; t += 8;
+  }
+
+  // 2) Tail loop.
+  while (length--) {
+    float32 t2 = *t++;
+    t2 = t2 < 0 ? 0 : t2 > maxIdx ? maxIdx : t2;
+    size_t idx = std::floor(t2);
+    float32 w = t2 - static_cast<float32>(idx);
+    float32 p1 = x[idx];
+    float32 p2 = x[idx < maxIdx ? idx + 1 : maxIdx];
+    *dst++ = p1 + w * (p2 - p1);
+  }
+}
+
 }  // namespace arraymath
 
 #endif // AM_USE_X86 && AM_HAS_AVX

@@ -121,6 +121,7 @@ ArrayMath::ArrayMath() {
     p_ceil_f32 = ArrayMathAVX::ceil_f32;
     p_floor_f32 = ArrayMathAVX::floor_f32;
     p_round_f32 = ArrayMathAVX::round_f32;
+    p_sampleLinear_f32 = ArrayMathAVX::sampleLinear_f32;
   }
 #endif // AM_USE_X86 && AM_HAS_AVX
 
