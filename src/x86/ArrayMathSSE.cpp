@@ -364,6 +364,45 @@ void ArrayMathSSE::sqrt_f32(float32 *dst, const float32 *x, size_t length) {
   }
 }
 
+void ArrayMathSSE::ramp_f32(float32 *dst, float32 first, float32 last, size_t length) {
+  if (length == 0) {
+    return;
+  }
+  if (length == 1) {
+    *dst = first;
+    return;
+  }
+
+  float32 step = (last - first) / static_cast<float32>(length - 1);
+  float32 k = 0.0f;
+
+  // 1) Align dst to a 16-byte boundary.
+  while ((reinterpret_cast<size_t>(dst) & 15) && length--) {
+    *dst++ = first + step * k;
+    k += 1.0f;
+  }
+
+  // 2) Main SSE loop.
+  static const __m128 kFour = _mm_set1_ps(4.0f);
+  static const __m128 kIdxRamp = _mm_set_ps(0.0f, 1.0f, 2.0f, 3.0f);
+  __m128 _first = _mm_set1_ps(first);
+  __m128 _step = _mm_set1_ps(step);
+  __m128 _k = _mm_add_ps(_mm_set1_ps(k), kIdxRamp);
+  size_t mainLoopSize = (length / 4) * 4;
+  for (; length >= 4; length -= 4) {
+    _mm_store_ps(dst, _mm_add_ps(_first, _mm_mul_ps(_step, _k)));
+    _k = _mm_add_ps(_k, kFour);
+    dst += 4;
+  }
+  k += mainLoopSize;
+
+  // 3) Tail loop.
+  while (length--) {
+    *dst++ = first + step * k;
+    k += 1.0f;
+  }
+}
+
 }  // namespace arraymath
 
 #endif // AM_USE_X86 && AM_HAS_SSE

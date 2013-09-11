@@ -263,15 +263,19 @@ void ArrayMathGeneric::fract_f32(float32 *dst, const float32 *x, size_t length) 
 }
 
 void ArrayMathGeneric::ramp_f32(float32 *dst, float32 first, float32 last, size_t length) {
-  if (length > 0) {
-    *dst++ = first;
-    length--;
-    if (length > 0) {
-      float32 step = (last - first) / static_cast<float32>(length);
-      for (size_t k = 1; k <= length; ++k) {
-        *dst++ = first + step * k;
-      }
-    }
+  if (length == 0) {
+    return;
+  }
+  if (length == 1) {
+    *dst = first;
+    return;
+  }
+
+  float32 step = (last - first) / static_cast<float32>(length - 1);
+  float32 k = 0.0f;
+  while (length--) {
+    *dst++ = first + step * k;
+    k += 1.0f;
   }
 }
 
