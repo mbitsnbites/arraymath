@@ -238,7 +238,16 @@ struct RoundOP {
     return std::floor(a + 0.5f);
   }
   static __m256 opAVX(__m256 a) {
-    return _mm256_round_ps(a, _MM_FROUND_RINT);
+    return _mm256_round_ps(a, _MM_FROUND_NINT);
+  }
+};
+
+struct FractOP {
+  static float32 op(float32 a) {
+    return a - std::floor(a);
+  }
+  static __m256 opAVX(__m256 a) {
+    return _mm256_sub_ps(a, _mm256_floor_ps(a));
   }
 };
 
@@ -420,7 +429,7 @@ void ArrayMathAVX::sqrt_f32(float32 *dst, const float32 *x, size_t length) {
   // Check alignment.
   bool aligned = (reinterpret_cast<size_t>(x) & 31) == 0;
 
-  // 2) Main SSE loop (handle different alignment cases).
+  // 2) Main AVX loop (handle different alignment cases).
   static const __m256 kZero = _mm256_setzero_ps();
   static const __m256 kMinus3 = _mm256_set1_ps(-3.0f);
   static const __m256 kMinus05 = _mm256_set1_ps(-0.5f);
@@ -463,6 +472,101 @@ void ArrayMathAVX::floor_f32(float32 *dst, const float32 *x, size_t length) {
 
 void ArrayMathAVX::round_f32(float32 *dst, const float32 *x, size_t length) {
   op_f32_a<RoundOP>(dst, x, length);
+}
+
+void ArrayMathAVX::clamp_f32(float32 *dst, const float32 *x, float32 xMin, float32 xMax, size_t length) {
+  // 1) Align dst to a 32-byte boundary.
+  while ((reinterpret_cast<size_t>(dst) & 31) && length--) {
+    float32 val = *x++;
+    *dst++ = val < xMin ? xMin : val > xMax ? xMax : val;
+  }
+
+  // Check alignment.
+  bool aligned = (reinterpret_cast<size_t>(x) & 31) == 0;
+
+  // 2) Main AVX loop (handle different alignment cases).
+  __m256 _xMin = _mm256_set1_ps(xMin);
+  __m256 _xMax = _mm256_set1_ps(xMax);
+  if (aligned) {
+    for (; length >= 16; length -= 16) {
+      _mm256_store_ps(dst, _mm256_max_ps(_xMin, _mm256_min_ps(_xMax, _mm256_load_ps(x))));
+      _mm256_store_ps(dst + 8, _mm256_max_ps(_xMin, _mm256_min_ps(_xMax, _mm256_load_ps(x + 8))));
+      dst += 16; x += 16;
+    }
+    for (; length >= 8; length -= 8) {
+      _mm256_store_ps(dst, _mm256_max_ps(_xMin, _mm256_min_ps(_xMax, _mm256_load_ps(x))));
+      dst += 8; x += 8;
+    }
+  }
+  else {
+    for (; length >= 16; length -= 16) {
+      _mm256_store_ps(dst, _mm256_max_ps(_xMin, _mm256_min_ps(_xMax, _mm256_loadu_ps(x))));
+      _mm256_store_ps(dst + 8, _mm256_max_ps(_xMin, _mm256_min_ps(_xMax, _mm256_loadu_ps(x + 8))));
+      dst += 16; x += 16;
+    }
+    for (; length >= 8; length -= 8) {
+      _mm256_store_ps(dst, _mm256_max_ps(_xMin, _mm256_min_ps(_xMax, _mm256_loadu_ps(x))));
+      dst += 8; x += 8;
+    }
+  }
+
+  // 3) Tail loop.
+  while (length--) {
+    float32 val = *x++;
+    *dst++ = val < xMin ? xMin : val > xMax ? xMax : val;
+  }
+}
+
+void ArrayMathAVX::fract_f32(float32 *dst, const float32 *x, size_t length) {
+  op_f32_a<FractOP>(dst, x, length);
+}
+
+void ArrayMathAVX::sign_f32(float32 *dst, const float32 *x, size_t length) {
+  // 1) Align dst to a 32-byte boundary.
+  while ((reinterpret_cast<size_t>(dst) & 31) && length--) {
+    *dst++ = *x++ < 0.0f ? -1.0f : 1.0f;
+  }
+
+  // Check alignment.
+  bool aligned = (reinterpret_cast<size_t>(x) & 31) == 0;
+
+  // 2) Main AVX loop (handle different alignment cases).
+  static const __m256 kZero = _mm256_setzero_ps();
+  static const __m256 kOne = _mm256_set1_ps(1.0f);
+  static const __m256 kMinusOne = _mm256_set1_ps(-1.0f);
+  if (aligned) {
+    for (; length >= 16; length -= 16) {
+      __m256 mask = _mm256_cmp_ps(kZero, _mm256_load_ps(x), _CMP_LT_OS);
+      _mm256_store_ps(dst, _mm256_blendv_ps(kMinusOne, kOne, mask));
+      mask = _mm256_cmp_ps(kZero, _mm256_load_ps(x + 8), _CMP_LT_OS);
+      _mm256_store_ps(dst + 8, _mm256_blendv_ps(kMinusOne, kOne, mask));
+      dst += 16; x += 16;
+    }
+    for (; length >= 8; length -= 8) {
+      __m256 mask = _mm256_cmp_ps(kZero, _mm256_load_ps(x), _CMP_LT_OS);
+      _mm256_store_ps(dst, _mm256_blendv_ps(kMinusOne, kOne, mask));
+      dst += 8; x += 8;
+    }
+  }
+  else {
+    for (; length >= 16; length -= 16) {
+      __m256 mask = _mm256_cmp_ps(kZero, _mm256_loadu_ps(x), _CMP_LT_OS);
+      _mm256_store_ps(dst, _mm256_blendv_ps(kMinusOne, kOne, mask));
+      mask = _mm256_cmp_ps(kZero, _mm256_loadu_ps(x + 8), _CMP_LT_OS);
+      _mm256_store_ps(dst + 8, _mm256_blendv_ps(kMinusOne, kOne, mask));
+      dst += 16; x += 16;
+    }
+    for (; length >= 8; length -= 8) {
+      __m256 mask = _mm256_cmp_ps(kZero, _mm256_loadu_ps(x), _CMP_LT_OS);
+      _mm256_store_ps(dst, _mm256_blendv_ps(kMinusOne, kOne, mask));
+      dst += 8; x += 8;
+    }
+  }
+
+  // 3) Tail loop.
+  while (length--) {
+    *dst++ = *x++ < 0.0f ? -1.0f : 1.0f;
+  }
 }
 
 void ArrayMathAVX::sampleLinear_f32(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength) {

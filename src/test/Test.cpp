@@ -31,6 +31,26 @@
 #include "FilterFactory.h"
 #include "FFTFactory.h"
 
+namespace {
+
+template <typename T>
+void printArray(const T* v, size_t length) {
+  std::cout << "[";
+  if (length > 0) {
+    for (size_t k = 0; k < length - 1; ++k)
+      std::cout << v[k] << ", ";
+    std::cout << v[length - 1];
+  }
+  std::cout << "]";
+}
+
+template <typename T>
+void printArray(std::vector<T> v) {
+  printArray(&v[0], v.size());
+}
+
+}  // anonymous namespace
+
 void testArrayMath() {
   std::cout << std::endl << "Testing ArrayMath..." << std::endl;
 
@@ -66,6 +86,26 @@ void testArrayMath() {
   math.sqrt(&x[0], &x[0], x.size());
   std::cout << "min(x) = " << math.min(&x[0], x.size()) << std::endl;
   std::cout << "max(x) = " << math.max(&x[0], x.size()) << std::endl;
+
+  {
+    std::vector<float> x(33), y(33);
+    math.ramp(&x[0], -5.0f, 5.0f, x.size());
+    math.sign(&y[0], &x[0], x.size());
+    std::cout << "Test sign()" << std::endl;
+    std::cout << "x = "; printArray(x); std::cout << std::endl;
+    std::cout << "y = "; printArray(y); std::cout << std::endl;
+  }
+
+  {
+    std::vector<float> t(33), y(33), x(4);
+    math.ramp(&t[0], -0.5f, 4.0f, t.size());
+    math.ramp(&x[0], -1.0f, 1.0f, x.size());
+    math.sampleLinear(&y[0], &x[0], &t[0], y.size(), x.size());
+    std::cout << "Test sampleLinear()" << std::endl;
+    std::cout << "x = "; printArray(x); std::cout << std::endl;
+    std::cout << "t = "; printArray(t); std::cout << std::endl;
+    std::cout << "y = "; printArray(y); std::cout << std::endl;
+  }
 }
 
 void testFilterFactory() {
