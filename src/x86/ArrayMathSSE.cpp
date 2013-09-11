@@ -29,6 +29,7 @@
 
 #include <xmmintrin.h>
 
+#include <algorithm>
 #include <cmath>
 
 namespace arraymath {
@@ -225,6 +226,100 @@ void ArrayMathSSE::mulCplx_f32_aa(float32 *dstReal, float32 *dstImag, const floa
     *dstReal++ = xr * yr - xi * yi;
     *dstImag++ = xr * yi + xi * yr;
   }
+}
+
+float32 ArrayMathSSE::max_f32(const float32 *x, size_t length) {
+  float32 result = std::log(0.0f);  // -INFINITY
+
+  // 1) Align x to a 16-byte boundary.
+  while ((reinterpret_cast<size_t>(x) & 15) && length--) {
+    result = std::max(result, *x++);
+  }
+
+  // 2) Main SSE loop.
+  __m128 _result = _mm_set1_ps(result);
+  __m128 _result2 = _result;
+  __m128 _result3 = _result;
+  __m128 _result4 = _result;
+  for (; length >= 16; length -= 16) {
+    _result = _mm_max_ps(_result, _mm_load_ps(x));
+    _result2 = _mm_max_ps(_result2, _mm_load_ps(x + 4));
+    _result3 = _mm_max_ps(_result3, _mm_load_ps(x + 8));
+    _result4 = _mm_max_ps(_result4, _mm_load_ps(x + 12));
+    x += 16;
+  }
+  _result3 = _mm_max_ps(_result3, _result4);
+  _result2 = _mm_max_ps(_result2, _result3);
+  _result = _mm_max_ps(_result, _result2);
+  for (; length >= 4; length -= 4) {
+    _result = _mm_max_ps(_result, _mm_load_ps(x));
+    x += 4;
+  }
+
+  // 3) Horizontal max of SIMD register.
+  union {
+    __m128 v;
+    float32 f[4];
+  } u;
+  u.v = _result;
+  result = u.f[0];
+  for (int k = 1; k < 4; ++k) {
+    result = std::max(result, u.f[k]);
+  }
+
+  // 4) Tail loop.
+  while (length--) {
+    result = std::max(result, *x++);
+  }
+
+  return result;
+}
+
+float32 ArrayMathSSE::min_f32(const float32 *x, size_t length) {
+  float32 result = 1.0f / 0.0f;  // +INFINITY
+
+  // 1) Align x to a 16-byte boundary.
+  while ((reinterpret_cast<size_t>(x) & 15) && length--) {
+    result = std::min(result, *x++);
+  }
+
+  // 2) Main SSE loop.
+  __m128 _result = _mm_set1_ps(result);
+  __m128 _result2 = _result;
+  __m128 _result3 = _result;
+  __m128 _result4 = _result;
+  for (; length >= 16; length -= 16) {
+    _result = _mm_min_ps(_result, _mm_load_ps(x));
+    _result2 = _mm_min_ps(_result2, _mm_load_ps(x + 4));
+    _result3 = _mm_min_ps(_result3, _mm_load_ps(x + 8));
+    _result4 = _mm_min_ps(_result4, _mm_load_ps(x + 12));
+    x += 16;
+  }
+  _result3 = _mm_min_ps(_result3, _result4);
+  _result2 = _mm_min_ps(_result2, _result3);
+  _result = _mm_min_ps(_result, _result2);
+  for (; length >= 4; length -= 4) {
+    _result = _mm_min_ps(_result, _mm_load_ps(x));
+    x += 4;
+  }
+
+  // 3) Horizontal min of SIMD register.
+  union {
+    __m128 v;
+    float32 f[4];
+  } u;
+  u.v = _result;
+  result = u.f[0];
+  for (int k = 1; k < 4; ++k) {
+    result = std::min(result, u.f[k]);
+  }
+
+  // 4) Tail loop.
+  while (length--) {
+    result = std::min(result, *x++);
+  }
+
+  return result;
 }
 
 void ArrayMathSSE::sqrt_f32(float32 *dst, const float32 *x, size_t length) {

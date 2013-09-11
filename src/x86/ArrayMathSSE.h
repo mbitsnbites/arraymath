@@ -44,6 +44,8 @@ class ArrayMathSSE {
   static void mul_f32_aa(float32 *dst, const float32 *x, const float32 *y, size_t length);
   static void mulCplx_f32_sa(float32 *dstReal, float32 *dstImag, float32 xReal, float32 xImag, const float32 *yReal, const float32 *yImag, size_t length);
   static void mulCplx_f32_aa(float32 *dstReal, float32 *dstImag, const float32 *xReal, const float32 *xImag, const float32 *yReal, const float32 *yImag, size_t length);
+  static float32 max_f32(const float32 *x, size_t length);
+  static float32 min_f32(const float32 *x, size_t length);
   static void sqrt_f32(float32 *dst, const float32 *x, size_t length);
 };
 

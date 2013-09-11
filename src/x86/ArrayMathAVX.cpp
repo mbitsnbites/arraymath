@@ -34,6 +34,7 @@
 
 #include <immintrin.h>
 
+#include <algorithm>
 #include <cmath>
 
 namespace arraymath {
@@ -506,6 +507,88 @@ void ArrayMathAVX::ceil_f32(float32 *dst, const float32 *x, size_t length) {
 
 void ArrayMathAVX::floor_f32(float32 *dst, const float32 *x, size_t length) {
   op_f32_a<FloorOP>(dst, x, length);
+}
+
+float32 ArrayMathAVX::max_f32(const float32 *x, size_t length) {
+  float32 result = std::log(0.0f);  // -INFINITY
+
+  // 1) Align x to a 32-byte boundary.
+  while ((reinterpret_cast<size_t>(x) & 31) && length--) {
+    result = std::max(result, *x++);
+  }
+
+  // 2) Main AVX loop.
+  __m256 _result = _mm256_set1_ps(result);
+  __m256 _result2 = _result;
+  for (; length >= 16; length -= 16) {
+    _result = _mm256_max_ps(_result, _mm256_load_ps(x));
+    _result2 = _mm256_max_ps(_result2, _mm256_load_ps(x + 8));
+    x += 16;
+  }
+  _result = _mm256_max_ps(_result, _result2);
+  for (; length >= 8; length -= 8) {
+    _result = _mm256_max_ps(_result, _mm256_load_ps(x));
+    x += 8;
+  }
+
+  // 3) Horizontal max of SIMD register.
+  union {
+    __m256 v;
+    float32 f[8];
+  } u;
+  u.v = _result;
+  result = u.f[0];
+  for (int k = 1; k < 8; ++k) {
+    result = std::max(result, u.f[k]);
+  }
+
+  // 4) Tail loop.
+  while (length--) {
+    result = std::max(result, *x++);
+  }
+
+  return result;
+}
+
+float32 ArrayMathAVX::min_f32(const float32 *x, size_t length) {
+  float32 result = 1.0f / 0.0f;  // +INFINITY
+
+  // 1) Align x to a 32-byte boundary.
+  while ((reinterpret_cast<size_t>(x) & 31) && length--) {
+    result = std::min(result, *x++);
+  }
+
+  // 2) Main AVX loop.
+  __m256 _result = _mm256_set1_ps(result);
+  __m256 _result2 = _result;
+  for (; length >= 16; length -= 16) {
+    _result = _mm256_min_ps(_result, _mm256_load_ps(x));
+    _result2 = _mm256_min_ps(_result2, _mm256_load_ps(x + 8));
+    x += 16;
+  }
+  _result = _mm256_min_ps(_result, _result2);
+  for (; length >= 8; length -= 8) {
+    _result = _mm256_min_ps(_result, _mm256_load_ps(x));
+    x += 8;
+  }
+
+  // 3) Horizontal min of SIMD register.
+  union {
+    __m256 v;
+    float32 f[8];
+  } u;
+  u.v = _result;
+  result = u.f[0];
+  for (int k = 1; k < 8; ++k) {
+    result = std::min(result, u.f[k]);
+  }
+
+  // 4) Tail loop.
+  while (length--) {
+    result = std::min(result, *x++);
+  }
+
+  return result;
 }
 
 void ArrayMathAVX::round_f32(float32 *dst, const float32 *x, size_t length) {

@@ -94,6 +94,8 @@ ArrayMath::ArrayMath() {
     p_mul_f32_aa = ArrayMathSSE::mul_f32_aa;
     p_mulCplx_f32_sa = ArrayMathSSE::mulCplx_f32_sa;
     p_mulCplx_f32_aa = ArrayMathSSE::mulCplx_f32_aa;
+    p_max_f32 = ArrayMathSSE::max_f32;
+    p_min_f32 = ArrayMathSSE::min_f32;
     p_sqrt_f32 = ArrayMathSSE::sqrt_f32;
   }
 #endif // AM_USE_X86 && AM_HAS_SSE
@@ -124,6 +126,8 @@ ArrayMath::ArrayMath() {
     p_sqrt_f32 = ArrayMathAVX::sqrt_f32;
     p_ceil_f32 = ArrayMathAVX::ceil_f32;
     p_floor_f32 = ArrayMathAVX::floor_f32;
+    p_max_f32 = ArrayMathAVX::max_f32;
+    p_min_f32 = ArrayMathAVX::min_f32;
     p_round_f32 = ArrayMathAVX::round_f32;
     p_clamp_f32 = ArrayMathAVX::clamp_f32;
     p_fract_f32 = ArrayMathAVX::fract_f32;
