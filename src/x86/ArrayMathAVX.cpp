@@ -24,11 +24,8 @@
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-// TODO: We get a significant performance hit for the run in/out loops if this
-// unit is compiled for x87 or SSE/SSE2 standard math (which is usually the
-// default setting), which is painful for short arrays. This is due to the
-// expensive switch between SSE & AVX. We should implement pure AVX solutions
-// wherever possible!
+// TODO: We get a significant performance hit for the run in/out loops. We
+// should implement pure AVX solutions wherever possible!
 //------------------------------------------------------------------------------
 
 #include "x86/ArrayMathAVX.h"
@@ -273,6 +270,47 @@ void ArrayMathAVX::mul_f32_sa(float32 *dst, float32 x, const float32 *y, size_t 
 
 void ArrayMathAVX::mul_f32_aa(float32 *dst, const float32 *x, const float32 *y, size_t length) {
   op_f32_aa<MulOP>(dst, x, y, length);
+}
+
+void ArrayMathAVX::mulCplx_f32_sa(float32 *dstReal, float32 *dstImag, float32 xReal, float32 xImag, const float32 *yReal, const float32 *yImag, size_t length) {
+  // 1) Main AVX loop.
+  __m256 _xr = _mm256_set1_ps(xReal);
+  __m256 _xi = _mm256_set1_ps(xImag);
+  for (; length >= 8; length -= 8) {
+    __m256 _yr = _mm256_loadu_ps(yReal);
+    __m256 _yi = _mm256_loadu_ps(yImag);
+    _mm256_storeu_ps(dstReal, _mm256_sub_ps(_mm256_mul_ps(_xr, _yr), _mm256_mul_ps(_xi, _yi)));
+    _mm256_storeu_ps(dstImag, _mm256_add_ps(_mm256_mul_ps(_xr, _yi), _mm256_mul_ps(_xi, _yr)));
+    dstReal += 8; dstImag += 8; yReal += 8; yImag += 8;
+  }
+
+  // 2) Tail loop.
+  float32 xr = xReal, xi = xImag;
+  while (length--) {
+    float32 yr = *yReal++, yi = *yImag++;
+    *dstReal++ = xr * yr - xi * yi;
+    *dstImag++ = xr * yi + xi * yr;
+  }
+}
+
+void ArrayMathAVX::mulCplx_f32_aa(float32 *dstReal, float32 *dstImag, const float32 *xReal, const float32 *xImag, const float32 *yReal, const float32 *yImag, size_t length) {
+  // 1) Main AVX loop.
+  for (; length >= 8; length -= 8) {
+    __m256 _xr = _mm256_loadu_ps(xReal);
+    __m256 _xi = _mm256_loadu_ps(xImag);
+    __m256 _yr = _mm256_loadu_ps(yReal);
+    __m256 _yi = _mm256_loadu_ps(yImag);
+    _mm256_storeu_ps(dstReal, _mm256_sub_ps(_mm256_mul_ps(_xr, _yr), _mm256_mul_ps(_xi, _yi)));
+    _mm256_storeu_ps(dstImag, _mm256_add_ps(_mm256_mul_ps(_xr, _yi), _mm256_mul_ps(_xi, _yr)));
+    dstReal += 8; dstImag += 8; xReal += 8; xImag += 8; yReal += 8; yImag += 8;
+  }
+
+  // 2) Tail loop.
+  while (length--) {
+    float32 xr = *xReal++, xi = *xImag++, yr = *yReal++, yi = *yImag++;
+    *dstReal++ = xr * yr - xi * yi;
+    *dstImag++ = xr * yi + xi * yr;
+  }
 }
 
 void ArrayMathAVX::div_f32_sa(float32 *dst, float32 x, const float32 *y, size_t length) {

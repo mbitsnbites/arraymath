@@ -92,6 +92,8 @@ ArrayMath::ArrayMath() {
     p_sub_f32_aa = ArrayMathSSE::sub_f32_aa;
     p_mul_f32_sa = ArrayMathSSE::mul_f32_sa;
     p_mul_f32_aa = ArrayMathSSE::mul_f32_aa;
+    p_mulCplx_f32_sa = ArrayMathSSE::mulCplx_f32_sa;
+    p_mulCplx_f32_aa = ArrayMathSSE::mulCplx_f32_aa;
     p_sqrt_f32 = ArrayMathSSE::sqrt_f32;
   }
 #endif // AM_USE_X86 && AM_HAS_SSE
@@ -113,6 +115,8 @@ ArrayMath::ArrayMath() {
     p_sub_f32_aa = ArrayMathAVX::sub_f32_aa;
     p_mul_f32_sa = ArrayMathAVX::mul_f32_sa;
     p_mul_f32_aa = ArrayMathAVX::mul_f32_aa;
+    p_mulCplx_f32_sa = ArrayMathAVX::mulCplx_f32_sa;
+    p_mulCplx_f32_aa = ArrayMathAVX::mulCplx_f32_aa;
     p_div_f32_sa = ArrayMathAVX::div_f32_sa;
     p_div_f32_aa = ArrayMathAVX::div_f32_aa;
     p_madd_f32_saa = ArrayMathAVX::madd_f32_saa;

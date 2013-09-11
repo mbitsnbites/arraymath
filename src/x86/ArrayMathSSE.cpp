@@ -186,6 +186,47 @@ void ArrayMathSSE::mul_f32_aa(float32 *dst, const float32 *x, const float32 *y, 
   op_f32_aa<MulOP>(dst, x, y, length);
 }
 
+void ArrayMathSSE::mulCplx_f32_sa(float32 *dstReal, float32 *dstImag, float32 xReal, float32 xImag, const float32 *yReal, const float32 *yImag, size_t length) {
+  // 1) Main SSE loop.
+  __m128 _xr = _mm_set1_ps(xReal);
+  __m128 _xi = _mm_set1_ps(xImag);
+  for (; length >= 4; length -= 4) {
+    __m128 _yr = _mm_loadu_ps(yReal);
+    __m128 _yi = _mm_loadu_ps(yImag);
+    _mm_storeu_ps(dstReal, _mm_sub_ps(_mm_mul_ps(_xr, _yr), _mm_mul_ps(_xi, _yi)));
+    _mm_storeu_ps(dstImag, _mm_add_ps(_mm_mul_ps(_xr, _yi), _mm_mul_ps(_xi, _yr)));
+    dstReal += 4; dstImag += 4; yReal += 4; yImag += 4;
+  }
+
+  // 2) Tail loop.
+  float32 xr = xReal, xi = xImag;
+  while (length--) {
+    float32 yr = *yReal++, yi = *yImag++;
+    *dstReal++ = xr * yr - xi * yi;
+    *dstImag++ = xr * yi + xi * yr;
+  }
+}
+
+void ArrayMathSSE::mulCplx_f32_aa(float32 *dstReal, float32 *dstImag, const float32 *xReal, const float32 *xImag, const float32 *yReal, const float32 *yImag, size_t length) {
+  // 1) Main SSE loop.
+  for (; length >= 4; length -= 4) {
+    __m128 _xr = _mm_loadu_ps(xReal);
+    __m128 _xi = _mm_loadu_ps(xImag);
+    __m128 _yr = _mm_loadu_ps(yReal);
+    __m128 _yi = _mm_loadu_ps(yImag);
+    _mm_storeu_ps(dstReal, _mm_sub_ps(_mm_mul_ps(_xr, _yr), _mm_mul_ps(_xi, _yi)));
+    _mm_storeu_ps(dstImag, _mm_add_ps(_mm_mul_ps(_xr, _yi), _mm_mul_ps(_xi, _yr)));
+    dstReal += 4; dstImag += 4; xReal += 4; xImag += 4; yReal += 4; yImag += 4;
+  }
+
+  // 2) Tail loop.
+  while (length--) {
+    float32 xr = *xReal++, xi = *xImag++, yr = *yReal++, yi = *yImag++;
+    *dstReal++ = xr * yr - xi * yi;
+    *dstImag++ = xr * yi + xi * yr;
+  }
+}
+
 void ArrayMathSSE::sqrt_f32(float32 *dst, const float32 *x, size_t length) {
   // 1) Align dst to a 16-byte boundary.
   while ((reinterpret_cast<size_t>(dst) & 15) && length--) {
