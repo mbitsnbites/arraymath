@@ -642,6 +642,45 @@ void ArrayMathAVX::fract_f32(float32 *dst, const float32 *x, size_t length) {
   op_f32_a<FractOP>(dst, x, length);
 }
 
+void ArrayMathAVX::ramp_f32(float32 *dst, float32 first, float32 last, size_t length) {
+  if (length == 0) {
+    return;
+  }
+  if (length == 1) {
+    *dst = first;
+    return;
+  }
+
+  float32 step = (last - first) / static_cast<float32>(length - 1);
+  float32 k = 0.0f;
+
+  // 1) Align dst to a 32-byte boundary.
+  while ((reinterpret_cast<size_t>(dst) & 31) && length--) {
+    *dst++ = first + step * k;
+    k += 1.0f;
+  }
+
+  // 2) Main AVX loop.
+  static const __m256 kEight = _mm256_set1_ps(8.0f);
+  static const __m256 kIdxRamp = _mm256_set_ps(0.0f, 1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f);
+  __m256 _first = _mm256_set1_ps(first);
+  __m256 _step = _mm256_set1_ps(step);
+  __m256 _k = _mm256_add_ps(_mm256_set1_ps(k), kIdxRamp);
+  size_t mainLoopSize = (length / 8) * 8;
+  for (; length >= 8; length -= 8) {
+    _mm256_store_ps(dst, _mm256_add_ps(_first, _mm256_mul_ps(_step, _k)));
+    _k = _mm256_add_ps(_k, kEight);
+    dst += 8;
+  }
+  k += mainLoopSize;
+
+  // 3) Tail loop.
+  while (length--) {
+    *dst++ = first + step * k;
+    k += 1.0f;
+  }
+}
+
 void ArrayMathAVX::sign_f32(float32 *dst, const float32 *x, size_t length) {
   // 1) Align dst to a 32-byte boundary.
   while ((reinterpret_cast<size_t>(dst) & 31) && length--) {

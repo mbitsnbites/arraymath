@@ -132,6 +132,7 @@ ArrayMath::ArrayMath() {
     p_round_f32 = ArrayMathAVX::round_f32;
     p_clamp_f32 = ArrayMathAVX::clamp_f32;
     p_fract_f32 = ArrayMathAVX::fract_f32;
+    p_ramp_f32 = ArrayMathAVX::ramp_f32;
     p_sign_f32 = ArrayMathAVX::sign_f32;
     p_sampleLinear_f32 = ArrayMathAVX::sampleLinear_f32;
   }
