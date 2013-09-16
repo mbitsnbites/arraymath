@@ -27,6 +27,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <limits>
 
 #include "common/Types.h"
 
@@ -197,7 +198,7 @@ void ArrayMathGeneric::log_f32(float32 *dst, const float32 *x, size_t length) {
 }
 
 float32 ArrayMathGeneric::max_f32(const float32 *x, size_t length) {
-  float32 result = std::log(0.0f);  // -INFINITY
+  float32 result = -std::numeric_limits<float>::infinity();
   while (length--) {
     result = std::max(result, *x++);
   }
@@ -205,7 +206,7 @@ float32 ArrayMathGeneric::max_f32(const float32 *x, size_t length) {
 }
 
 float32 ArrayMathGeneric::min_f32(const float32 *x, size_t length) {
-  float32 result = 1.0f / 0.0f;  // +INFINITY
+  float32 result = std::numeric_limits<float>::infinity();
   while (length--) {
     result = std::min(result, *x++);
   }

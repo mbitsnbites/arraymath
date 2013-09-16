@@ -31,6 +31,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <limits>
 
 namespace arraymath {
 
@@ -229,7 +230,7 @@ void ArrayMathSSE::mulCplx_f32_aa(float32 *dstReal, float32 *dstImag, const floa
 }
 
 float32 ArrayMathSSE::max_f32(const float32 *x, size_t length) {
-  float32 result = std::log(0.0f);  // -INFINITY
+  float32 result = -std::numeric_limits<float>::infinity();
 
   // 1) Align x to a 16-byte boundary.
   while ((reinterpret_cast<size_t>(x) & 15) && length--) {
@@ -276,7 +277,7 @@ float32 ArrayMathSSE::max_f32(const float32 *x, size_t length) {
 }
 
 float32 ArrayMathSSE::min_f32(const float32 *x, size_t length) {
-  float32 result = 1.0f / 0.0f;  // +INFINITY
+  float32 result = std::numeric_limits<float>::infinity();
 
   // 1) Align x to a 16-byte boundary.
   while ((reinterpret_cast<size_t>(x) & 15) && length--) {

@@ -32,7 +32,14 @@
 #include "common/Architecture.h"
 
 #ifdef AM_OS_WINDOWS
+# define WIN32_LEAN_AND_MEAN
 # include <windows.h>
+# if defined(min)
+#  undef min
+# endif
+# if defined(max)
+#  undef max
+# endif
 #else
 # include <stdint.h>
 # include <sys/time.h>

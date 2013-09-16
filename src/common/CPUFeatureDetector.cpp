@@ -26,11 +26,15 @@
 #include "common/CPUFeatureDetector.h"
 
 #ifdef AM_USE_X86
-namespace {
 
 #if defined(__GNUC__) || defined(__clang__)
 #include <cpuid.h>
 #endif
+#if defined(_MSC_VER)
+#include <intrin.h>
+#endif
+
+namespace {
 
 enum CPUIDFunc {
   CPUID_VENDOR_ID = 0x00000000,

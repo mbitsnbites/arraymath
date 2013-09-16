@@ -1,3 +1,6 @@
 *.o
 *.d
-
+*.obj
+*.exe
+Test
+Benchmark

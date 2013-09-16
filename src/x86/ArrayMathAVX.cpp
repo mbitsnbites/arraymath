@@ -36,6 +36,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <limits>
 
 namespace arraymath {
 
@@ -510,7 +511,7 @@ void ArrayMathAVX::floor_f32(float32 *dst, const float32 *x, size_t length) {
 }
 
 float32 ArrayMathAVX::max_f32(const float32 *x, size_t length) {
-  float32 result = std::log(0.0f);  // -INFINITY
+  float32 result = -std::numeric_limits<float>::infinity();
 
   // 1) Align x to a 32-byte boundary.
   while ((reinterpret_cast<size_t>(x) & 31) && length--) {
@@ -551,7 +552,7 @@ float32 ArrayMathAVX::max_f32(const float32 *x, size_t length) {
 }
 
 float32 ArrayMathAVX::min_f32(const float32 *x, size_t length) {
-  float32 result = 1.0f / 0.0f;  // +INFINITY
+  float32 result = std::numeric_limits<float>::infinity();
 
   // 1) Align x to a 32-byte boundary.
   while ((reinterpret_cast<size_t>(x) & 31) && length--) {
