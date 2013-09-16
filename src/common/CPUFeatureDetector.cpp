@@ -28,18 +28,18 @@
 #ifdef AM_USE_X86
 namespace {
 
+#if defined(__GNUC__) || defined(__clang__)
+#include <cpuid.h>
+#endif
+
 enum CPUIDFunc {
   CPUID_VENDOR_ID = 0x00000000,
   CPUID_FEATURES  = 0x00000001
 };
 
 void CPUID(CPUIDFunc func, unsigned &a, unsigned &b, unsigned &c, unsigned &d) {
-#if defined(__GNUC__)
-  __asm__ __volatile__ (
-      "cpuid"
-      : "=a" (a), "=b" (b), "=c" (c), "=d" (d)
-      : "a" (func)
-  );
+#if defined(__GNUC__) || defined(__clang__)
+  __cpuid(func, a, b, c, d);
 #elif defined(_MSC_VER)
   int info[4];
   __cpuid(info, static_cast<int>(func));
