@@ -39,7 +39,7 @@ enum CPUIDFunc {
 
 void CPUID(CPUIDFunc func, unsigned &a, unsigned &b, unsigned &c, unsigned &d) {
 #if defined(__GNUC__) || defined(__clang__)
-  __cpuid(func, a, b, c, d);
+  __get_cpuid(func, &a, &b, &c, &d);
 #elif defined(_MSC_VER)
   int info[4];
   __cpuid(info, static_cast<int>(func));
