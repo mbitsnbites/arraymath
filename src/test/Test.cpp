@@ -49,6 +49,24 @@ void printArray(std::vector<T> v) {
   printArray(&v[0], v.size());
 }
 
+float rms(const std::vector<float>& x) {
+  unsigned len = x.size();
+  float sum = 0.0f;
+  for (unsigned k = 0; k < len; ++k) {
+    sum += x[k] * x[k];
+  }
+  return std::sqrt(sum / static_cast<float>(len));
+}
+
+float rms(const std::vector<float>& xReal, const std::vector<float>& xImag) {
+  unsigned len = std::min(xReal.size(), xImag.size());
+  float sum = 0.0f;
+  for (unsigned k = 0; k < len; ++k) {
+    sum += xReal[k] * xReal[k] + xImag[k] * xImag[k];
+  }
+  return std::sqrt(sum / static_cast<float>(len));
+}
+
 }  // anonymous namespace
 
 void testArrayMath() {
@@ -155,37 +173,21 @@ void testFFTFactory() {
   math.sin(&x[0], &x[0], len);
 
   // Original signal.
-  {
-    std::vector<float> tmp(len);
-    math.mul(&tmp[0], &x[0], &x[0], len);
-    float rms = std::sqrt(math.sum(&tmp[0], len) / static_cast<float>(len));
-    std::cout << "rms(x) = " << rms << std::endl;
-  }
+  std::cout << "rms(x) = " << rms(x) << std::endl;
 
   // Calculate the forward transform of the input signal.
   std::vector<float> yReal(len), yImag(len);
   fft->forward(&yReal[0], &yImag[0], &x[0]);
 
   // Fourier transform.
-  {
-    std::vector<float> tmp(len);
-    math.mul(&tmp[0], &yReal[0], &yReal[0], len);
-    math.madd(&tmp[0], &yImag[0], &yImag[0], &tmp[0], len);
-    float rms = std::sqrt(math.sum(&tmp[0], len) / static_cast<float>(len));
-    std::cout << "rms(y) = " << rms << std::endl;
-  }
+  std::cout << "rms(Y) = " << rms(yReal, yImag) << std::endl;
 
   // Calculate the inverse transform of the frequency signal.
   std::vector<float> x2(len);
   fft->inverse(&x2[0], &yReal[0], &yImag[0]);
 
   // Re-transformed signal.
-  {
-    std::vector<float> tmp(len);
-    math.mul(&tmp[0], &x2[0], &x2[0], len);
-    float rms = std::sqrt(math.sum(&tmp[0], len) / static_cast<float>(len));
-    std::cout << "rms(x2) = " << rms << std::endl;
-  }
+  std::cout << "rms(x2) = " << rms(x2) << std::endl;
 
   // Delete the FFT object.
   delete fft;
