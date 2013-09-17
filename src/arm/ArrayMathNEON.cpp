@@ -33,6 +33,12 @@
 #include <cmath>
 #include <limits>
 
+namespace {
+
+#include "arm/neon_mathfun.h"
+
+}
+
 namespace arraymath {
 
 //-----------------------------------------------------------------------------
@@ -159,6 +165,42 @@ struct SqrtOP {
   }
 };
 
+struct SinOP {
+  static float32 op(float32 a) {
+    return std::sin(a);
+  }
+  static float32x4_t opNEON(float32x4_t a) {
+    return sin_ps(a);
+  }
+};
+
+struct CosOP {
+  static float32 op(float32 a) {
+    return std::cos(a);
+  }
+  static float32x4_t opNEON(float32x4_t a) {
+    return cos_ps(a);
+  }
+};
+
+struct ExpOP {
+  static float32 op(float32 a) {
+    return std::exp(a);
+  }
+  static float32x4_t opNEON(float32x4_t a) {
+    return exp_ps(a);
+  }
+};
+
+struct LogOP {
+  static float32 op(float32 a) {
+    return std::log(a);
+  }
+  static float32x4_t opNEON(float32x4_t a) {
+    return log_ps(a);
+  }
+};
+
 void ArrayMathNEON::add_f32_sa(float32 *dst, float32 x, const float32 *y, size_t length) {
   op_f32_sa<AddOP>(dst, x, y, length);
 }
@@ -189,6 +231,22 @@ void ArrayMathNEON::div_f32_sa(float32 *dst, float32 x, const float32 *y, size_t
 
 void ArrayMathNEON::div_f32_aa(float32 *dst, const float32 *x, const float32 *y, size_t length) {
   op_f32_aa<DivOP>(dst, x, y, length);
+}
+
+void ArrayMathNEON::sin_f32(float32 *dst, const float32 *x, size_t length) {
+  op_f32_a<SinOP>(dst, x, length);
+}
+
+void ArrayMathNEON::cos_f32(float32 *dst, const float32 *x, size_t length) {
+  op_f32_a<CosOP>(dst, x, length);
+}
+
+void ArrayMathNEON::exp_f32(float32 *dst, const float32 *x, size_t length) {
+  op_f32_a<ExpOP>(dst, x, length);
+}
+
+void ArrayMathNEON::log_f32(float32 *dst, const float32 *x, size_t length) {
+  op_f32_a<LogOP>(dst, x, length);
 }
 
 void ArrayMathNEON::sqrt_f32(float32 *dst, const float32 *x, size_t length) {

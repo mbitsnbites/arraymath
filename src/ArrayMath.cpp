@@ -153,6 +153,10 @@ ArrayMath::ArrayMath() {
     p_mul_f32_aa = ArrayMathNEON::mul_f32_aa;
     p_div_f32_sa = ArrayMathNEON::div_f32_sa;
     p_div_f32_aa = ArrayMathNEON::div_f32_aa;
+    p_sin_f32 = ArrayMathNEON::sin_f32;
+    p_cos_f32 = ArrayMathNEON::cos_f32;
+    p_exp_f32 = ArrayMathNEON::exp_f32;
+    p_log_f32 = ArrayMathNEON::log_f32;
     p_sqrt_f32 = ArrayMathNEON::sqrt_f32;
     p_max_f32 = ArrayMathNEON::max_f32;
     p_min_f32 = ArrayMathNEON::min_f32;
