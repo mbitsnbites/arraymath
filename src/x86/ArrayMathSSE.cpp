@@ -33,6 +33,12 @@
 #include <cmath>
 #include <limits>
 
+namespace {
+
+#include "x86/sse_mathfun.h"
+
+}
+
 namespace arraymath {
 
 //-----------------------------------------------------------------------------
@@ -132,6 +138,36 @@ void op_f32_aa(float32 *dst, const float32 *x, const float32 *y, size_t length) 
   }
 }
 
+template <class OP>
+void op_f32_a(float32 *dst, const float32 *x, size_t length) {
+  // 1) Align dst to a 16-byte boundary.
+  while ((reinterpret_cast<size_t>(dst) & 15) && length--) {
+    *dst++ = OP::op(*x++);
+  }
+
+  // Check alignment.
+  bool aligned = (reinterpret_cast<size_t>(x) & 15) == 0;
+
+  // 2) Main SSE loop (handle different alignment cases).
+  if (aligned) {
+    for (; length >= 4; length -= 4) {
+      _mm_store_ps(dst, OP::opSSE(_mm_load_ps(x)));
+      dst += 4; x += 4;
+    }
+  }
+  else {
+    for (; length >= 4; length -= 4) {
+      _mm_store_ps(dst, OP::opSSE(_mm_loadu_ps(x)));
+      dst += 4; x += 4;
+    }
+  }
+
+  // 3) Tail loop.
+  while (length--) {
+    *dst++ = OP::op(*x++);
+  }
+}
+
 
 //-----------------------------------------------------------------------------
 // Operation implementations.
@@ -161,6 +197,42 @@ struct MulOP {
   }
   static __m128 opSSE(__m128 a, __m128 b) {
     return _mm_mul_ps(a, b);
+  }
+};
+
+struct SinOP {
+  static float32 op(float32 a) {
+    return std::sin(a);
+  }
+  static __m128 opSSE(__m128 a) {
+    return sin_ps(a);
+  }
+};
+
+struct CosOP {
+  static float32 op(float32 a) {
+    return std::cos(a);
+  }
+  static __m128 opSSE(__m128 a) {
+    return cos_ps(a);
+  }
+};
+
+struct ExpOP {
+  static float32 op(float32 a) {
+    return std::exp(a);
+  }
+  static __m128 opSSE(__m128 a) {
+    return exp_ps(a);
+  }
+};
+
+struct LogOP {
+  static float32 op(float32 a) {
+    return std::log(a);
+  }
+  static __m128 opSSE(__m128 a) {
+    return log_ps(a);
   }
 };
 
@@ -321,6 +393,22 @@ float32 ArrayMathSSE::min_f32(const float32 *x, size_t length) {
   }
 
   return result;
+}
+
+void ArrayMathSSE::sin_f32(float32 *dst, const float32 *x, size_t length) {
+  op_f32_a<SinOP>(dst, x, length);
+}
+
+void ArrayMathSSE::cos_f32(float32 *dst, const float32 *x, size_t length) {
+  op_f32_a<CosOP>(dst, x, length);
+}
+
+void ArrayMathSSE::exp_f32(float32 *dst, const float32 *x, size_t length) {
+  op_f32_a<ExpOP>(dst, x, length);
+}
+
+void ArrayMathSSE::log_f32(float32 *dst, const float32 *x, size_t length) {
+  op_f32_a<LogOP>(dst, x, length);
 }
 
 void ArrayMathSSE::sqrt_f32(float32 *dst, const float32 *x, size_t length) {

@@ -98,6 +98,10 @@ ArrayMath::ArrayMath() {
     p_max_f32 = ArrayMathSSE::max_f32;
     p_min_f32 = ArrayMathSSE::min_f32;
     p_sqrt_f32 = ArrayMathSSE::sqrt_f32;
+    p_sin_f32 = ArrayMathSSE::sin_f32;
+    p_cos_f32 = ArrayMathSSE::cos_f32;
+    p_exp_f32 = ArrayMathSSE::exp_f32;
+    p_log_f32 = ArrayMathSSE::log_f32;
     p_ramp_f32 = ArrayMathSSE::ramp_f32;
   }
 #endif // AM_USE_X86 && AM_HAS_SSE
