@@ -663,7 +663,7 @@ void ArrayMathAVX::ramp_f32(float32 *dst, float32 first, float32 last, size_t le
 
   // 2) Main AVX loop.
   static const __m256 kEight = _mm256_set1_ps(8.0f);
-  static const __m256 kIdxRamp = _mm256_set_ps(0.0f, 1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f);
+  static const __m256 kIdxRamp = _mm256_set_ps(7.0f, 6.0f, 5.0f, 4.0f, 3.0f, 2.0f, 1.0f, 0.0f);
   __m256 _first = _mm256_set1_ps(first);
   __m256 _step = _mm256_set1_ps(step);
   __m256 _k = _mm256_add_ps(_mm256_set1_ps(k), kIdxRamp);

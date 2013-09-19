@@ -473,7 +473,7 @@ void ArrayMathSSE::ramp_f32(float32 *dst, float32 first, float32 last, size_t le
 
   // 2) Main SSE loop.
   static const __m128 kFour = _mm_set1_ps(4.0f);
-  static const __m128 kIdxRamp = _mm_set_ps(0.0f, 1.0f, 2.0f, 3.0f);
+  static const __m128 kIdxRamp = _mm_set_ps(3.0f, 2.0f, 1.0f, 0.0f);
   __m128 _first = _mm_set1_ps(first);
   __m128 _step = _mm_set1_ps(step);
   __m128 _k = _mm_add_ps(_mm_set1_ps(k), kIdxRamp);
