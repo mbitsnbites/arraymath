@@ -225,6 +225,47 @@ void ArrayMathNEON::mul_f32_aa(float32 *dst, const float32 *x, const float32 *y,
   op_f32_aa<MulOP>(dst, x, y, length);
 }
 
+void ArrayMathNEON::mulCplx_f32_sa(float32 *dstReal, float32 *dstImag, float32 xReal, float32 xImag, const float32 *yReal, const float32 *yImag, size_t length) {
+  // 1) Main NEON loop.
+  float32x4_t _xr = vdupq_n_f32(xReal);
+  float32x4_t _xi = vdupq_n_f32(xImag);
+  for (; length >= 4; length -= 4) {
+    float32x4_t _yr = vld1q_f32(yReal);
+    float32x4_t _yi = vld1q_f32(yImag);
+    vst1q_f32(dstReal, vsubq_f32(vmulq_f32(_xr, _yr), vmulq_f32(_xi, _yi)));
+    vst1q_f32(dstImag, vaddq_f32(vmulq_f32(_xr, _yi), vmulq_f32(_xi, _yr)));
+    dstReal += 4; dstImag += 4; yReal += 4; yImag += 4;
+  }
+
+  // 2) Tail loop.
+  float32 xr = xReal, xi = xImag;
+  while (length--) {
+    float32 yr = *yReal++, yi = *yImag++;
+    *dstReal++ = xr * yr - xi * yi;
+    *dstImag++ = xr * yi + xi * yr;
+  }
+}
+
+void ArrayMathNEON::mulCplx_f32_aa(float32 *dstReal, float32 *dstImag, const float32 *xReal, const float32 *xImag, const float32 *yReal, const float32 *yImag, size_t length) {
+  // 1) Main NEON loop.
+  for (; length >= 4; length -= 4) {
+    float32x4_t _xr = vld1q_f32(xReal);
+    float32x4_t _xi = vld1q_f32(xImag);
+    float32x4_t _yr = vld1q_f32(yReal);
+    float32x4_t _yi = vld1q_f32(yImag);
+    vst1q_f32(dstReal, vsubq_f32(vmulq_f32(_xr, _yr), vmulq_f32(_xi, _yi)));
+    vst1q_f32(dstImag, vaddq_f32(vmulq_f32(_xr, _yi), vmulq_f32(_xi, _yr)));
+    dstReal += 4; dstImag += 4; xReal += 4; xImag += 4; yReal += 4; yImag += 4;
+  }
+
+  // 2) Tail loop.
+  while (length--) {
+    float32 xr = *xReal++, xi = *xImag++, yr = *yReal++, yi = *yImag++;
+    *dstReal++ = xr * yr - xi * yi;
+    *dstImag++ = xr * yi + xi * yr;
+  }
+}
+
 void ArrayMathNEON::div_f32_sa(float32 *dst, float32 x, const float32 *y, size_t length) {
   op_f32_sa<DivOP>(dst, x, y, length);
 }

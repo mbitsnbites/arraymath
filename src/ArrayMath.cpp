@@ -151,6 +151,8 @@ ArrayMath::ArrayMath() {
     p_sub_f32_aa = ArrayMathNEON::sub_f32_aa;
     p_mul_f32_sa = ArrayMathNEON::mul_f32_sa;
     p_mul_f32_aa = ArrayMathNEON::mul_f32_aa;
+    p_mulCplx_f32_sa = ArrayMathNEON::mulCplx_f32_sa;
+    p_mulCplx_f32_aa = ArrayMathNEON::mulCplx_f32_aa;
     p_div_f32_sa = ArrayMathNEON::div_f32_sa;
     p_div_f32_aa = ArrayMathNEON::div_f32_aa;
     p_sin_f32 = ArrayMathNEON::sin_f32;
