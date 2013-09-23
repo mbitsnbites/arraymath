@@ -453,6 +453,25 @@ void ArrayMathSSE::sqrt_f32(float32 *dst, const float32 *x, size_t length) {
   }
 }
 
+void ArrayMathSSE::fill_f32(float32 *dst, float32 value, size_t length) {
+  // 1) Align dst to a 16-byte boundary.
+  while ((reinterpret_cast<size_t>(dst) & 15) && length--) {
+    *dst++ = value;
+  }
+
+  // 2) Main SSE loop.
+  __m128 _value = _mm_set1_ps(value);
+  for (; length >= 4; length -= 4) {
+    _mm_store_ps(dst, _value);
+    dst += 4;
+  }
+
+  // 3) Tail loop.
+  while (length--) {
+    *dst++ = value;
+  }
+}
+
 void ArrayMathSSE::ramp_f32(float32 *dst, float32 first, float32 last, size_t length) {
   if (length == 0) {
     return;

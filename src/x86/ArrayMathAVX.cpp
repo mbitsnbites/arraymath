@@ -643,6 +643,25 @@ void ArrayMathAVX::fract_f32(float32 *dst, const float32 *x, size_t length) {
   op_f32_a<FractOP>(dst, x, length);
 }
 
+void ArrayMathAVX::fill_f32(float32 *dst, float32 value, size_t length) {
+  // 1) Align dst to a 32-byte boundary.
+  while ((reinterpret_cast<size_t>(dst) & 31) && length--) {
+    *dst++ = value;
+  }
+
+  // 2) Main AVX loop.
+  __m256 _value = _mm256_set1_ps(value);
+  for (; length >= 8; length -= 8) {
+    _mm256_store_ps(dst, _value);
+    dst += 8;
+  }
+
+  // 3) Tail loop.
+  while (length--) {
+    *dst++ = value;
+  }
+}
+
 void ArrayMathAVX::ramp_f32(float32 *dst, float32 first, float32 last, size_t length) {
   if (length == 0) {
     return;

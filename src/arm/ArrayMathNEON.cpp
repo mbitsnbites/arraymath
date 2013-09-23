@@ -362,6 +362,25 @@ float32 ArrayMathNEON::min_f32(const float32 *x, size_t length) {
   return result;
 }
 
+void ArrayMathNEON::fill_f32(float32 *dst, float32 value, size_t length) {
+  // 1) Align dst to a 16-byte boundary.
+  while ((reinterpret_cast<size_t>(dst) & 15) && length--) {
+    *dst++ = value;
+  }
+
+  // 2) Main NEON loop.
+  float32x4_t _value = vdupq_n_f32(value);
+  for (; length >= 4; length -= 4) {
+    vst1q_f32(dst, _value);
+    dst += 4;
+  }
+
+  // 3) Tail loop.
+  while (length--) {
+    *dst++ = value;
+  }
+}
+
 void ArrayMathNEON::ramp_f32(float32 *dst, float32 first, float32 last, size_t length) {
   if (length == 0) {
     return;

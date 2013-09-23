@@ -76,6 +76,7 @@ ArrayMath::ArrayMath() {
   p_tan_f32 = ArrayMathGeneric::tan_f32;
   p_clamp_f32 = ArrayMathGeneric::clamp_f32;
   p_fract_f32 = ArrayMathGeneric::fract_f32;
+  p_fill_f32 = ArrayMathGeneric::fill_f32;
   p_ramp_f32 = ArrayMathGeneric::ramp_f32;
   p_sign_f32 = ArrayMathGeneric::sign_f32;
   p_sum_f32 = ArrayMathGeneric::sum_f32;
@@ -102,6 +103,7 @@ ArrayMath::ArrayMath() {
     p_cos_f32 = ArrayMathSSE::cos_f32;
     p_exp_f32 = ArrayMathSSE::exp_f32;
     p_log_f32 = ArrayMathSSE::log_f32;
+    p_fill_f32 = ArrayMathSSE::fill_f32;
     p_ramp_f32 = ArrayMathSSE::ramp_f32;
   }
 #endif // AM_USE_X86 && AM_HAS_SSE
@@ -137,6 +139,7 @@ ArrayMath::ArrayMath() {
     p_round_f32 = ArrayMathAVX::round_f32;
     p_clamp_f32 = ArrayMathAVX::clamp_f32;
     p_fract_f32 = ArrayMathAVX::fract_f32;
+    p_fill_f32 = ArrayMathAVX::fill_f32;
     p_ramp_f32 = ArrayMathAVX::ramp_f32;
     p_sign_f32 = ArrayMathAVX::sign_f32;
     p_sampleLinear_f32 = ArrayMathAVX::sampleLinear_f32;
@@ -162,6 +165,7 @@ ArrayMath::ArrayMath() {
     p_sqrt_f32 = ArrayMathNEON::sqrt_f32;
     p_max_f32 = ArrayMathNEON::max_f32;
     p_min_f32 = ArrayMathNEON::min_f32;
+    p_fill_f32 = ArrayMathNEON::fill_f32;
     p_ramp_f32 = ArrayMathNEON::ramp_f32;
     if (cpu.hasNEON_FMA()) {
       // TODO(m): madd() should probably be implemented using vmla.

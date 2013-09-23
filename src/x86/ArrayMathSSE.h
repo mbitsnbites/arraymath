@@ -51,6 +51,7 @@ class ArrayMathSSE {
   static void exp_f32(float32 *dst, const float32 *x, size_t length);
   static void log_f32(float32 *dst, const float32 *x, size_t length);
   static void sqrt_f32(float32 *dst, const float32 *x, size_t length);
+  static void fill_f32(float32 *dst, float32 value, size_t length);
   static void ramp_f32(float32 *dst, float32 first, float32 last, size_t length);
 };
 

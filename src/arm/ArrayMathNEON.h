@@ -53,6 +53,7 @@ class ArrayMathNEON {
   static void sqrt_f32(float32 *dst, const float32 *x, size_t length);
   static float32 max_f32(const float32 *x, size_t length);
   static float32 min_f32(const float32 *x, size_t length);
+  static void fill_f32(float32 *dst, float32 value, size_t length);
   static void ramp_f32(float32 *dst, float32 first, float32 last, size_t length);
 };
 

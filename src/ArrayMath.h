@@ -384,6 +384,14 @@ class ArrayMath {
     p_fract_f32(dst, x, length);
   }
 
+  /// Fill an array with a constant value.
+  /// \param[out] dst Destination array (\c length elements).
+  /// \param[in] value The value to fill the array with.
+  /// \param[in] length Number of elements to process.
+  AM_INLINE void fill(float32 *dst, float32 value, size_t length) {
+    p_fill_f32(dst, value, length);
+  }
+
   /// Generate a linear ramp.
   /// \param[out] dst Destination array (\c length elements).
   /// \param[in] first First value.
@@ -486,6 +494,7 @@ class ArrayMath {
   void (*p_tan_f32)(float32 *dst, const float32 *x, size_t length);
   void (*p_clamp_f32)(float32 *dst, const float32 *x, float32 xMin, float32 xMax, size_t length);
   void (*p_fract_f32)(float32 *dst, const float32 *x, size_t length);
+  void (*p_fill_f32)(float32 *dst, float32 value, size_t length);
   void (*p_ramp_f32)(float32 *dst, float32 first, float32 last, size_t length);
   void (*p_sign_f32)(float32 *dst, const float32 *x, size_t length);
   float32 (*p_sum_f32)(const float32 *x, size_t length);

@@ -460,6 +460,34 @@ void benchmark_clamp(ArrayMath& math, size_t arrayLength) {
             << (1e-6 * avgSpeed) << " average)" << std::endl;
 }
 
+void benchmark_fill(ArrayMath& math, size_t arrayLength) {
+  Timer timer;
+
+  std::vector<float32> dst(arrayLength);
+
+  size_t totalSamples = 0;
+  double totalT = 0.0, maxSpeed = 0.0;
+  while (totalT < kMinTimePerTest) {
+    double t0 = timer.GetTime();
+    size_t samples = 0;
+    while (samples < kMinSamplesPerTest) {
+      math.fill(&dst[0], 1.0f, arrayLength);
+      samples += arrayLength;
+    }
+    double dt = timer.GetTime() - t0;
+    double speed = double(samples) / dt;
+    if (speed > maxSpeed) {
+      maxSpeed = speed;
+    }
+    totalT += dt;
+    totalSamples += samples;
+  }
+  double avgSpeed = double(totalSamples) / totalT;
+
+  std::cout << arrayLength << ": " << (1e-6 * maxSpeed) << " Msamples/s ("
+            << (1e-6 * avgSpeed) << " average)" << std::endl;
+}
+
 void benchmark_ramp(ArrayMath& math, size_t arrayLength) {
   Timer timer;
 
@@ -1050,6 +1078,11 @@ void benchmarkArrayMath() {
   std::cout << std::endl << "ArrayMath.fract()" << std::endl;
   for (int i = 0; i < kNumArrayLengths; ++i) {
     benchmark_a<fract_OP>(math, kArrayLengths[i]);
+  }
+
+  std::cout << std::endl << "ArrayMath.fill()" << std::endl;
+  for (int i = 0; i < kNumArrayLengths; ++i) {
+    benchmark_fill(math, kArrayLengths[i]);
   }
 
   std::cout << std::endl << "ArrayMath.ramp()" << std::endl;

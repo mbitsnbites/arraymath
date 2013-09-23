@@ -263,6 +263,12 @@ void ArrayMathGeneric::fract_f32(float32 *dst, const float32 *x, size_t length) 
   }
 }
 
+void ArrayMathGeneric::fill_f32(float32 *dst, float32 value, size_t length) {
+  while (length--) {
+    *dst++ = value;
+  }
+}
+
 void ArrayMathGeneric::ramp_f32(float32 *dst, float32 first, float32 last, size_t length) {
   if (length == 0) {
     return;

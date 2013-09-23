@@ -67,6 +67,7 @@ class ArrayMathGeneric {
   static void tan_f32(float32 *dst, const float32 *x, size_t length);
   static void clamp_f32(float32 *dst, const float32 *x, float32 xMin, float32 xMax, size_t length);
   static void fract_f32(float32 *dst, const float32 *x, size_t length);
+  static void fill_f32(float32 *dst, float32 value, size_t length);
   static void ramp_f32(float32 *dst, float32 first, float32 last, size_t length);
   static void sign_f32(float32 *dst, const float32 *x, size_t length);
   static float32 sum_f32(const float32 *x, size_t length);
