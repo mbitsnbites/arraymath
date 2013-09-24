@@ -460,6 +460,36 @@ void ArrayMathAVX::madd_f32_aaa(float32 *dst, const float32 *x, const float32 *y
   }
 }
 
+void ArrayMathAVX::abs_f32(float32 *dst, const float32 *x, size_t length) {
+  // 1) Align dst to a 32-byte boundary.
+  while ((reinterpret_cast<size_t>(dst) & 31) && length--) {
+    *dst++ = std::abs(*x++);
+  }
+
+  // Check alignment.
+  bool aligned = (reinterpret_cast<size_t>(x) & 31) == 0;
+
+  // 2) Main AVX loop.
+  static const __m256 kMask = _mm256_castsi256_ps(_mm256_set1_epi32(0x7fffffff));
+  if (aligned) {
+    for (; length >= 8; length -= 8) {
+      _mm256_store_ps(dst, _mm256_and_ps(_mm256_load_ps(x), kMask));
+      dst += 8; x += 8;
+    }
+  }
+  else {
+    for (; length >= 8; length -= 8) {
+      _mm256_store_ps(dst, _mm256_and_ps(_mm256_loadu_ps(x), kMask));
+      dst += 8; x += 8;
+    }
+  }
+
+  // 3) Tail loop.
+  while (length--) {
+    *dst++ = std::abs(*x++);
+  }
+}
+
 void ArrayMathAVX::sqrt_f32(float32 *dst, const float32 *x, size_t length) {
   // 1) Align dst to a 32-byte boundary.
   while ((reinterpret_cast<size_t>(dst) & 31) && length--) {

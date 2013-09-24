@@ -395,6 +395,46 @@ float32 ArrayMathSSE::min_f32(const float32 *x, size_t length) {
   return result;
 }
 
+void ArrayMathSSE::abs_f32(float32 *dst, const float32 *x, size_t length) {
+  // 1) Align dst to a 16-byte boundary.
+  while ((reinterpret_cast<size_t>(dst) & 15) && length--) {
+    *dst++ = std::abs(*x++);
+  }
+
+  // Check alignment.
+  bool aligned = (reinterpret_cast<size_t>(x) & 15) == 0;
+
+  // 2) Main SSE loop.
+  static const __m128 kMask = _mm_castsi128_ps(_mm_set1_epi32(0x7fffffff));
+  if (aligned) {
+    for (; length >= 8; length -= 8) {
+      _mm_store_ps(dst, _mm_and_ps(_mm_load_ps(x), kMask));
+      _mm_store_ps(dst + 4, _mm_and_ps(_mm_load_ps(x + 4), kMask));
+      dst += 8; x += 8;
+    }
+    for (; length >= 4; length -= 4) {
+      _mm_store_ps(dst, _mm_and_ps(_mm_load_ps(x), kMask));
+      dst += 4; x += 4;
+    }
+  }
+  else {
+    for (; length >= 8; length -= 8) {
+      _mm_store_ps(dst, _mm_and_ps(_mm_loadu_ps(x), kMask));
+      _mm_store_ps(dst + 4, _mm_and_ps(_mm_loadu_ps(x + 4), kMask));
+      dst += 8; x += 8;
+    }
+    for (; length >= 4; length -= 4) {
+      _mm_store_ps(dst, _mm_and_ps(_mm_loadu_ps(x), kMask));
+      dst += 4; x += 4;
+    }
+  }
+
+  // 3) Tail loop.
+  while (length--) {
+    *dst++ = std::abs(*x++);
+  }
+}
+
 void ArrayMathSSE::sin_f32(float32 *dst, const float32 *x, size_t length) {
   op_f32_a<SinOP>(dst, x, length);
 }
