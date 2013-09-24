@@ -493,6 +493,49 @@ void ArrayMathSSE::sqrt_f32(float32 *dst, const float32 *x, size_t length) {
   }
 }
 
+void ArrayMathSSE::clamp_f32(float32 *dst, const float32 *x, float32 xMin, float32 xMax, size_t length) {
+  // 1) Align dst to a 16-byte boundary.
+  while ((reinterpret_cast<size_t>(dst) & 15) && length--) {
+    float32 val = *x++;
+    *dst++ = val < xMin ? xMin : val > xMax ? xMax : val;
+  }
+
+  // Check alignment.
+  bool aligned = (reinterpret_cast<size_t>(x) & 15) == 0;
+
+  // 2) Main SSE loop (handle different alignment cases).
+  __m128 _xMin = _mm_set1_ps(xMin);
+  __m128 _xMax = _mm_set1_ps(xMax);
+  if (aligned) {
+    for (; length >= 8; length -= 8) {
+      _mm_store_ps(dst, _mm_max_ps(_xMin, _mm_min_ps(_xMax, _mm_load_ps(x))));
+      _mm_store_ps(dst + 4, _mm_max_ps(_xMin, _mm_min_ps(_xMax, _mm_load_ps(x + 4))));
+      dst += 8; x += 8;
+    }
+    for (; length >= 4; length -= 4) {
+      _mm_store_ps(dst, _mm_max_ps(_xMin, _mm_min_ps(_xMax, _mm_load_ps(x))));
+      dst += 4; x += 4;
+    }
+  }
+  else {
+    for (; length >= 8; length -= 8) {
+      _mm_store_ps(dst, _mm_max_ps(_xMin, _mm_min_ps(_xMax, _mm_loadu_ps(x))));
+      _mm_store_ps(dst + 4, _mm_max_ps(_xMin, _mm_min_ps(_xMax, _mm_loadu_ps(x + 4))));
+      dst += 8; x += 8;
+    }
+    for (; length >= 4; length -= 4) {
+      _mm_store_ps(dst, _mm_max_ps(_xMin, _mm_min_ps(_xMax, _mm_loadu_ps(x))));
+      dst += 4; x += 4;
+    }
+  }
+
+  // 3) Tail loop.
+  while (length--) {
+    float32 val = *x++;
+    *dst++ = val < xMin ? xMin : val > xMax ? xMax : val;
+  }
+}
+
 void ArrayMathSSE::fill_f32(float32 *dst, float32 value, size_t length) {
   // 1) Align dst to a 16-byte boundary.
   while ((reinterpret_cast<size_t>(dst) & 15) && length--) {

@@ -104,6 +104,7 @@ ArrayMath::ArrayMath() {
     p_cos_f32 = ArrayMathSSE::cos_f32;
     p_exp_f32 = ArrayMathSSE::exp_f32;
     p_log_f32 = ArrayMathSSE::log_f32;
+    p_clamp_f32 = ArrayMathSSE::clamp_f32;
     p_fill_f32 = ArrayMathSSE::fill_f32;
     p_ramp_f32 = ArrayMathSSE::ramp_f32;
   }
