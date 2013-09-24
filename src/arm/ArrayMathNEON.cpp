@@ -274,6 +274,25 @@ void ArrayMathNEON::div_f32_aa(float32 *dst, const float32 *x, const float32 *y,
   op_f32_aa<DivOP>(dst, x, y, length);
 }
 
+void ArrayMathNEON::abs_f32(float32 *dst, const float32 *x, size_t length) {
+  // 1) Align dst to a 16-byte boundary.
+  while ((reinterpret_cast<size_t>(dst) & 15) && length--) {
+    *dst++ = std::abs(*x++);
+  }
+
+  // 2) Main NEON loop.
+  static const float32x4_t kZero = vdupq_n_f32(0.0f);
+  for (; length >= 4; length -= 4) {
+    vst1q_f32(dst, vabdq_f32(vld1q_f32(x), kZero));
+    dst += 4; x += 4;
+  }
+
+  // 3) Tail loop.
+  while (length--) {
+    *dst++ = std::abs(*x++);
+  }
+}
+
 void ArrayMathNEON::sin_f32(float32 *dst, const float32 *x, size_t length) {
   op_f32_a<SinOP>(dst, x, length);
 }
@@ -360,6 +379,28 @@ float32 ArrayMathNEON::min_f32(const float32 *x, size_t length) {
   }
 
   return result;
+}
+
+void ArrayMathNEON::clamp_f32(float32 *dst, const float32 *x, float32 xMin, float32 xMax, size_t length) {
+  // 1) Align dst to a 16-byte boundary.
+  while ((reinterpret_cast<size_t>(dst) & 15) && length--) {
+    float32 val = *x++;
+    *dst++ = val < xMin ? xMin : val > xMax ? xMax : val;
+  }
+
+  // 2) Main NEON loop.
+  float32x4_t _xMin = vdupq_n_f32(xMin);
+  float32x4_t _xMax = vdupq_n_f32(xMax);
+  for (; length >= 4; length -= 4) {
+    vst1q_f32(dst, vmaxq_f32(_xMin, vminq_f32(_xMax, vld1q_f32(x))));
+    dst += 4; x += 4;
+  }
+
+  // 3) Tail loop.
+  while (length--) {
+    float32 val = *x++;
+    *dst++ = val < xMin ? xMin : val > xMax ? xMax : val;
+  }
 }
 
 void ArrayMathNEON::fill_f32(float32 *dst, float32 value, size_t length) {

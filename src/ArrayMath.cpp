@@ -158,6 +158,7 @@ ArrayMath::ArrayMath() {
     p_mulCplx_f32_aa = ArrayMathNEON::mulCplx_f32_aa;
     p_div_f32_sa = ArrayMathNEON::div_f32_sa;
     p_div_f32_aa = ArrayMathNEON::div_f32_aa;
+    p_abs_f32 = ArrayMathNEON::abs_f32;
     p_sin_f32 = ArrayMathNEON::sin_f32;
     p_cos_f32 = ArrayMathNEON::cos_f32;
     p_exp_f32 = ArrayMathNEON::exp_f32;
@@ -165,6 +166,7 @@ ArrayMath::ArrayMath() {
     p_sqrt_f32 = ArrayMathNEON::sqrt_f32;
     p_max_f32 = ArrayMathNEON::max_f32;
     p_min_f32 = ArrayMathNEON::min_f32;
+    p_clamp_f32 = ArrayMathNEON::clamp_f32;
     p_fill_f32 = ArrayMathNEON::fill_f32;
     p_ramp_f32 = ArrayMathNEON::ramp_f32;
     if (cpu.hasNEON_FMA()) {
