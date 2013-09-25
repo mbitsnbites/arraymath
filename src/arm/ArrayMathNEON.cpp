@@ -37,6 +37,38 @@ namespace {
 
 #include "arm/neon_mathfun.h"
 
+//-----------------------------------------------------------------------------
+// Aligned load/store operations.
+//-----------------------------------------------------------------------------
+
+AM_INLINE float32x4_t vld1qa_inc_f32(const float *&addr) {
+  float32x4_t result;
+#if defined(__GNUC__)
+  __asm__ (
+    "vld1.32 {%q[result]}, [%[addr]:128]!"
+    : [result] "=w" (result), [addr] "+r" (addr)
+    :
+  );
+#else
+  result = vld1q_f32(addr);
+  addr += 4;
+#endif
+  return result;
+}
+
+AM_INLINE void vst1qa_inc_f32(float *&addr, const float32x4_t x) {
+#if defined(__GNUC__)
+  __asm__ (
+    "vst1.32 {%q[x]}, [%[addr]:128]!"
+    : [addr] "+r" (addr)
+    : [x] "w" (x)
+  );
+#else
+  vst1q_f32(addr, x);
+  addr += 4;
+#endif
+}
+
 }
 
 namespace arraymath {
@@ -52,11 +84,21 @@ void op_f32_sa(float32 *dst, float32 x, const float32 *y, size_t length) {
     *dst++ = OP::op(x, *y++);
   }
 
-  // 2) Main NEON loop.
+  // Check alignment.
+  bool aligned = (reinterpret_cast<size_t>(y) & 15) == 0;
+
+  // 2) Main NEON loop (handle different alignment cases).
   float32x4_t _x = vdupq_n_f32(x);
-  for (; length >= 4; length -= 4) {
-    vst1q_f32(dst, OP::opNEON(_x, vld1q_f32(y)));
-    dst += 4; y += 4;
+  if (aligned) {
+    for (; length >= 4; length -= 4) {
+      vst1qa_inc_f32(dst, OP::opNEON(_x, vld1qa_inc_f32(y)));
+    }
+  }
+  else {
+    for (; length >= 4; length -= 4) {
+      vst1qa_inc_f32(dst, OP::opNEON(_x, vld1q_f32(y)));
+      y += 4;
+    }
   }
 
   // 3) Tail loop.
@@ -74,8 +116,8 @@ void op_f32_aa(float32 *dst, const float32 *x, const float32 *y, size_t length) 
 
   // 2) Main NEON loop.
   for (; length >= 4; length -= 4) {
-    vst1q_f32(dst, OP::opNEON(vld1q_f32(x), vld1q_f32(y)));
-    dst += 4; x += 4; y += 4;
+    vst1qa_inc_f32(dst, OP::opNEON(vld1q_f32(x), vld1q_f32(y)));
+    x += 4; y += 4;
   }
 
   // 3) Tail loop.
@@ -91,10 +133,20 @@ void op_f32_a(float32 *dst, const float32 *x, size_t length) {
     *dst++ = OP::op(*x++);
   }
 
-  // 2) Main NEON loop.
-  for (; length >= 4; length -= 4) {
-    vst1q_f32(dst, OP::opNEON(vld1q_f32(x)));
-    dst += 4; x += 4;
+  // Check alignment.
+  bool aligned = (reinterpret_cast<size_t>(x) & 15) == 0;
+
+  // 2) Main NEON loop (handle different alignment cases).
+  if (aligned) {
+    for (; length >= 4; length -= 4) {
+      vst1qa_inc_f32(dst, OP::opNEON(vld1qa_inc_f32(x)));
+    }
+  }
+  else {
+    for (; length >= 4; length -= 4) {
+      vst1qa_inc_f32(dst, OP::opNEON(vld1q_f32(x)));
+      x += 4;
+    }
   }
 
   // 3) Tail loop.
@@ -324,8 +376,7 @@ float32 ArrayMathNEON::max_f32(const float32 *x, size_t length) {
   // 2) Main NEON loop.
   float32x4_t _result = vdupq_n_f32(result);
   for (; length >= 4; length -= 4) {
-    _result = vmaxq_f32(_result, vld1q_f32(x));
-    x += 4;
+    _result = vmaxq_f32(_result, vld1qa_inc_f32(x));
   }
 
   // 3) Horizontal max of SIMD register (there must be a better way?).
@@ -358,8 +409,7 @@ float32 ArrayMathNEON::min_f32(const float32 *x, size_t length) {
   // 2) Main NEON loop.
   float32x4_t _result = vdupq_n_f32(result);
   for (; length >= 4; length -= 4) {
-    _result = vminq_f32(_result, vld1q_f32(x));
-    x += 4;
+    _result = vminq_f32(_result, vld1qa_inc_f32(x));
   }
 
   // 3) Horizontal min of SIMD register (there must be a better way?).
@@ -388,12 +438,22 @@ void ArrayMathNEON::clamp_f32(float32 *dst, const float32 *x, float32 xMin, floa
     *dst++ = val < xMin ? xMin : val > xMax ? xMax : val;
   }
 
-  // 2) Main NEON loop.
+  // Check alignment.
+  bool aligned = (reinterpret_cast<size_t>(x) & 15) == 0;
+
+  // 2) Main NEON loop (handle different alignment cases).
   float32x4_t _xMin = vdupq_n_f32(xMin);
   float32x4_t _xMax = vdupq_n_f32(xMax);
-  for (; length >= 4; length -= 4) {
-    vst1q_f32(dst, vmaxq_f32(_xMin, vminq_f32(_xMax, vld1q_f32(x))));
-    dst += 4; x += 4;
+  if (aligned) {
+    for (; length >= 4; length -= 4) {
+      vst1qa_inc_f32(dst, vmaxq_f32(_xMin, vminq_f32(_xMax, vld1qa_inc_f32(x))));
+    }
+  }
+  else {
+    for (; length >= 4; length -= 4) {
+      vst1qa_inc_f32(dst, vmaxq_f32(_xMin, vminq_f32(_xMax, vld1q_f32(x))));
+      x += 4;
+    }
   }
 
   // 3) Tail loop.
@@ -412,8 +472,7 @@ void ArrayMathNEON::fill_f32(float32 *dst, float32 value, size_t length) {
   // 2) Main NEON loop.
   float32x4_t _value = vdupq_n_f32(value);
   for (; length >= 4; length -= 4) {
-    vst1q_f32(dst, _value);
-    dst += 4;
+    vst1qa_inc_f32(dst, _value);
   }
 
   // 3) Tail loop.
@@ -448,9 +507,8 @@ void ArrayMathNEON::ramp_f32(float32 *dst, float32 first, float32 last, size_t l
   float32x4_t _k = vaddq_f32(vdupq_n_f32(k), kIdxRamp);
   size_t mainLoopSize = (length / 4) * 4;
   for (; length >= 4; length -= 4) {
-    vst1q_f32(dst, vaddq_f32(_first, vmulq_f32(_step, _k)));
+    vst1qa_inc_f32(dst, vaddq_f32(_first, vmulq_f32(_step, _k)));
     _k = vaddq_f32(_k, kFour);
-    dst += 4;
   }
   k += mainLoopSize;
 
