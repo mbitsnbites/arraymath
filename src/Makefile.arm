@@ -58,6 +58,7 @@ OBJS = $(OUTDIR)/ArrayMath.o \
        $(OUTDIR)/FilterGeneric.o \
        $(OUTDIR)/FFTFactory.o \
        $(OUTDIR)/RandomGeneric.o \
+       $(OUTDIR)/RandomNEON.o \
        $(FFT_OBJS)
 
 all: $(OUTDIR)/Benchmark $(OUTDIR)/Test
@@ -81,6 +82,9 @@ $(OUTDIR)/%.o: generic/%.cpp
 	$(CPP) $(CPPFLAGS) -o $@ $<
 
 $(OUTDIR)/ArrayMathNEON.o: arm/ArrayMathNEON.cpp
+	$(CPP) $(CPPFLAGS_NEON) -o $@ $<
+
+$(OUTDIR)/RandomNEON.o: arm/RandomNEON.cpp
 	$(CPP) $(CPPFLAGS_NEON) -o $@ $<
 
 $(OUTDIR)/%.o: test/%.cpp

@@ -26,6 +26,7 @@
 #include "ArrayMath.h"
 
 #include "arm/ArrayMathNEON.h"
+#include "arm/RandomNEON.h"
 #include "common/Architecture.h"
 #include "common/CPUFeatureDetector.h"
 #include "generic/ArrayMathGeneric.h"
@@ -187,6 +188,13 @@ ArrayMath::ArrayMath() {
     m_random_f32 = RandomSSE2Factory::create();
   }
 #endif // AM_USE_X86 && AM_HAS_SSE2
+
+#if defined(AM_USE_ARM) && defined(AM_HAS_NEON)
+  if (cpu.hasNEON()) {
+    // Use a NEON optimized random number generator.
+    m_random_f32 = RandomNEONFactory::create();
+  }
+#endif // AM_USE_ARM && AM_HAS_NEON
 
   // Fall back to generic random number generator if necessary.
   if (!m_random_f32) {
