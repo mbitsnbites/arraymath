@@ -217,6 +217,15 @@ struct SqrtOP {
   }
 };
 
+struct AbsOP {
+  static float32 op(float32 a) {
+    return std::abs(a);
+  }
+  static float32x4_t opNEON(float32x4_t a) {
+    return vabsq_f32(a);
+  }
+};
+
 struct SinOP {
   static float32 op(float32 a) {
     return std::sin(a);
@@ -327,22 +336,7 @@ void ArrayMathNEON::div_f32_aa(float32 *dst, const float32 *x, const float32 *y,
 }
 
 void ArrayMathNEON::abs_f32(float32 *dst, const float32 *x, size_t length) {
-  // 1) Align dst to a 16-byte boundary.
-  while ((reinterpret_cast<size_t>(dst) & 15) && length--) {
-    *dst++ = std::abs(*x++);
-  }
-
-  // 2) Main NEON loop.
-  static const float32x4_t kZero = vdupq_n_f32(0.0f);
-  for (; length >= 4; length -= 4) {
-    vst1q_f32(dst, vabdq_f32(vld1q_f32(x), kZero));
-    dst += 4; x += 4;
-  }
-
-  // 3) Tail loop.
-  while (length--) {
-    *dst++ = std::abs(*x++);
-  }
+  op_f32_a<AbsOP>(dst, x, length);
 }
 
 void ArrayMathNEON::sin_f32(float32 *dst, const float32 *x, size_t length) {
