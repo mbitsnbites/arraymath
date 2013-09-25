@@ -544,6 +544,13 @@ void ArrayMathSSE::fill_f32(float32 *dst, float32 value, size_t length) {
 
   // 2) Main SSE loop.
   __m128 _value = _mm_set1_ps(value);
+  for (; length >= 16; length -= 16) {
+    _mm_store_ps(dst, _value);
+    _mm_store_ps(dst + 4, _value);
+    _mm_store_ps(dst + 8, _value);
+    _mm_store_ps(dst + 12, _value);
+    dst += 16;
+  }
   for (; length >= 4; length -= 4) {
     _mm_store_ps(dst, _value);
     dst += 4;

@@ -674,16 +674,28 @@ void ArrayMathAVX::fract_f32(float32 *dst, const float32 *x, size_t length) {
 }
 
 void ArrayMathAVX::fill_f32(float32 *dst, float32 value, size_t length) {
-  // 1) Align dst to a 32-byte boundary.
-  while ((reinterpret_cast<size_t>(dst) & 31) && length--) {
-    *dst++ = value;
-  }
+  if (length >= 16) {
+    // 1) Align dst to a 32-byte boundary.
+    size_t num_unaligned = (reinterpret_cast<size_t>(dst) & 31) >> 2;
+    num_unaligned = num_unaligned ? 8 - num_unaligned : 0;
+    length -= num_unaligned;
+    while (num_unaligned--) {
+      *dst++ = value;
+    }
 
-  // 2) Main AVX loop.
-  __m256 _value = _mm256_set1_ps(value);
-  for (; length >= 8; length -= 8) {
-    _mm256_store_ps(dst, _value);
-    dst += 8;
+    // 2) Main AVX loop.
+    __m256 _value = _mm256_set1_ps(value);
+    for (; length >= 32; length -= 32) {
+      _mm256_store_ps(dst, _value);
+      _mm256_store_ps(dst + 8, _value);
+      _mm256_store_ps(dst + 16, _value);
+      _mm256_store_ps(dst + 24, _value);
+      dst += 32;
+    }
+    for (; length >= 8; length -= 8) {
+      _mm256_store_ps(dst, _value);
+      dst += 8;
+    }
   }
 
   // 3) Tail loop.
