@@ -290,11 +290,34 @@ void ArrayMathNEON::mulCplx_f32_sa(float32 *dstReal, float32 *dstImag, float32 x
   // 1) Main NEON loop.
   float32x4_t _xr = vdupq_n_f32(xReal);
   float32x4_t _xi = vdupq_n_f32(xImag);
+  for (; length >= 12; length -= 12) {
+    float32x4_t _yr1 = vld1q_f32(yReal);
+    float32x4_t _yi1 = vld1q_f32(yImag);
+    float32x4_t _yr2 = vld1q_f32(yReal + 4);
+    float32x4_t _yi2 = vld1q_f32(yImag + 4);
+    float32x4_t _yr3 = vld1q_f32(yReal + 8);
+    float32x4_t _yi3 = vld1q_f32(yImag + 8);
+    float32x4_t _xr_yr1 = vmulq_f32(_xr, _yr1);
+    float32x4_t _xr_yi1 = vmulq_f32(_xr, _yi1);
+    float32x4_t _xr_yr2 = vmulq_f32(_xr, _yr2);
+    float32x4_t _xr_yi2 = vmulq_f32(_xr, _yi2);
+    float32x4_t _xr_yr3 = vmulq_f32(_xr, _yr3);
+    float32x4_t _xr_yi3 = vmulq_f32(_xr, _yi3);
+    vst1q_f32(dstReal, vmlsq_f32(_xr_yr1, _xi, _yi1));
+    vst1q_f32(dstImag, vmlaq_f32(_xr_yi1, _xi, _yr1));
+    vst1q_f32(dstReal + 4, vmlsq_f32(_xr_yr2, _xi, _yi2));
+    vst1q_f32(dstImag + 4, vmlaq_f32(_xr_yi2, _xi, _yr2));
+    vst1q_f32(dstReal + 8, vmlsq_f32(_xr_yr3, _xi, _yi3));
+    vst1q_f32(dstImag + 8, vmlaq_f32(_xr_yi3, _xi, _yr3));
+    dstReal += 12; dstImag += 12; yReal += 12; yImag += 12;
+  }
   for (; length >= 4; length -= 4) {
     float32x4_t _yr = vld1q_f32(yReal);
     float32x4_t _yi = vld1q_f32(yImag);
-    vst1q_f32(dstReal, vsubq_f32(vmulq_f32(_xr, _yr), vmulq_f32(_xi, _yi)));
-    vst1q_f32(dstImag, vaddq_f32(vmulq_f32(_xr, _yi), vmulq_f32(_xi, _yr)));
+    float32x4_t _xr_yr = vmulq_f32(_xr, _yr);
+    float32x4_t _xr_yi = vmulq_f32(_xr, _yi);
+    vst1q_f32(dstReal, vmlsq_f32(_xr_yr, _xi, _yi));
+    vst1q_f32(dstImag, vmlaq_f32(_xr_yi, _xi, _yr));
     dstReal += 4; dstImag += 4; yReal += 4; yImag += 4;
   }
 
@@ -309,13 +332,42 @@ void ArrayMathNEON::mulCplx_f32_sa(float32 *dstReal, float32 *dstImag, float32 x
 
 void ArrayMathNEON::mulCplx_f32_aa(float32 *dstReal, float32 *dstImag, const float32 *xReal, const float32 *xImag, const float32 *yReal, const float32 *yImag, size_t length) {
   // 1) Main NEON loop.
+  for (; length >= 12; length -= 12) {
+      float32x4_t _xr1 = vld1q_f32(xReal);
+      float32x4_t _xi1 = vld1q_f32(xImag);
+      float32x4_t _yr1 = vld1q_f32(yReal);
+      float32x4_t _yi1 = vld1q_f32(yImag);
+      float32x4_t _xr2 = vld1q_f32(xReal + 4);
+      float32x4_t _xi2 = vld1q_f32(xImag + 4);
+      float32x4_t _yr2 = vld1q_f32(yReal + 4);
+      float32x4_t _yi2 = vld1q_f32(yImag + 4);
+      float32x4_t _xr3 = vld1q_f32(xReal + 8);
+      float32x4_t _xi3 = vld1q_f32(xImag + 8);
+      float32x4_t _yr3 = vld1q_f32(yReal + 8);
+      float32x4_t _yi3 = vld1q_f32(yImag + 8);
+      float32x4_t _xr_yr1 = vmulq_f32(_xr1, _yr1);
+      float32x4_t _xr_yi1 = vmulq_f32(_xr1, _yi1);
+      float32x4_t _xr_yr2 = vmulq_f32(_xr2, _yr2);
+      float32x4_t _xr_yi2 = vmulq_f32(_xr2, _yi2);
+      float32x4_t _xr_yr3 = vmulq_f32(_xr3, _yr3);
+      float32x4_t _xr_yi3 = vmulq_f32(_xr3, _yi3);
+      vst1q_f32(dstReal, vmlsq_f32(_xr_yr1, _xi1, _yi1));
+      vst1q_f32(dstImag, vmlaq_f32(_xr_yi1, _xi1, _yr1));
+      vst1q_f32(dstReal + 4, vmlsq_f32(_xr_yr2, _xi2, _yi2));
+      vst1q_f32(dstImag + 4, vmlaq_f32(_xr_yi2, _xi2, _yr2));
+      vst1q_f32(dstReal + 8, vmlsq_f32(_xr_yr3, _xi3, _yi3));
+      vst1q_f32(dstImag + 8, vmlaq_f32(_xr_yi3, _xi3, _yr3));
+      dstReal += 12; dstImag += 12; xReal += 12; xImag += 12; yReal += 12; yImag += 12;
+  }
   for (; length >= 4; length -= 4) {
     float32x4_t _xr = vld1q_f32(xReal);
-    float32x4_t _xi = vld1q_f32(xImag);
     float32x4_t _yr = vld1q_f32(yReal);
+    float32x4_t _xi = vld1q_f32(xImag);
     float32x4_t _yi = vld1q_f32(yImag);
-    vst1q_f32(dstReal, vsubq_f32(vmulq_f32(_xr, _yr), vmulq_f32(_xi, _yi)));
-    vst1q_f32(dstImag, vaddq_f32(vmulq_f32(_xr, _yi), vmulq_f32(_xi, _yr)));
+    float32x4_t _xr_yr = vmulq_f32(_xr, _yr);
+    float32x4_t _xr_yi = vmulq_f32(_xr, _yi);
+    vst1q_f32(dstReal, vmlsq_f32(_xr_yr, _xi, _yi));
+    vst1q_f32(dstImag, vmlaq_f32(_xr_yi, _xi, _yr));
     dstReal += 4; dstImag += 4; xReal += 4; xImag += 4; yReal += 4; yImag += 4;
   }
 
