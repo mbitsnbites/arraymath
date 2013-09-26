@@ -64,21 +64,14 @@ class RandomNEON : public Random {
   unsigned m_generated_idx;
 };
 
-namespace {
+#define mutateLeft(value, shift) \
+  veorq_u32(value, vshlq_n_u32(value, shift))
 
-uint32x4_t mutateLeft(uint32x4_t value, int shift) {
-  return veorq_u32(value, vshlq_n_u32(value, shift));
-}
+#define mutateRight(value, shift) \
+  veorq_u32(value, vshrq_n_u32(value, shift))
 
-uint32x4_t mutateRight(uint32x4_t value, int shift) {
-  return veorq_u32(value, vshrq_n_u32(value, shift));
-}
-
-uint32x4_t mutateLeftMix(uint32x4_t value, int shift, uint32x4_t mix) {
-  return veorq_u32(value, vandq_u32(vshlq_n_u32(value, shift), mix));
-}
-
-} // anonymous namespace
+#define mutateLeftMix(value, shift, mix) \
+  veorq_u32(value, vandq_u32(vshlq_n_u32(value, shift), mix))
 
 AM_INLINE
 float32x4_t RandomNEON::generate4() {
