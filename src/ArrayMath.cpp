@@ -25,6 +25,7 @@
 
 #include "ArrayMath.h"
 
+#include "arm/ArrayMathARM.h"
 #include "arm/ArrayMathNEON.h"
 #include "arm/RandomNEON.h"
 #include "common/Architecture.h"
@@ -151,6 +152,8 @@ ArrayMath::ArrayMath() {
 #endif // AM_USE_X86 && AM_HAS_AVX
 
 #if defined(AM_USE_ARM) && defined(AM_HAS_NEON)
+  p_abs_f32 = ArrayMathARM::abs_f32;
+  p_fill_f32 = ArrayMathARM::fill_f32;
   if (cpu.hasNEON()) {
     p_add_f32_sa = ArrayMathNEON::add_f32_sa;
     p_add_f32_aa = ArrayMathNEON::add_f32_aa;

@@ -51,6 +51,7 @@ FFT_OBJS = $(OUTDIR)/kiss_fft.o \
 
 # Core ArrayMath objects
 OBJS = $(OUTDIR)/ArrayMath.o \
+       $(OUTDIR)/ArrayMathARM.o \
        $(OUTDIR)/ArrayMathGeneric.o \
        $(OUTDIR)/ArrayMathNEON.o \
        $(OUTDIR)/CPUFeatureDetector.o \
@@ -79,6 +80,9 @@ $(OUTDIR)/%.o: common/%.cpp
 	$(CPP) $(CPPFLAGS) -o $@ $<
 
 $(OUTDIR)/%.o: generic/%.cpp
+	$(CPP) $(CPPFLAGS) -o $@ $<
+
+$(OUTDIR)/ArrayMathARM.o: arm/ArrayMathARM.cpp
 	$(CPP) $(CPPFLAGS) -o $@ $<
 
 $(OUTDIR)/ArrayMathNEON.o: arm/ArrayMathNEON.cpp
