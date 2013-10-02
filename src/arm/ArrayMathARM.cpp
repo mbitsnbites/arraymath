@@ -173,6 +173,98 @@ void ArrayMathARM::fill_f32(float32 *dst, float32 value, size_t length) {
   }
 }
 
+void ArrayMathARM::sign_f32(float32 *dst, const float32 *x, size_t length) {
+  static const uint32 kSignMask = 0x80000000;
+  static const uint32 kOne = 0x3f800000;
+  uint32 *dst_u32 = reinterpret_cast<uint32*>(dst);
+  const uint32 *x_u32 = reinterpret_cast<const uint32*>(x);
+
+  if (length >= 16) {
+      // 1) Align x to a 64-byte boundary.
+      size_t num_unaligned = reinterpret_cast<size_t>(x_u32) & 63;
+      num_unaligned = num_unaligned ? 16 - (num_unaligned >> 2) : 0;
+      length -= num_unaligned;
+      while (num_unaligned--) {
+        *dst_u32++ = ((*x_u32++) & kSignMask) | kOne;
+      }
+
+      // 2) Main unrolled loop.
+#if defined(__GNUC__)
+      __asm__ (
+        "\n.sign_loop%=:\n\t"
+#if AM_ARM_ARCH >= 6
+        "pld   [%[x_u32], #16*4]\n\t"
+#endif
+        "sub   %[length], %[length], #16\n\t"
+        "ldmia %[x_u32]!, {r3,r4,r5,r6,r8,r10,r11,r12}\n\t"
+        "and   r3, r3, #-2147483648\n\t"
+        "and   r4, r4, #-2147483648\n\t"
+        "and   r5, r5, #-2147483648\n\t"
+        "and   r6, r6, #-2147483648\n\t"
+        "and   r8, r8, #-2147483648\n\t"
+        "and   r10, r10, #-2147483648\n\t"
+        "and   r11, r11, #-2147483648\n\t"
+        "and   r12, r12, #-2147483648\n\t"
+        "orr   r3, r3, #1065353216\n\t"
+        "orr   r4, r4, #1065353216\n\t"
+        "orr   r5, r5, #1065353216\n\t"
+        "orr   r6, r6, #1065353216\n\t"
+        "orr   r8, r8, #1065353216\n\t"
+        "orr   r10, r10, #1065353216\n\t"
+        "orr   r11, r11, #1065353216\n\t"
+        "orr   r12, r12, #1065353216\n\t"
+        "stmia %[dst_u32]!, {r3,r4,r5,r6,r8,r10,r11,r12}\n\t"
+        "cmp   %[length], #15\n\t"
+        "ldmia %[x_u32]!, {r3,r4,r5,r6,r8,r10,r11,r12}\n\t"
+        "and   r3, r3, #-2147483648\n\t"
+        "and   r4, r4, #-2147483648\n\t"
+        "and   r5, r5, #-2147483648\n\t"
+        "and   r6, r6, #-2147483648\n\t"
+        "and   r8, r8, #-2147483648\n\t"
+        "and   r10, r10, #-2147483648\n\t"
+        "and   r11, r11, #-2147483648\n\t"
+        "and   r12, r12, #-2147483648\n\t"
+        "orr   r3, r3, #1065353216\n\t"
+        "orr   r4, r4, #1065353216\n\t"
+        "orr   r5, r5, #1065353216\n\t"
+        "orr   r6, r6, #1065353216\n\t"
+        "orr   r8, r8, #1065353216\n\t"
+        "orr   r10, r10, #1065353216\n\t"
+        "orr   r11, r11, #1065353216\n\t"
+        "orr   r12, r12, #1065353216\n\t"
+        "stmia %[dst_u32]!, {r3,r4,r5,r6,r8,r10,r11,r12}\n\t"
+        "bhi   .sign_loop%=\n\t"
+        : [dst_u32] "+r" (dst_u32), [x_u32] "+r" (x_u32)
+        : [length] "r" (length)
+        : "memory", "r3", "r4", "r5", "r6", "r8", "r10", "r11", "r12"
+      );
+#endif
+      for (; length >= 8; length -= 8) {
+        uint32 x1 = *x_u32++;
+        uint32 x2 = *x_u32++;
+        uint32 x3 = *x_u32++;
+        uint32 x4 = *x_u32++;
+        uint32 x5 = *x_u32++;
+        uint32 x6 = *x_u32++;
+        uint32 x7 = *x_u32++;
+        uint32 x8 = *x_u32++;
+        *dst_u32++ = (x1 & kSignMask) | kOne;
+        *dst_u32++ = (x2 & kSignMask) | kOne;
+        *dst_u32++ = (x3 & kSignMask) | kOne;
+        *dst_u32++ = (x4 & kSignMask) | kOne;
+        *dst_u32++ = (x5 & kSignMask) | kOne;
+        *dst_u32++ = (x6 & kSignMask) | kOne;
+        *dst_u32++ = (x7 & kSignMask) | kOne;
+        *dst_u32++ = (x8 & kSignMask) | kOne;
+      }
+  }
+
+  // 3) Tail loop.
+  while (length--) {
+    *dst_u32++ = ((*x_u32++) & kSignMask) | kOne;
+  }
+}
+
 }  // namespace arraymath
 
 #endif // AM_USE_ARM

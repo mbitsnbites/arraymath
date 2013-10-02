@@ -154,6 +154,7 @@ ArrayMath::ArrayMath() {
 #if defined(AM_USE_ARM)
   p_abs_f32 = ArrayMathARM::abs_f32;
   p_fill_f32 = ArrayMathARM::fill_f32;
+  p_sign_f32 = ArrayMathARM::sign_f32;
 #endif // AM_USE_ARM
 
 #if defined(AM_USE_ARM) && defined(AM_HAS_NEON)

@@ -38,6 +38,7 @@ class ArrayMathARM {
  public:
   static void abs_f32(float32 *dst, const float32 *x, size_t length);
   static void fill_f32(float32 *dst, float32 value, size_t length);
+  static void sign_f32(float32 *dst, const float32 *x, size_t length);
 };
 
 }  // namespace arraymath
