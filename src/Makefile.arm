@@ -38,6 +38,9 @@ RM = rm -rf
 CFLAGS += -MMD -MP
 CPPFLAGS += -MMD -MP
 
+# ARM architecture flags
+CPPFLAGS += -march=armv7-a -mtune=generic-armv7-a
+
 # ARM SIMD activation
 CPPFLAGS += -DAM_HAS_NEON -DAM_USE_KISS_FFT
 CPPFLAGS_NEON = $(CPPFLAGS) -mfloat-abi=softfp -mfpu=neon

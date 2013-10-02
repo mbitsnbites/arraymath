@@ -26,6 +26,10 @@
 #ifndef _ARRAYMATH_ARRAYMATHARM_H
 #define _ARRAYMATH_ARRAYMATHARM_H
 
+#include "common/Architecture.h"
+
+#if defined(AM_USE_ARM)
+
 #include "common/Types.h"
 
 namespace arraymath {
@@ -37,6 +41,8 @@ class ArrayMathARM {
 };
 
 }  // namespace arraymath
+
+#endif // AM_USE_ARM
 
 #endif // _ARRAYMATH_ARRAYMATHARM_H
 

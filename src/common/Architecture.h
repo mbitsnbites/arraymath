@@ -47,6 +47,18 @@
 # define AM_USE_X86 1
 #elif defined(_M_ARM) || defined(__arm__)
 # define AM_USE_ARM 1
+# if defined(_M_ARM)
+#  define AM_ARM_ARCH _M_ARM
+# elif defined(__ARM_ARCH_5__) || defined(__ARM_ARCH_5E__) || defined(__ARM_ARCH_5T__) || defined(__ARM_ARCH_5TE__) ||  defined(__ARM_ARCH_5TEJ__)
+#  define AM_ARM_ARCH 5
+# elif defined(__ARM_ARCH_6__) || defined(__ARM_ARCH_6J__) ||  defined(__ARM_ARCH_6K__) ||  defined(__ARM_ARCH_6Z__) ||  defined(__ARM_ARCH_6ZK__) || defined(__ARM_ARCH_6T2__)
+#  define AM_ARM_ARCH 6
+# elif defined(__ARM_ARCH_7__) || defined(__ARM_ARCH_7A__) || defined(__ARM_ARCH_7R__) || defined(__ARM_ARCH_7M__) || defined(__ARM_ARCH_7S__)
+#  define AM_ARM_ARCH 7
+# else
+#  // We don't know, so fall back to lowest supported value.
+#  define AM_ARM_ARCH 5
+# endif
 #endif
 
 
