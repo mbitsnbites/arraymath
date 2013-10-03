@@ -792,6 +792,12 @@ void ArrayMathAVX::sign_f32(float32 *dst, const float32 *x, size_t length) {
 }
 
 void ArrayMathAVX::sampleLinear_f32(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength) {
+  if (xLength == 0) {
+    // If we have nothing to sample, act as if we're sampling only zeros.
+    fill_f32(dst, 0.0f, length);
+    return;
+  }
+
   size_t maxIdx = xLength - 1;
   __m256 _maxIdx = _mm256_set1_ps(static_cast<float32>(maxIdx));
   const __m256 kZero = _mm256_set1_ps(0.0f);
