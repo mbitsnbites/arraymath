@@ -483,6 +483,50 @@ void ArrayMathSSE::log_f32(float32 *dst, const float32 *x, size_t length) {
   op_f32_a<LogOP>(dst, x, length);
 }
 
+void ArrayMathSSE::pow_f32_as(float32 *dst, const float32 *x, float32 y, size_t length) {
+  // 1) Align dst to a 16-byte boundary.
+  while ((reinterpret_cast<size_t>(dst) & 15) && length--) {
+    *dst++ = std::pow(*x++, y);
+  }
+
+  // 2) Main SSE loop.
+  // Note: x^y = exp(y*log(x))
+  // TODO(m): This can probably be optimized even further.
+  __m128 _y = _mm_set1_ps(y);
+  for (; length >= 4; length -= 4) {
+    __m128 _x = _mm_loadu_ps(x);
+    _mm_store_ps(dst, exp_ps(_mm_mul_ps(_y, log_ps(_x))));
+    dst += 4; x += 4;
+  }
+
+  // 3) Tail loop.
+  while (length--) {
+    *dst++ = std::pow(*x++, y);
+  }
+}
+
+void ArrayMathSSE::pow_f32_aa(float32 *dst, const float32 *x, const float32 *y, size_t length) {
+  // 1) Align dst to a 16-byte boundary.
+  while ((reinterpret_cast<size_t>(dst) & 15) && length--) {
+    *dst++ = std::pow(*x++, *y++);
+  }
+
+  // 2) Main SSE loop.
+  // Note: x^y = exp(y*log(x))
+  // TODO(m): This can probably be optimized even further.
+  for (; length >= 4; length -= 4) {
+    __m128 _x = _mm_loadu_ps(x);
+    __m128 _y = _mm_loadu_ps(y);
+    _mm_store_ps(dst, exp_ps(_mm_mul_ps(_y, log_ps(_x))));
+    dst += 4; x += 4; y += 4;
+  }
+
+  // 3) Tail loop.
+  while (length--) {
+    *dst++ = std::pow(*x++, *y++);
+  }
+}
+
 void ArrayMathSSE::sqrt_f32(float32 *dst, const float32 *x, size_t length) {
   // 1) Align dst to a 16-byte boundary.
   while ((reinterpret_cast<size_t>(dst) & 15) && length--) {

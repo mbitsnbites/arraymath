@@ -108,6 +108,8 @@ ArrayMath::ArrayMath() {
     p_tan_f32 = ArrayMathSSE::tan_f32;
     p_exp_f32 = ArrayMathSSE::exp_f32;
     p_log_f32 = ArrayMathSSE::log_f32;
+    p_pow_f32_as = ArrayMathSSE::pow_f32_as;
+    p_pow_f32_aa = ArrayMathSSE::pow_f32_aa;
     p_clamp_f32 = ArrayMathSSE::clamp_f32;
     p_fill_f32 = ArrayMathSSE::fill_f32;
     p_ramp_f32 = ArrayMathSSE::ramp_f32;

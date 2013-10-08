@@ -105,11 +105,17 @@ void testArrayMath() {
   std::cout << "min(x) = " << math.min(&x[0], x.size()) << std::endl;
   std::cout << "max(x) = " << math.max(&x[0], x.size()) << std::endl;
 
+  std::cout << std::endl << "pow([2.0, 4.0], 3.3)" << std::endl;
+  math.ramp(&x[0], 2.0f, 4.0f, x.size());
+  math.pow(&x[0], &x[0], 3.3f, x.size());
+  std::cout << "min(x) = " << math.min(&x[0], x.size()) << std::endl;
+  std::cout << "max(x) = " << math.max(&x[0], x.size()) << std::endl;
+
   {
     std::vector<float> x(33), y(33);
     math.ramp(&x[0], -5.0f, 5.0f, x.size());
     math.sign(&y[0], &x[0], x.size());
-    std::cout << "Test sign()" << std::endl;
+    std::cout << std::endl << "Test sign()" << std::endl;
     std::cout << "x = "; printArray(x); std::cout << std::endl;
     std::cout << "y = "; printArray(y); std::cout << std::endl;
   }
@@ -119,7 +125,7 @@ void testArrayMath() {
     math.ramp(&t[0], -0.5f, 4.0f, t.size());
     math.ramp(&x[0], -1.0f, 1.0f, x.size());
     math.sampleLinear(&y[0], &x[0], &t[0], y.size(), x.size());
-    std::cout << "Test sampleLinear()" << std::endl;
+    std::cout << std::endl << "Test sampleLinear()" << std::endl;
     std::cout << "x = "; printArray(x); std::cout << std::endl;
     std::cout << "t = "; printArray(t); std::cout << std::endl;
     std::cout << "y = "; printArray(y); std::cout << std::endl;
@@ -130,7 +136,7 @@ void testArrayMath() {
     math.ramp(&t[0], -4.0f, 8.0f, t.size());
     math.ramp(&x[0], -1.0f, 1.0f, x.size());
     math.sampleLinearRepeat(&y[0], &x[0], &t[0], y.size(), x.size());
-    std::cout << "Test sampleLinearRepeat()" << std::endl;
+    std::cout << std::endl << "Test sampleLinearRepeat()" << std::endl;
     std::cout << "x = "; printArray(x); std::cout << std::endl;
     std::cout << "t = "; printArray(t); std::cout << std::endl;
     std::cout << "y = "; printArray(y); std::cout << std::endl;

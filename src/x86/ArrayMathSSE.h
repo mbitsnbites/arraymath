@@ -54,6 +54,8 @@ class ArrayMathSSE {
   static void tan_f32(float32 *dst, const float32 *x, size_t length);
   static void exp_f32(float32 *dst, const float32 *x, size_t length);
   static void log_f32(float32 *dst, const float32 *x, size_t length);
+  static void pow_f32_as(float32 *dst, const float32 *x, float32 y, size_t length);
+  static void pow_f32_aa(float32 *dst, const float32 *x, const float32 *y, size_t length);
   static void sqrt_f32(float32 *dst, const float32 *x, size_t length);
   static void clamp_f32(float32 *dst, const float32 *x, float32 xMin, float32 xMax, size_t length);
   static void fill_f32(float32 *dst, float32 value, size_t length);
