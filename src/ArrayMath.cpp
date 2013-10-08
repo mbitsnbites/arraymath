@@ -104,6 +104,7 @@ ArrayMath::ArrayMath() {
     p_abs_f32 = ArrayMathSSE::abs_f32;
     p_sin_f32 = ArrayMathSSE::sin_f32;
     p_cos_f32 = ArrayMathSSE::cos_f32;
+    p_tan_f32 = ArrayMathSSE::tan_f32;
     p_exp_f32 = ArrayMathSSE::exp_f32;
     p_log_f32 = ArrayMathSSE::log_f32;
     p_clamp_f32 = ArrayMathSSE::clamp_f32;
@@ -148,6 +149,7 @@ ArrayMath::ArrayMath() {
     p_ramp_f32 = ArrayMathAVX::ramp_f32;
     p_sign_f32 = ArrayMathAVX::sign_f32;
     p_sampleLinear_f32 = ArrayMathAVX::sampleLinear_f32;
+    p_sampleLinearRepeat_f32 = ArrayMathAVX::sampleLinearRepeat_f32;
   }
 #endif // AM_USE_X86 && AM_HAS_AVX
 

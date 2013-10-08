@@ -61,6 +61,7 @@ class ArrayMathAVX {
   static void ramp_f32(float32 *dst, float32 first, float32 last, size_t length);
   static void sign_f32(float32 *dst, const float32 *x, size_t length);
   static void sampleLinear_f32(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength);
+  static void sampleLinearRepeat_f32(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength);
 };
 
 }  // namespace arraymath

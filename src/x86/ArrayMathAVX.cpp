@@ -846,6 +846,65 @@ void ArrayMathAVX::sampleLinear_f32(float32 *dst, const float32 *x, const float3
   }
 }
 
+void ArrayMathAVX::sampleLinearRepeat_f32(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength) {
+  if (xLength == 0) {
+    // If we have nothing to sample, act as if we're sampling only zeros.
+    fill_f32(dst, 0.0f, length);
+    return;
+  }
+
+  size_t maxIdx = xLength - 1;
+  float32 xLengthF = static_cast<float32>(xLength);
+  float32 xLengthFInv = 1.0f / xLengthF;
+  __m256 _maxIdx = _mm256_set1_ps(static_cast<float32>(maxIdx));
+  __m256 _xLengthF = _mm256_set1_ps(xLengthF);
+  __m256 _xLengthFInv = _mm256_set1_ps(xLengthFInv);
+  const __m256 kZero = _mm256_set1_ps(0.0f);
+  const __m256 kOne = _mm256_set1_ps(1.0f);
+
+  union {
+    __m256i v;
+    int i[8];
+  } idx1, idx2;
+
+  union {
+    __m256 v;
+    float f[8];
+  } p1, p2;
+
+  // 1) Main AVX loop.
+  for (; length >= 8; length -= 8) {
+    __m256 _t2 = _mm256_loadu_ps(t);
+    _t2 = _mm256_sub_ps(_t2, _mm256_mul_ps(_mm256_floor_ps(_mm256_mul_ps(_t2, _xLengthFInv)), _xLengthF));
+    __m256 _w = _mm256_floor_ps(_t2);
+
+    idx1.v = _mm256_cvtps_epi32(_w);
+    idx2.v = _mm256_cvtps_epi32(_mm256_and_ps(_mm256_cmp_ps(_w, _maxIdx, _CMP_NEQ_UQ), _mm256_add_ps(_w, kOne)));
+
+    // TODO(m): Can we do this in a better way?
+    for (int k = 0; k < 8; ++k) {
+      p1.f[k] = x[idx1.i[k]];
+      p2.f[k] = x[idx2.i[k]];
+    }
+
+    _w = _mm256_sub_ps(_t2, _w);
+    _mm256_storeu_ps(dst, _mm256_add_ps(p1.v, _mm256_mul_ps(_w, _mm256_sub_ps(p2.v, p1.v))));
+
+    dst += 8; t += 8;
+  }
+
+  // 2) Tail loop.
+  while (length--) {
+    float32 t2 = *t++;
+    t2 = t2 - std::floor(t2 * xLengthFInv) * xLengthF;
+    size_t idx = std::floor(t2);
+    float32 w = t2 - static_cast<float32>(idx);
+    float32 p1 = x[idx];
+    float32 p2 = x[idx < maxIdx ? idx + 1 : 0];
+    *dst++ = p1 + w * (p2 - p1);
+  }
+}
+
 }  // namespace arraymath
 
 #endif // AM_USE_X86 && AM_HAS_AVX

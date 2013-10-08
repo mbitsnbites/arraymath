@@ -218,6 +218,17 @@ struct CosOP {
   }
 };
 
+struct TanOP {
+  static float32 op(float32 a) {
+    return std::tan(a);
+  }
+  static __m128 opSSE(__m128 a) {
+    __m128 s, c;
+    sincos_ps(a, &s, &c);
+    return _mm_div_ps(s, c);
+  }
+};
+
 struct ExpOP {
   static float32 op(float32 a) {
     return std::exp(a);
@@ -441,6 +452,10 @@ void ArrayMathSSE::sin_f32(float32 *dst, const float32 *x, size_t length) {
 
 void ArrayMathSSE::cos_f32(float32 *dst, const float32 *x, size_t length) {
   op_f32_a<CosOP>(dst, x, length);
+}
+
+void ArrayMathSSE::tan_f32(float32 *dst, const float32 *x, size_t length) {
+  op_f32_a<TanOP>(dst, x, length);
 }
 
 void ArrayMathSSE::exp_f32(float32 *dst, const float32 *x, size_t length) {
