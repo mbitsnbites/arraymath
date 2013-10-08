@@ -859,7 +859,6 @@ void ArrayMathAVX::sampleLinearRepeat_f32(float32 *dst, const float32 *x, const 
   __m256 _maxIdx = _mm256_set1_ps(static_cast<float32>(maxIdx));
   __m256 _xLengthF = _mm256_set1_ps(xLengthF);
   __m256 _xLengthFInv = _mm256_set1_ps(xLengthFInv);
-  const __m256 kZero = _mm256_set1_ps(0.0f);
   const __m256 kOne = _mm256_set1_ps(1.0f);
 
   union {
