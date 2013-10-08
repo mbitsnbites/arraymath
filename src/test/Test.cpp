@@ -124,6 +124,17 @@ void testArrayMath() {
     std::cout << "t = "; printArray(t); std::cout << std::endl;
     std::cout << "y = "; printArray(y); std::cout << std::endl;
   }
+
+  {
+    std::vector<float> t(33), y(33), x(4);
+    math.ramp(&t[0], -4.0f, 8.0f, t.size());
+    math.ramp(&x[0], -1.0f, 1.0f, x.size());
+    math.sampleLinearRepeat(&y[0], &x[0], &t[0], y.size(), x.size());
+    std::cout << "Test sampleLinearRepeat()" << std::endl;
+    std::cout << "x = "; printArray(x); std::cout << std::endl;
+    std::cout << "t = "; printArray(t); std::cout << std::endl;
+    std::cout << "y = "; printArray(y); std::cout << std::endl;
+  }
 }
 
 void testFilterFactory() {
