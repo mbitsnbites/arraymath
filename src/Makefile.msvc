@@ -47,7 +47,6 @@ OBJS = $(OUTDIR)\ArrayMath.obj \
        $(OUTDIR)\ArrayMathAVX.obj \
        $(OUTDIR)\ArrayMathGeneric.obj \
        $(OUTDIR)\ArrayMathSSE.obj \
-       $(OUTDIR)\ArrayMathSSE2.obj \
        $(OUTDIR)\CPUFeatureDetector.obj \
        $(OUTDIR)\FilterFactory.obj \
        $(OUTDIR)\FilterGeneric.obj \
@@ -84,9 +83,6 @@ $(OUTDIR)\ArrayMathGeneric.obj: generic\ArrayMathGeneric.cpp
 
 $(OUTDIR)\ArrayMathSSE.obj: x86\ArrayMathSSE.cpp
 	$(CPP) $(CPPFLAGS) /arch:SSE /Fo$@ x86\ArrayMathSSE.cpp
-
-$(OUTDIR)\ArrayMathSSE2.obj: x86\ArrayMathSSE2.cpp
-	$(CPP) $(CPPFLAGS) /arch:SSE2 /Fo$@ x86\ArrayMathSSE2.cpp
 
 $(OUTDIR)\CPUFeatureDetector.obj: common\CPUFeatureDetector.cpp
 	$(CPP) $(CPPFLAGS) /Fo$@ common\CPUFeatureDetector.cpp

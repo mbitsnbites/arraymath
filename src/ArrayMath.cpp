@@ -34,7 +34,6 @@
 #include "generic/RandomGeneric.h"
 #include "x86/ArrayMathAVX.h"
 #include "x86/ArrayMathSSE.h"
-#include "x86/ArrayMathSSE2.h"
 #include "x86/RandomSSE2.h"
 
 namespace arraymath {
@@ -98,6 +97,8 @@ ArrayMath::ArrayMath() {
     p_mul_f32_aa = ArrayMathSSE::mul_f32_aa;
     p_mulCplx_f32_sa = ArrayMathSSE::mulCplx_f32_sa;
     p_mulCplx_f32_aa = ArrayMathSSE::mulCplx_f32_aa;
+    p_div_f32_sa = ArrayMathSSE::div_f32_sa;
+    p_div_f32_aa = ArrayMathSSE::div_f32_aa;
     p_max_f32 = ArrayMathSSE::max_f32;
     p_min_f32 = ArrayMathSSE::min_f32;
     p_sqrt_f32 = ArrayMathSSE::sqrt_f32;
@@ -115,9 +116,7 @@ ArrayMath::ArrayMath() {
 
 #if defined(AM_USE_X86) && defined(AM_HAS_SSE2)
   if (cpu.hasSSE2()) {
-    // Override generic routines with x86 SSE2 optimized versions.
-    p_div_f32_sa = ArrayMathSSE2::div_f32_sa;
-    p_div_f32_aa = ArrayMathSSE2::div_f32_aa;
+    // TODO(m): Override generic routines with x86 SSE2 optimized versions.
   }
 #endif // AM_USE_X86 && AM_HAS_SSE2
 

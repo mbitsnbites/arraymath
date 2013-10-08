@@ -200,6 +200,15 @@ struct MulOP {
   }
 };
 
+struct DivOP {
+  static float32 op(float32 a, float32 b) {
+    return a / b;
+  }
+  static __m128 opSSE(__m128 a, __m128 b) {
+    return _mm_div_ps(a, b);
+  }
+};
+
 struct SinOP {
   static float32 op(float32 a) {
     return std::sin(a);
@@ -310,6 +319,14 @@ void ArrayMathSSE::mulCplx_f32_aa(float32 *dstReal, float32 *dstImag, const floa
     *dstReal++ = xr * yr - xi * yi;
     *dstImag++ = xr * yi + xi * yr;
   }
+}
+
+void ArrayMathSSE::div_f32_sa(float32 *dst, float32 x, const float32 *y, size_t length) {
+  op_f32_sa<DivOP>(dst, x, y, length);
+}
+
+void ArrayMathSSE::div_f32_aa(float32 *dst, const float32 *x, const float32 *y, size_t length) {
+  op_f32_aa<DivOP>(dst, x, y, length);
 }
 
 float32 ArrayMathSSE::max_f32(const float32 *x, size_t length) {
