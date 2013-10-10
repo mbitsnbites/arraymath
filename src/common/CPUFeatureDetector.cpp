@@ -85,7 +85,7 @@ CPUFeatureDetector::CPUFeatureDetector() {
   m_hasSSE2 = (d & (1 << 26)) != 0;
 //  m_hasSSE3 = (c & (1 << 0)) != 0;
 //  m_hasSSSE3 = (c & (1 << 9)) != 0;
-//  m_hasSSE4_1 = (c & (1 << 19)) != 0;
+  m_hasSSE4 = (c & (1 << 19)) != 0;
 //  m_hasSSE4_2 = (c & (1 << 20)) != 0;
   m_hasAVX = (c & (1 << 28)) != 0;
 //  m_hasRDRND = (c & (1 << 30)) != 0;

@@ -33,7 +33,7 @@ CPPFLAGS = /nologo /c /Ox /fp:fast /I. /Ikiss_fft
 RM = del /S /Q
 
 # x86 SIMD activation
-CPPFLAGS = $(CPPFLAGS) /DAM_HAS_SSE /DAM_HAS_SSE2 /DAM_HAS_AVX /DAM_USE_KISS_FFT
+CPPFLAGS = $(CPPFLAGS) /DAM_HAS_SSE /DAM_HAS_SSE2 /DAM_HAS_SSE4 /DAM_HAS_AVX /DAM_USE_KISS_FFT
 
 OUTDIR = out
 
@@ -47,6 +47,7 @@ OBJS = $(OUTDIR)\ArrayMath.obj \
        $(OUTDIR)\ArrayMathAVX.obj \
        $(OUTDIR)\ArrayMathGeneric.obj \
        $(OUTDIR)\ArrayMathSSE.obj \
+       $(OUTDIR)\ArrayMathSSE4.obj \
        $(OUTDIR)\CPUFeatureDetector.obj \
        $(OUTDIR)\FilterFactory.obj \
        $(OUTDIR)\FilterGeneric.obj \
@@ -83,6 +84,9 @@ $(OUTDIR)\ArrayMathGeneric.obj: generic\ArrayMathGeneric.cpp
 
 $(OUTDIR)\ArrayMathSSE.obj: x86\ArrayMathSSE.cpp
 	$(CPP) $(CPPFLAGS) /arch:SSE /Fo$@ x86\ArrayMathSSE.cpp
+
+$(OUTDIR)\ArrayMathSSE4.obj: x86\ArrayMathSSE4.cpp
+	$(CPP) $(CPPFLAGS) /arch:SSE2 /Fo$@ x86\ArrayMathSSE4.cpp
 
 $(OUTDIR)\CPUFeatureDetector.obj: common\CPUFeatureDetector.cpp
 	$(CPP) $(CPPFLAGS) /Fo$@ common\CPUFeatureDetector.cpp

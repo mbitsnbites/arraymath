@@ -34,6 +34,7 @@
 #include "generic/RandomGeneric.h"
 #include "x86/ArrayMathAVX.h"
 #include "x86/ArrayMathSSE.h"
+#include "x86/ArrayMathSSE4.h"
 #include "x86/RandomSSE2.h"
 
 namespace arraymath {
@@ -121,6 +122,14 @@ ArrayMath::ArrayMath() {
     // TODO(m): Override generic routines with x86 SSE2 optimized versions.
   }
 #endif // AM_USE_X86 && AM_HAS_SSE2
+
+#if defined(AM_USE_X86) && defined(AM_HAS_SSE4)
+  if (cpu.hasSSE4()) {
+    p_ceil_f32 = ArrayMathSSE4::ceil_f32;
+    p_floor_f32 = ArrayMathSSE4::floor_f32;
+    p_round_f32 = ArrayMathSSE4::round_f32;
+  }
+#endif // AM_USE_X86 && AM_HAS_SSE4
 
 #if defined(AM_USE_X86) && defined(AM_HAS_AVX)
   if (cpu.hasAVX()) {

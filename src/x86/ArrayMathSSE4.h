@@ -23,59 +23,26 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //------------------------------------------------------------------------------
 
-#ifndef _ARRAYMATH_CPUFEATUREDETECTOR_H
-#define _ARRAYMATH_CPUFEATUREDETECTOR_H
+#ifndef _ARRAYMATH_ARRAYMATHSSE4_H
+#define _ARRAYMATH_ARRAYMATHSSE4_H
 
 #include "common/Architecture.h"
 
+#if defined(AM_USE_X86) && defined(AM_HAS_SSE4)
+
+#include "common/Types.h"
+
 namespace arraymath {
 
-class CPUFeatureDetector {
+class ArrayMathSSE4 {
  public:
-  CPUFeatureDetector();
-
-#ifdef AM_USE_X86
-  bool hasSSE() const {
-    return m_hasSSE;
-  }
-
-  bool hasSSE2() const {
-    return m_hasSSE2;
-  }
-
-  bool hasSSE4() const {
-    return m_hasSSE4;
-  }
-
-  bool hasAVX() const {
-    return m_hasAVX;
-  }
-#endif // AM_USE_X86
-
-#ifdef AM_USE_ARM
-  bool hasNEON() const {
-    return m_hasNEON;
-  }
-
-  bool hasNEON_FMA() const {
-    return m_hasNEON_FMA;
-  }
-#endif // AM_USE_ARM
-
- private:
-#ifdef AM_USE_X86
-  bool m_hasSSE;
-  bool m_hasSSE2;
-  bool m_hasSSE4;
-  bool m_hasAVX;
-#endif // AM_USE_X86
-
-#ifdef AM_USE_ARM
-  bool m_hasNEON;
-  bool m_hasNEON_FMA;
-#endif // AM_USE_ARM
+    static void ceil_f32(float32 *dst, const float32 *x, size_t length);
+    static void floor_f32(float32 *dst, const float32 *x, size_t length);
+    static void round_f32(float32 *dst, const float32 *x, size_t length);
 };
 
 }  // namespace arraymath
 
-#endif // _ARRAYMATH_CPUFEATUREDETECTOR_H
+#endif // AM_USE_X86 && AM_HAS_SSE4
+
+#endif // _ARRAYMATH_ARRAYMATHSSE4_H

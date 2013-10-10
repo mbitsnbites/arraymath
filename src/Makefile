@@ -39,10 +39,11 @@ CFLAGS += -MMD -MP
 CPPFLAGS += -MMD -MP
 
 # x86 SIMD activation
-CPPFLAGS += -DAM_HAS_SSE -DAM_HAS_SSE2 -DAM_HAS_AVX -DAM_USE_KISS_FFT
+CPPFLAGS += -DAM_HAS_SSE -DAM_HAS_SSE2 -DAM_HAS_SSE4 -DAM_HAS_AVX -DAM_USE_KISS_FFT
 CPPFLAGS_SSE = $(CPPFLAGS) -msse
-CPPFLAGS_SSE2 = $(CPPFLAGS) -msse -msse2
-CPPFLAGS_AVX = $(CPPFLAGS) -msse -msse2 -mavx
+CPPFLAGS_SSE2 = $(CPPFLAGS) -msse2
+CPPFLAGS_SSE4 = $(CPPFLAGS) -msse4.1
+CPPFLAGS_AVX = $(CPPFLAGS) -mavx
 
 OUTDIR = out
 
@@ -56,6 +57,7 @@ OBJS = $(OUTDIR)/ArrayMath.o \
        $(OUTDIR)/ArrayMathAVX.o \
        $(OUTDIR)/ArrayMathGeneric.o \
        $(OUTDIR)/ArrayMathSSE.o \
+       $(OUTDIR)/ArrayMathSSE4.o \
        $(OUTDIR)/CPUFeatureDetector.o \
        $(OUTDIR)/FilterFactory.o \
        $(OUTDIR)/FilterGeneric.o \
@@ -86,6 +88,9 @@ $(OUTDIR)/%.o: generic/%.cpp
 
 $(OUTDIR)/ArrayMathSSE.o: x86/ArrayMathSSE.cpp
 	$(CPP) $(CPPFLAGS_SSE) -o $@ $<
+
+$(OUTDIR)/ArrayMathSSE4.o: x86/ArrayMathSSE4.cpp
+	$(CPP) $(CPPFLAGS_SSE4) -o $@ $<
 
 $(OUTDIR)/ArrayMathAVX.o: x86/ArrayMathAVX.cpp
 	$(CPP) $(CPPFLAGS_AVX) -o $@ $<
