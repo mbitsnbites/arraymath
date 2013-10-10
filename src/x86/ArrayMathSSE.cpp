@@ -463,6 +463,88 @@ void ArrayMathSSE::abs_f32(float32 *dst, const float32 *x, size_t length) {
   }
 }
 
+void ArrayMathSSE::absCplx_f32(float32 *dst, const float32 *xReal, const float32 *xImag, size_t length) {
+  // 1) Align dst to a 16-byte boundary.
+  while ((reinterpret_cast<size_t>(dst) & 15) && length--) {
+    float32 re = *xReal++;
+    float32 im = *xImag++;
+    *dst++ = std::sqrt(re * re + im * im);
+  }
+
+  // Check alignment.
+  int alignment = ((reinterpret_cast<size_t>(xReal) & 15) == 0 ? 1 : 0) |
+                  ((reinterpret_cast<size_t>(xImag) & 15) == 0 ? 2 : 0);
+
+  // 2) Main SSE loop (handle different alignment cases).
+  static const __m128 kZero = _mm_setzero_ps();
+  static const __m128 kMinus3 = _mm_set1_ps(-3.0f);
+  static const __m128 kMinus05 = _mm_set1_ps(-0.5f);
+  switch (alignment) {
+    case 1:
+      // xReal aligned
+      for (; length >= 4; length -= 4) {
+        __m128 re = _mm_load_ps(xReal);
+        __m128 im = _mm_loadu_ps(xImag);
+        __m128 a = _mm_add_ps(_mm_mul_ps(re, re), _mm_mul_ps(im, im));
+        __m128 r = _mm_and_ps(_mm_rsqrt_ps(a), _mm_cmpneq_ps(kZero, a));
+        a = _mm_mul_ps(r, a);
+        r = _mm_mul_ps(a, r);
+        r = _mm_mul_ps(_mm_mul_ps(kMinus05, a), _mm_add_ps(kMinus3, r));
+        _mm_store_ps(dst, r);
+        dst += 4; xReal += 4; xImag += 4;
+      }
+      break;
+    case 2:
+      // xImag aligned
+      for (; length >= 4; length -= 4) {
+        __m128 re = _mm_loadu_ps(xReal);
+        __m128 im = _mm_load_ps(xImag);
+        __m128 a = _mm_add_ps(_mm_mul_ps(re, re), _mm_mul_ps(im, im));
+        __m128 r = _mm_and_ps(_mm_rsqrt_ps(a), _mm_cmpneq_ps(kZero, a));
+        a = _mm_mul_ps(r, a);
+        r = _mm_mul_ps(a, r);
+        r = _mm_mul_ps(_mm_mul_ps(kMinus05, a), _mm_add_ps(kMinus3, r));
+        _mm_store_ps(dst, r);
+        dst += 4; xReal += 4; xImag += 4;
+      }
+      break;
+    case 3:
+      // xReal aligned && xImag aligned
+      for (; length >= 4; length -= 4) {
+        __m128 re = _mm_load_ps(xReal);
+        __m128 im = _mm_load_ps(xImag);
+        __m128 a = _mm_add_ps(_mm_mul_ps(re, re), _mm_mul_ps(im, im));
+        __m128 r = _mm_and_ps(_mm_rsqrt_ps(a), _mm_cmpneq_ps(kZero, a));
+        a = _mm_mul_ps(r, a);
+        r = _mm_mul_ps(a, r);
+        r = _mm_mul_ps(_mm_mul_ps(kMinus05, a), _mm_add_ps(kMinus3, r));
+        _mm_store_ps(dst, r);
+        dst += 4; xReal += 4; xImag += 4;
+      }
+      break;
+    default:
+      // None aligned
+      for (; length >= 4; length -= 4) {
+        __m128 re = _mm_loadu_ps(xReal);
+        __m128 im = _mm_loadu_ps(xImag);
+        __m128 a = _mm_add_ps(_mm_mul_ps(re, re), _mm_mul_ps(im, im));
+        __m128 r = _mm_and_ps(_mm_rsqrt_ps(a), _mm_cmpneq_ps(kZero, a));
+        a = _mm_mul_ps(r, a);
+        r = _mm_mul_ps(a, r);
+        r = _mm_mul_ps(_mm_mul_ps(kMinus05, a), _mm_add_ps(kMinus3, r));
+        _mm_store_ps(dst, r);
+        dst += 4; xReal += 4; xImag += 4;
+      }
+  }
+
+  // 3) Tail loop.
+  while (length--) {
+    float32 re = *xReal++;
+    float32 im = *xImag++;
+    *dst++ = std::sqrt(re * re + im * im);
+  }
+}
+
 void ArrayMathSSE::sin_f32(float32 *dst, const float32 *x, size_t length) {
   op_f32_a<SinOP>(dst, x, length);
 }

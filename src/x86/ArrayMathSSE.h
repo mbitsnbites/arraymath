@@ -49,6 +49,7 @@ class ArrayMathSSE {
   static float32 max_f32(const float32 *x, size_t length);
   static float32 min_f32(const float32 *x, size_t length);
   static void abs_f32(float32 *dst, const float32 *x, size_t length);
+  static void absCplx_f32(float32 *dst, const float32 *xReal, const float32 *xImag, size_t length);
   static void sin_f32(float32 *dst, const float32 *x, size_t length);
   static void cos_f32(float32 *dst, const float32 *x, size_t length);
   static void tan_f32(float32 *dst, const float32 *x, size_t length);

@@ -49,6 +49,7 @@ class ArrayMathAVX {
   static void madd_f32_saa(float32 *dst, float32 x, const float32 *y, const float32 *z, size_t length);
   static void madd_f32_aaa(float32 *dst, const float32 *x, const float32 *y, const float32 *z, size_t length);
   static void abs_f32(float32 *dst, const float32 *x, size_t length);
+  static void absCplx_f32(float32 *dst, const float32 *xReal, const float32 *xImag, size_t length);
   static void sqrt_f32(float32 *dst, const float32 *x, size_t length);
   static void ceil_f32(float32 *dst, const float32 *x, size_t length);
   static void floor_f32(float32 *dst, const float32 *x, size_t length);

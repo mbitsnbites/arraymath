@@ -490,6 +490,88 @@ void ArrayMathAVX::abs_f32(float32 *dst, const float32 *x, size_t length) {
   }
 }
 
+void ArrayMathAVX::absCplx_f32(float32 *dst, const float32 *xReal, const float32 *xImag, size_t length) {
+  // 1) Align dst to a 32-byte boundary.
+  while ((reinterpret_cast<size_t>(dst) & 31) && length--) {
+    float32 re = *xReal++;
+    float32 im = *xImag++;
+    *dst++ = std::sqrt(re * re + im * im);
+  }
+
+  // Check alignment.
+  int alignment = ((reinterpret_cast<size_t>(xReal) & 31) == 0 ? 1 : 0) |
+                  ((reinterpret_cast<size_t>(xImag) & 31) == 0 ? 2 : 0);
+
+  // 2) Main AVX loop (handle different alignment cases).
+  static const __m256 kZero = _mm256_setzero_ps();
+  static const __m256 kMinus3 = _mm256_set1_ps(-3.0f);
+  static const __m256 kMinus05 = _mm256_set1_ps(-0.5f);
+  switch (alignment) {
+    case 1:
+      // xReal aligned
+      for (; length >= 8; length -= 8) {
+        __m256 re = _mm256_load_ps(xReal);
+        __m256 im = _mm256_loadu_ps(xImag);
+        __m256 a = _mm256_add_ps(_mm256_mul_ps(re, re), _mm256_mul_ps(im, im));
+        __m256 r = _mm256_and_ps(_mm256_rsqrt_ps(a), _mm256_cmp_ps(kZero, a, _CMP_NEQ_UQ));
+        a = _mm256_mul_ps(r, a);
+        r = _mm256_mul_ps(a, r);
+        r = _mm256_mul_ps(_mm256_mul_ps(kMinus05, a), _mm256_add_ps(kMinus3, r));
+        _mm256_store_ps(dst, r);
+        dst += 8; xReal += 8; xImag += 8;
+      }
+      break;
+    case 2:
+      // xImag aligned
+      for (; length >= 8; length -= 8) {
+        __m256 re = _mm256_loadu_ps(xReal);
+        __m256 im = _mm256_load_ps(xImag);
+        __m256 a = _mm256_add_ps(_mm256_mul_ps(re, re), _mm256_mul_ps(im, im));
+        __m256 r = _mm256_and_ps(_mm256_rsqrt_ps(a), _mm256_cmp_ps(kZero, a, _CMP_NEQ_UQ));
+        a = _mm256_mul_ps(r, a);
+        r = _mm256_mul_ps(a, r);
+        r = _mm256_mul_ps(_mm256_mul_ps(kMinus05, a), _mm256_add_ps(kMinus3, r));
+        _mm256_store_ps(dst, r);
+        dst += 8; xReal += 8; xImag += 8;
+      }
+      break;
+    case 3:
+      // xReal aligned && xImag aligned
+      for (; length >= 8; length -= 8) {
+        __m256 re = _mm256_load_ps(xReal);
+        __m256 im = _mm256_load_ps(xImag);
+        __m256 a = _mm256_add_ps(_mm256_mul_ps(re, re), _mm256_mul_ps(im, im));
+        __m256 r = _mm256_and_ps(_mm256_rsqrt_ps(a), _mm256_cmp_ps(kZero, a, _CMP_NEQ_UQ));
+        a = _mm256_mul_ps(r, a);
+        r = _mm256_mul_ps(a, r);
+        r = _mm256_mul_ps(_mm256_mul_ps(kMinus05, a), _mm256_add_ps(kMinus3, r));
+        _mm256_store_ps(dst, r);
+        dst += 8; xReal += 8; xImag += 8;
+      }
+      break;
+    default:
+      // None aligned
+      for (; length >= 8; length -= 8) {
+        __m256 re = _mm256_loadu_ps(xReal);
+        __m256 im = _mm256_loadu_ps(xImag);
+        __m256 a = _mm256_add_ps(_mm256_mul_ps(re, re), _mm256_mul_ps(im, im));
+        __m256 r = _mm256_and_ps(_mm256_rsqrt_ps(a), _mm256_cmp_ps(kZero, a, _CMP_NEQ_UQ));
+        a = _mm256_mul_ps(r, a);
+        r = _mm256_mul_ps(a, r);
+        r = _mm256_mul_ps(_mm256_mul_ps(kMinus05, a), _mm256_add_ps(kMinus3, r));
+        _mm256_store_ps(dst, r);
+        dst += 8; xReal += 8; xImag += 8;
+      }
+  }
+
+  // 3) Tail loop.
+  while (length--) {
+    float32 re = *xReal++;
+    float32 im = *xImag++;
+    *dst++ = std::sqrt(re * re + im * im);
+  }
+}
+
 void ArrayMathAVX::sqrt_f32(float32 *dst, const float32 *x, size_t length) {
   // 1) Align dst to a 32-byte boundary.
   while ((reinterpret_cast<size_t>(dst) & 31) && length--) {

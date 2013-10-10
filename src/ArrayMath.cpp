@@ -104,6 +104,7 @@ ArrayMath::ArrayMath() {
     p_min_f32 = ArrayMathSSE::min_f32;
     p_sqrt_f32 = ArrayMathSSE::sqrt_f32;
     p_abs_f32 = ArrayMathSSE::abs_f32;
+    p_absCplx_f32 = ArrayMathSSE::absCplx_f32;
     p_sin_f32 = ArrayMathSSE::sin_f32;
     p_cos_f32 = ArrayMathSSE::cos_f32;
     p_tan_f32 = ArrayMathSSE::tan_f32;
@@ -147,6 +148,7 @@ ArrayMath::ArrayMath() {
     p_madd_f32_saa = ArrayMathAVX::madd_f32_saa;
     p_madd_f32_aaa = ArrayMathAVX::madd_f32_aaa;
     p_abs_f32 = ArrayMathAVX::abs_f32;
+    p_absCplx_f32 = ArrayMathAVX::absCplx_f32;
     p_sqrt_f32 = ArrayMathAVX::sqrt_f32;
     p_ceil_f32 = ArrayMathAVX::ceil_f32;
     p_floor_f32 = ArrayMathAVX::floor_f32;
