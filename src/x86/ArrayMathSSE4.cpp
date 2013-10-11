@@ -83,7 +83,7 @@ struct FloorOP {
 
 struct CeilOP {
   static float32 op(float32 a) {
-    return std::floor(a);
+    return std::ceil(a);
   }
   static __m128 opSSE4(__m128 a) {
     return _mm_round_ps(a, _MM_FROUND_CEIL);
@@ -92,7 +92,7 @@ struct CeilOP {
 
 struct RoundOP {
   static float32 op(float32 a) {
-    return std::floor(a);
+    return std::floor(a + 0.5f);
   }
   static __m128 opSSE4(__m128 a) {
     return _mm_round_ps(a, _MM_FROUND_NINT);
