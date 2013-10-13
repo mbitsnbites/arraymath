@@ -41,6 +41,8 @@ namespace {
 
 namespace arraymath {
 
+namespace {
+
 //-----------------------------------------------------------------------------
 // Template functions for common code patterns.
 //-----------------------------------------------------------------------------
@@ -255,6 +257,13 @@ struct LogOP {
     return log_ps(a);
   }
 };
+
+} // anonymous namespace
+
+
+//-----------------------------------------------------------------------------
+// Class methods.
+//-----------------------------------------------------------------------------
 
 void ArrayMathSSE::add_f32_sa(float32 *dst, float32 x, const float32 *y, size_t length) {
   op_f32_sa<AddOP>(dst, x, y, length);

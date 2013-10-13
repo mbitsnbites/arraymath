@@ -33,6 +33,8 @@
 
 namespace arraymath {
 
+namespace {
+
 //-----------------------------------------------------------------------------
 // Template functions for common code patterns.
 //-----------------------------------------------------------------------------
@@ -98,6 +100,13 @@ struct RoundOP {
     return _mm_round_ps(a, _MM_FROUND_NINT);
   }
 };
+
+} // anonymous namespace
+
+
+//-----------------------------------------------------------------------------
+// Class methods.
+//-----------------------------------------------------------------------------
 
 void ArrayMathSSE4::floor_f32(float32 *dst, const float32 *x, size_t length) {
   op_f32_a<FloorOP>(dst, x, length);

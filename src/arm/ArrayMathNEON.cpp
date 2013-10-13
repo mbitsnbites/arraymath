@@ -33,6 +33,8 @@
 #include <cmath>
 #include <limits>
 
+namespace arraymath {
+
 namespace {
 
 #include "arm/neon_mathfun.h"
@@ -69,9 +71,6 @@ AM_INLINE void vst1qa_inc_f32(float *&addr, const float32x4_t x) {
 #endif
 }
 
-}
-
-namespace arraymath {
 
 //-----------------------------------------------------------------------------
 // Template functions for common code patterns.
@@ -261,6 +260,13 @@ struct LogOP {
     return log_ps(a);
   }
 };
+
+} // anonymous namespace
+
+
+//-----------------------------------------------------------------------------
+// Class methods.
+//-----------------------------------------------------------------------------
 
 void ArrayMathNEON::add_f32_sa(float32 *dst, float32 x, const float32 *y, size_t length) {
   op_f32_sa<AddOP>(dst, x, y, length);
