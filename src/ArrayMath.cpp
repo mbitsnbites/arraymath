@@ -100,6 +100,8 @@ ArrayMath::ArrayMath() {
     p_mulCplx_f32_aa = ArrayMathSSE::mulCplx_f32_aa;
     p_div_f32_sa = ArrayMathSSE::div_f32_sa;
     p_div_f32_aa = ArrayMathSSE::div_f32_aa;
+    p_divCplx_f32_sa = ArrayMathSSE::divCplx_f32_sa;
+    p_divCplx_f32_aa = ArrayMathSSE::divCplx_f32_aa;
     p_max_f32 = ArrayMathSSE::max_f32;
     p_min_f32 = ArrayMathSSE::min_f32;
     p_sqrt_f32 = ArrayMathSSE::sqrt_f32;
@@ -145,6 +147,8 @@ ArrayMath::ArrayMath() {
     p_mulCplx_f32_aa = ArrayMathAVX::mulCplx_f32_aa;
     p_div_f32_sa = ArrayMathAVX::div_f32_sa;
     p_div_f32_aa = ArrayMathAVX::div_f32_aa;
+    p_divCplx_f32_sa = ArrayMathAVX::divCplx_f32_sa;
+    p_divCplx_f32_aa = ArrayMathAVX::divCplx_f32_aa;
     p_madd_f32_saa = ArrayMathAVX::madd_f32_saa;
     p_madd_f32_aaa = ArrayMathAVX::madd_f32_aaa;
     p_abs_f32 = ArrayMathAVX::abs_f32;

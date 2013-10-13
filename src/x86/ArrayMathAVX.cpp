@@ -212,7 +212,7 @@ struct DivOP {
     return a / b;
   }
   static __m256 opAVX(__m256 a, __m256 b) {
-    return _mm256_div_ps(a, b);
+    return _mm256_mul_ps(a, _mm256_rcp_ps(b));
   }
 };
 
@@ -330,6 +330,51 @@ void ArrayMathAVX::div_f32_sa(float32 *dst, float32 x, const float32 *y, size_t 
 
 void ArrayMathAVX::div_f32_aa(float32 *dst, const float32 *x, const float32 *y, size_t length) {
   op_f32_aa<DivOP>(dst, x, y, length);
+}
+
+void ArrayMathAVX::divCplx_f32_sa(float32 *dstReal, float32 *dstImag, float32 xReal, float32 xImag, const float32 *yReal, const float32 *yImag, size_t length) {
+  // 1) Main AVX loop.
+  __m256 _xr = _mm256_set1_ps(xReal);
+  __m256 _xi = _mm256_set1_ps(xImag);
+  for (; length >= 8; length -= 8) {
+    __m256 _yr = _mm256_loadu_ps(yReal);
+    __m256 _yi = _mm256_loadu_ps(yImag);
+    __m256 _denom = _mm256_rcp_ps(_mm256_add_ps(_mm256_mul_ps(_yr, _yr), _mm256_mul_ps(_yi, _yi)));
+    _mm256_storeu_ps(dstReal, _mm256_mul_ps(_mm256_add_ps(_mm256_mul_ps(_xr, _yr), _mm256_mul_ps(_xi, _yi)), _denom));
+    _mm256_storeu_ps(dstImag, _mm256_mul_ps(_mm256_sub_ps(_mm256_mul_ps(_xi, _yr), _mm256_mul_ps(_xr, _yi)), _denom));
+    dstReal += 8; dstImag += 8; yReal += 8; yImag += 8;
+  }
+
+  // 2) Tail loop.
+  float32 xr = xReal, xi = xImag;
+  while (length--) {
+    float32 yr = *yReal++, yi = *yImag++;
+    float32 denom = 1.0f / (yr * yr + yi * yi);
+    *dstReal++ = (xr * yr + xi * yi) * denom;
+    *dstImag++ = (xi * yr - xr * yi) * denom;
+  }
+}
+
+void ArrayMathAVX::divCplx_f32_aa(float32 *dstReal, float32 *dstImag, const float32 *xReal, const float32 *xImag, const float32 *yReal, const float32 *yImag, size_t length) {
+  // 1) Main AVX loop.
+  for (; length >= 8; length -= 8) {
+    __m256 _xr = _mm256_loadu_ps(xReal);
+    __m256 _xi = _mm256_loadu_ps(xImag);
+    __m256 _yr = _mm256_loadu_ps(yReal);
+    __m256 _yi = _mm256_loadu_ps(yImag);
+    __m256 _denom = _mm256_rcp_ps(_mm256_add_ps(_mm256_mul_ps(_yr, _yr), _mm256_mul_ps(_yi, _yi)));
+    _mm256_storeu_ps(dstReal, _mm256_mul_ps(_mm256_add_ps(_mm256_mul_ps(_xr, _yr), _mm256_mul_ps(_xi, _yi)), _denom));
+    _mm256_storeu_ps(dstImag, _mm256_mul_ps(_mm256_sub_ps(_mm256_mul_ps(_xi, _yr), _mm256_mul_ps(_xr, _yi)), _denom));
+    dstReal += 8; dstImag += 8; xReal += 8; xImag += 8; yReal += 8; yImag += 8;
+  }
+
+  // 2) Tail loop.
+  while (length--) {
+    float32 xr = *xReal++, xi = *xImag++, yr = *yReal++, yi = *yImag++;
+    float32 denom = 1.0f / (yr * yr + yi * yi);
+    *dstReal++ = (xr * yr + xi * yi) * denom;
+    *dstImag++ = (xi * yr - xr * yi) * denom;
+  }
 }
 
 void ArrayMathAVX::madd_f32_saa(float32 *dst, float32 x, const float32 *y, const float32 *z, size_t length) {
