@@ -33,15 +33,25 @@
 #include <cmath>
 #include <limits>
 
-namespace {
-
-#include "x86/sse_mathfun.h"
-
-}
-
 namespace arraymath {
 
 namespace {
+
+//-----------------------------------------------------------------------------
+// Helper functions.
+//-----------------------------------------------------------------------------
+
+#include "x86/sse_mathfun.h"
+
+// Reciprocal with 23-bits of precision (_mm_rcp_ps only gives 12 bits of
+// precision).
+__m128 rcp_23bit(__m128 x) {
+  __m128 r = _mm_rcp_ps(x);
+  __m128 mask = _mm_cmpeq_ps(x, _mm_setzero_ps());
+  __m128 filtered = _mm_and_ps(mask, _mm_mul_ps(_mm_mul_ps(r, r), x));
+  return _mm_sub_ps(_mm_add_ps(r, r), filtered);
+}
+
 
 //-----------------------------------------------------------------------------
 // Template functions for common code patterns.
@@ -207,7 +217,7 @@ struct DivOP {
     return a / b;
   }
   static __m128 opSSE(__m128 a, __m128 b) {
-    return _mm_mul_ps(a, _mm_rcp_ps(b));
+    return _mm_mul_ps(a, rcp_23bit(b));
   }
 };
 
@@ -236,7 +246,7 @@ struct TanOP {
   static __m128 opSSE(__m128 a) {
     __m128 s, c;
     sincos_ps(a, &s, &c);
-    return _mm_div_ps(s, c);
+    return _mm_mul_ps(s, rcp_23bit(c));
   }
 };
 
@@ -345,7 +355,7 @@ void ArrayMathSSE::divCplx_f32_sa(float32 *dstReal, float32 *dstImag, float32 xR
   for (; length >= 4; length -= 4) {
     __m128 _yr = _mm_loadu_ps(yReal);
     __m128 _yi = _mm_loadu_ps(yImag);
-    __m128 _denom = _mm_rcp_ps(_mm_add_ps(_mm_mul_ps(_yr, _yr), _mm_mul_ps(_yi, _yi)));
+    __m128 _denom = rcp_23bit(_mm_add_ps(_mm_mul_ps(_yr, _yr), _mm_mul_ps(_yi, _yi)));
     _mm_storeu_ps(dstReal, _mm_mul_ps(_mm_add_ps(_mm_mul_ps(_xr, _yr), _mm_mul_ps(_xi, _yi)), _denom));
     _mm_storeu_ps(dstImag, _mm_mul_ps(_mm_sub_ps(_mm_mul_ps(_xi, _yr), _mm_mul_ps(_xr, _yi)), _denom));
     dstReal += 4; dstImag += 4; yReal += 4; yImag += 4;
@@ -368,7 +378,7 @@ void ArrayMathSSE::divCplx_f32_aa(float32 *dstReal, float32 *dstImag, const floa
     __m128 _xi = _mm_loadu_ps(xImag);
     __m128 _yr = _mm_loadu_ps(yReal);
     __m128 _yi = _mm_loadu_ps(yImag);
-    __m128 _denom = _mm_rcp_ps(_mm_add_ps(_mm_mul_ps(_yr, _yr), _mm_mul_ps(_yi, _yi)));
+    __m128 _denom = rcp_23bit(_mm_add_ps(_mm_mul_ps(_yr, _yr), _mm_mul_ps(_yi, _yi)));
     _mm_storeu_ps(dstReal, _mm_mul_ps(_mm_add_ps(_mm_mul_ps(_xr, _yr), _mm_mul_ps(_xi, _yi)), _denom));
     _mm_storeu_ps(dstImag, _mm_mul_ps(_mm_sub_ps(_mm_mul_ps(_xi, _yr), _mm_mul_ps(_xr, _yi)), _denom));
     dstReal += 4; dstImag += 4; xReal += 4; xImag += 4; yReal += 4; yImag += 4;

@@ -43,6 +43,21 @@ namespace arraymath {
 namespace {
 
 //-----------------------------------------------------------------------------
+// Helper functions.
+//-----------------------------------------------------------------------------
+
+// Reciprocal with 23-bits of precision (_mm256_rcp_ps only gives 12 bits of
+// precision).
+AM_INLINE
+__m256 rcp_23bit(__m256 x) {
+  __m256 r = _mm256_rcp_ps(x);
+  __m256 mask = _mm256_cmp_ps(x, _mm256_setzero_ps(), _CMP_EQ_OQ);
+  __m256 filtered = _mm256_and_ps(mask, _mm256_mul_ps(_mm256_mul_ps(r, r), x));
+  return _mm256_sub_ps(_mm256_add_ps(r, r), filtered);
+}
+
+
+//-----------------------------------------------------------------------------
 // Template functions for common code patterns.
 //-----------------------------------------------------------------------------
 
@@ -212,7 +227,7 @@ struct DivOP {
     return a / b;
   }
   static __m256 opAVX(__m256 a, __m256 b) {
-    return _mm256_mul_ps(a, _mm256_rcp_ps(b));
+    return _mm256_mul_ps(a, rcp_23bit(b));
   }
 };
 
@@ -339,7 +354,7 @@ void ArrayMathAVX::divCplx_f32_sa(float32 *dstReal, float32 *dstImag, float32 xR
   for (; length >= 8; length -= 8) {
     __m256 _yr = _mm256_loadu_ps(yReal);
     __m256 _yi = _mm256_loadu_ps(yImag);
-    __m256 _denom = _mm256_rcp_ps(_mm256_add_ps(_mm256_mul_ps(_yr, _yr), _mm256_mul_ps(_yi, _yi)));
+    __m256 _denom = rcp_23bit(_mm256_add_ps(_mm256_mul_ps(_yr, _yr), _mm256_mul_ps(_yi, _yi)));
     _mm256_storeu_ps(dstReal, _mm256_mul_ps(_mm256_add_ps(_mm256_mul_ps(_xr, _yr), _mm256_mul_ps(_xi, _yi)), _denom));
     _mm256_storeu_ps(dstImag, _mm256_mul_ps(_mm256_sub_ps(_mm256_mul_ps(_xi, _yr), _mm256_mul_ps(_xr, _yi)), _denom));
     dstReal += 8; dstImag += 8; yReal += 8; yImag += 8;
@@ -362,7 +377,7 @@ void ArrayMathAVX::divCplx_f32_aa(float32 *dstReal, float32 *dstImag, const floa
     __m256 _xi = _mm256_loadu_ps(xImag);
     __m256 _yr = _mm256_loadu_ps(yReal);
     __m256 _yi = _mm256_loadu_ps(yImag);
-    __m256 _denom = _mm256_rcp_ps(_mm256_add_ps(_mm256_mul_ps(_yr, _yr), _mm256_mul_ps(_yi, _yi)));
+    __m256 _denom = rcp_23bit(_mm256_add_ps(_mm256_mul_ps(_yr, _yr), _mm256_mul_ps(_yi, _yi)));
     _mm256_storeu_ps(dstReal, _mm256_mul_ps(_mm256_add_ps(_mm256_mul_ps(_xr, _yr), _mm256_mul_ps(_xi, _yi)), _denom));
     _mm256_storeu_ps(dstImag, _mm256_mul_ps(_mm256_sub_ps(_mm256_mul_ps(_xi, _yr), _mm256_mul_ps(_xr, _yi)), _denom));
     dstReal += 8; dstImag += 8; xReal += 8; xImag += 8; yReal += 8; yImag += 8;
