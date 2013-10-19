@@ -26,11 +26,11 @@
 .PHONY: all clean
 
 # C compiler settings
-CC = arm-linux-gnueabi-gcc
+CC = arm-linux-gnueabihf-gcc
 CFLAGS = --std=c99 -c -O3 -ffast-math -W -Wall -Wextra -pedantic -I. -Ikiss_fft
 
 # C++ compiler settings
-CPP = arm-linux-gnueabi-g++
+CPP = arm-linux-gnueabihf-g++
 CPPFLAGS = -c -O3 -ffast-math -W -Wall -Wextra -pedantic -I. -Ikiss_fft
 RM = rm -rf
 
@@ -43,7 +43,7 @@ CPPFLAGS += -march=armv7-a -mtune=generic-armv7-a
 
 # ARM SIMD activation
 CPPFLAGS += -DAM_HAS_NEON -DAM_USE_KISS_FFT
-CPPFLAGS_NEON = $(CPPFLAGS) -mfloat-abi=softfp -mfpu=neon
+CPPFLAGS_NEON = $(CPPFLAGS) -mfloat-abi=hard -mfpu=neon
 
 OUTDIR = out
 
