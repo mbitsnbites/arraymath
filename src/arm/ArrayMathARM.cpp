@@ -50,7 +50,7 @@ void ArrayMathARM::abs_f32(float32 *dst, const float32 *x, size_t length) {
   uint32 *dst_u32 = reinterpret_cast<uint32*>(dst);
   const uint32 *x_u32 = reinterpret_cast<const uint32*>(x);
 
-  if (length >= 16) {
+  if (length >= 31) {
       // 1) Align x to a 64-byte boundary.
       size_t num_unaligned = reinterpret_cast<size_t>(x_u32) & 63;
       num_unaligned = num_unaligned ? 16 - (num_unaligned >> 2) : 0;
@@ -61,6 +61,7 @@ void ArrayMathARM::abs_f32(float32 *dst, const float32 *x, size_t length) {
 
       // 2) Main unrolled loop.
 #if defined(__GNUC__)
+      // NOTE: This loop assumes that length >= 16 at this point!
       __asm__ (
         "\n.abs_loop%=:\n\t"
 #if AM_ARM_ARCH >= 6
@@ -89,8 +90,8 @@ void ArrayMathARM::abs_f32(float32 *dst, const float32 *x, size_t length) {
         "bic   r12, r12, #-2147483648\n\t"
         "stmia %[dst_u32]!, {r3,r4,r5,r6,r8,r10,r11,r12}\n\t"
         "bhi   .abs_loop%=\n\t"
-        : [dst_u32] "+r" (dst_u32), [x_u32] "+r" (x_u32)
-        : [length] "r" (length)
+        : [dst_u32] "+r" (dst_u32), [x_u32] "+r" (x_u32), [length] "+r" (length)
+        :
         : "memory", "r3", "r4", "r5", "r6", "r8", "r10", "r11", "r12"
       );
 #endif
@@ -124,7 +125,7 @@ void ArrayMathARM::fill_f32(float32 *dst, float32 value, size_t length) {
   uint32 *dst_u32 = reinterpret_cast<uint32*>(dst);
   uint32 value_u32 = asUint32(value);
 
-  if (length >= 64) {
+  if (length >= 23) {
       // 1) Align dst to a 64-byte boundary.
       size_t num_unaligned = reinterpret_cast<size_t>(dst_u32) & 63;
       num_unaligned = num_unaligned ? 16 - (num_unaligned >> 2) : 0;
@@ -135,6 +136,7 @@ void ArrayMathARM::fill_f32(float32 *dst, float32 value, size_t length) {
 
       // 2) Main unrolled loop.
 #if defined(__GNUC__)
+      // NOTE: This loop assumes that length >= 8 at this point!
       __asm__ (
         "mov   r3, %[value_u32]\n\t"
         "mov   r4, %[value_u32]\n\t"
@@ -149,8 +151,8 @@ void ArrayMathARM::fill_f32(float32 *dst, float32 value, size_t length) {
         "stmia %[dst_u32]!, {r3,r4,r5,r6,r8,r10,r11,r12}\n\t"
         "cmp   %[length], #7\n\t"
         "bhi   .fill_loop%=\n\t"
-        : [dst_u32] "+r" (dst_u32)
-        : [value_u32] "r" (value_u32), [length] "r" (length)
+        : [dst_u32] "+r" (dst_u32), [length] "+r" (length)
+        : [value_u32] "r" (value_u32)
         : "memory", "r3", "r4", "r5", "r6", "r8", "r10", "r11", "r12"
       );
 #else
@@ -179,7 +181,7 @@ void ArrayMathARM::sign_f32(float32 *dst, const float32 *x, size_t length) {
   uint32 *dst_u32 = reinterpret_cast<uint32*>(dst);
   const uint32 *x_u32 = reinterpret_cast<const uint32*>(x);
 
-  if (length >= 16) {
+  if (length >= 31) {
       // 1) Align x to a 64-byte boundary.
       size_t num_unaligned = reinterpret_cast<size_t>(x_u32) & 63;
       num_unaligned = num_unaligned ? 16 - (num_unaligned >> 2) : 0;
@@ -190,6 +192,7 @@ void ArrayMathARM::sign_f32(float32 *dst, const float32 *x, size_t length) {
 
       // 2) Main unrolled loop.
 #if defined(__GNUC__)
+      // NOTE: This loop assumes that length >= 16 at this point!
       __asm__ (
         "\n.sign_loop%=:\n\t"
 #if AM_ARM_ARCH >= 6
@@ -234,8 +237,8 @@ void ArrayMathARM::sign_f32(float32 *dst, const float32 *x, size_t length) {
         "orr   r12, r12, #1065353216\n\t"
         "stmia %[dst_u32]!, {r3,r4,r5,r6,r8,r10,r11,r12}\n\t"
         "bhi   .sign_loop%=\n\t"
-        : [dst_u32] "+r" (dst_u32), [x_u32] "+r" (x_u32)
-        : [length] "r" (length)
+        : [dst_u32] "+r" (dst_u32), [x_u32] "+r" (x_u32), [length] "+r" (length)
+        :
         : "memory", "r3", "r4", "r5", "r6", "r8", "r10", "r11", "r12"
       );
 #endif
