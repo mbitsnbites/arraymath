@@ -31,6 +31,8 @@
 
 #include <cmath>
 
+#include "x86/ArrayMathSSE.h"
+
 namespace arraymath {
 
 namespace {
@@ -133,6 +135,120 @@ void ArrayMathSSE4::round_f32(float32 *dst, const float32 *x, size_t length) {
 void ArrayMathSSE4::fract_f32(float32 *dst, const float32 *x, size_t length) {
   op_f32_a<FractOP>(dst, x, length);
 }
+
+void ArrayMathSSE4::sampleLinear_f32(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength) {
+  if (xLength == 0) {
+    // If we have nothing to sample, act as if we're sampling only zeros.
+    ArrayMathSSE::fill_f32(dst, 0.0f, length);
+    return;
+  }
+
+  size_t maxIdx = xLength - 1;
+  __m128 _maxIdx = _mm_set1_ps(static_cast<float32>(maxIdx));
+  const __m128 kZero = _mm_set1_ps(0.0f);
+  const __m128 kOne = _mm_set1_ps(1.0f);
+
+  union {
+    __m128i v;
+    int i[4];
+  } idx1, idx2;
+
+  union {
+    __m128 v;
+    float f[4];
+  } p1, p2;
+
+  // 1) Main SSE4 loop.
+  for (; length >= 4; length -= 4) {
+    __m128 _t2 = _mm_loadu_ps(t);
+    _t2 = _mm_max_ps(kZero, _mm_min_ps(_maxIdx, _t2));
+    __m128 _w = _mm_round_ps(_t2, _MM_FROUND_FLOOR);
+
+    idx1.v = _mm_cvtps_epi32(_w);
+    idx2.v = _mm_cvtps_epi32(_mm_min_ps(_maxIdx, _mm_add_ps(_w, kOne)));
+
+    // TODO(m): Can we do this in a better way?
+    for (int k = 0; k < 4; ++k) {
+      p1.f[k] = x[idx1.i[k]];
+      p2.f[k] = x[idx2.i[k]];
+    }
+
+    _w = _mm_sub_ps(_t2, _w);
+    _mm_storeu_ps(dst, _mm_add_ps(p1.v, _mm_mul_ps(_w, _mm_sub_ps(p2.v, p1.v))));
+
+    dst += 4; t += 4;
+  }
+
+  // 2) Tail loop.
+  while (length--) {
+    float32 t2 = *t++;
+    t2 = t2 < 0 ? 0 : t2 > maxIdx ? maxIdx : t2;
+    size_t idx = std::floor(t2);
+    float32 w = t2 - static_cast<float32>(idx);
+    float32 p1 = x[idx];
+    float32 p2 = x[idx < maxIdx ? idx + 1 : maxIdx];
+    *dst++ = p1 + w * (p2 - p1);
+  }
+}
+
+void ArrayMathSSE4::sampleLinearRepeat_f32(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength) {
+  if (xLength == 0) {
+    // If we have nothing to sample, act as if we're sampling only zeros.
+    ArrayMathSSE::fill_f32(dst, 0.0f, length);
+    return;
+  }
+
+  size_t maxIdx = xLength - 1;
+  float32 xLengthF = static_cast<float32>(xLength);
+  float32 xLengthFInv = 1.0f / xLengthF;
+  __m128 _maxIdx = _mm_set1_ps(static_cast<float32>(maxIdx));
+  __m128 _xLengthF = _mm_set1_ps(xLengthF);
+  __m128 _xLengthFInv = _mm_set1_ps(xLengthFInv);
+  const __m128 kOne = _mm_set1_ps(1.0f);
+
+  union {
+    __m128i v;
+    int i[4];
+  } idx1, idx2;
+
+  union {
+    __m128 v;
+    float f[4];
+  } p1, p2;
+
+  // 1) Main SSE4 loop.
+  for (; length >= 4; length -= 4) {
+    __m128 _t2 = _mm_loadu_ps(t);
+    _t2 = _mm_sub_ps(_t2, _mm_mul_ps(_mm_round_ps(_mm_mul_ps(_t2, _xLengthFInv), _MM_FROUND_FLOOR), _xLengthF));
+    __m128 _w = _mm_round_ps(_t2, _MM_FROUND_FLOOR);
+
+    idx1.v = _mm_cvtps_epi32(_w);
+    idx2.v = _mm_cvtps_epi32(_mm_and_ps(_mm_cmpneq_ps(_w, _maxIdx), _mm_add_ps(_w, kOne)));
+
+    // TODO(m): Can we do this in a better way?
+    for (int k = 0; k < 4; ++k) {
+      p1.f[k] = x[idx1.i[k]];
+      p2.f[k] = x[idx2.i[k]];
+    }
+
+    _w = _mm_sub_ps(_t2, _w);
+    _mm_storeu_ps(dst, _mm_add_ps(p1.v, _mm_mul_ps(_w, _mm_sub_ps(p2.v, p1.v))));
+
+    dst += 4; t += 4;
+  }
+
+  // 2) Tail loop.
+  while (length--) {
+    float32 t2 = *t++;
+    t2 = t2 - std::floor(t2 * xLengthFInv) * xLengthF;
+    size_t idx = std::floor(t2);
+    float32 w = t2 - static_cast<float32>(idx);
+    float32 p1 = x[idx];
+    float32 p2 = x[idx < maxIdx ? idx + 1 : 0];
+    *dst++ = p1 + w * (p2 - p1);
+  }
+}
+
 
 }  // namespace arraymath
 

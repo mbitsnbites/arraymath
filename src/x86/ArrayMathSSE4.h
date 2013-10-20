@@ -40,6 +40,8 @@ class ArrayMathSSE4 {
     static void floor_f32(float32 *dst, const float32 *x, size_t length);
     static void round_f32(float32 *dst, const float32 *x, size_t length);
     static void fract_f32(float32 *dst, const float32 *x, size_t length);
+    static void sampleLinear_f32(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength);
+    static void sampleLinearRepeat_f32(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength);
 };
 
 }  // namespace arraymath

@@ -132,6 +132,8 @@ ArrayMath::ArrayMath() {
     p_floor_f32 = ArrayMathSSE4::floor_f32;
     p_round_f32 = ArrayMathSSE4::round_f32;
     p_fract_f32 = ArrayMathSSE4::fract_f32;
+    p_sampleLinear_f32 = ArrayMathSSE4::sampleLinear_f32;
+    p_sampleLinearRepeat_f32 = ArrayMathSSE4::sampleLinearRepeat_f32;
   }
 #endif // AM_USE_X86 && AM_HAS_SSE4
 
