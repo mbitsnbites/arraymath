@@ -193,8 +193,11 @@ ArrayMath::ArrayMath() {
     p_exp_f32 = ArrayMathNEON::exp_f32;
     p_log_f32 = ArrayMathNEON::log_f32;
     p_sqrt_f32 = ArrayMathNEON::sqrt_f32;
+    p_ceil_f32 = ArrayMathNEON::ceil_f32;
+    p_floor_f32 = ArrayMathNEON::floor_f32;
     p_max_f32 = ArrayMathNEON::max_f32;
     p_min_f32 = ArrayMathNEON::min_f32;
+    p_round_f32 = ArrayMathNEON::round_f32;
     p_clamp_f32 = ArrayMathNEON::clamp_f32;
     p_fill_f32 = ArrayMathNEON::fill_f32;
     p_ramp_f32 = ArrayMathNEON::ramp_f32;

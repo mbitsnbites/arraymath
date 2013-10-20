@@ -39,6 +39,22 @@ namespace {
 
 #include "arm/neon_mathfun.h"
 
+
+//-----------------------------------------------------------------------------
+// Constants.
+//-----------------------------------------------------------------------------
+
+namespace constants {
+
+const float32x4_t zero = { 0.0f, 0.0f, 0.0f, 0.0f };
+const float32x4_t half = { 0.5f, 0.5f, 0.5f, 0.5f };
+const float32x4_t one = { 1.0f, 1.0f, 1.0f, 1.0f };
+const float32x4_t four = { 4.0f, 4.0f, 4.0f, 4.0f };
+const float32x4_t round32 = { 12582912.0f, 12582912.0f, 12582912.0f, 12582912.0f };
+
+} // namespace constants
+
+
 //-----------------------------------------------------------------------------
 // Aligned load/store operations.
 //-----------------------------------------------------------------------------
@@ -225,6 +241,47 @@ struct AbsOP {
   }
 };
 
+struct CeilOP {
+  static float32 op(float32 a) {
+    return std::ceil(a);
+  }
+  static float32x4_t opNEON(float32x4_t a) {
+    // This is essentially the same as RoundOP::opNEON(), but with two extras:
+    // 1) We check if a is already an integer - in which case we keep it.
+    // 2) Before rounding, we add 0.5 to a.
+    float32x4_t rounded = vsubq_f32(vaddq_f32(a, constants::round32), constants::round32);
+    uint32x4_t mask = vceqq_f32(a, rounded);
+    float32x4_t ceiled = vsubq_f32(vaddq_f32(vaddq_f32(a, constants::half), constants::round32), constants::round32);
+    return vreinterpretq_f32_u32(vorrq_u32(vandq_u32(vreinterpretq_u32_f32(a), mask), vbicq_u32(vreinterpretq_u32_f32(ceiled), mask)));
+  }
+};
+
+struct FloorOP {
+  static float32 op(float32 a) {
+    return std::floor(a);
+  }
+  static float32x4_t opNEON(float32x4_t a) {
+    // This is essentially the same as RoundOP::opNEON(), but with two extras:
+    // 1) We check if a is already an integer - in which case we keep it.
+    // 2) Before rounding, we subtract 0.5 from a.
+    float32x4_t rounded = vsubq_f32(vaddq_f32(a, constants::round32), constants::round32);
+    uint32x4_t mask = vceqq_f32(a, rounded);
+    float32x4_t floored = vsubq_f32(vaddq_f32(vsubq_f32(a, constants::half), constants::round32), constants::round32);
+    return vreinterpretq_f32_u32(vorrq_u32(vandq_u32(vreinterpretq_u32_f32(a), mask), vbicq_u32(vreinterpretq_u32_f32(floored), mask)));
+  }
+};
+
+struct RoundOP {
+  static float32 op(float32 a) {
+    return std::floor(a + 0.5f);
+  }
+  static float32x4_t opNEON(float32x4_t a) {
+    // This trick, (a + 1.5*2^23) - 1.5*2^23, flushes all the sub-integer bits,
+    // using round to nearest mode (the only rounding mode supported by NEON).
+    return vsubq_f32(vaddq_f32(a, constants::round32), constants::round32);
+  }
+};
+
 struct SinOP {
   static float32 op(float32 a) {
     return std::sin(a);
@@ -397,6 +454,18 @@ void ArrayMathNEON::abs_f32(float32 *dst, const float32 *x, size_t length) {
   op_f32_a<AbsOP>(dst, x, length);
 }
 
+void ArrayMathNEON::ceil_f32(float32 *dst, const float32 *x, size_t length) {
+  op_f32_a<CeilOP>(dst, x, length);
+}
+
+void ArrayMathNEON::floor_f32(float32 *dst, const float32 *x, size_t length) {
+  op_f32_a<FloorOP>(dst, x, length);
+}
+
+void ArrayMathNEON::round_f32(float32 *dst, const float32 *x, size_t length) {
+  op_f32_a<RoundOP>(dst, x, length);
+}
+
 void ArrayMathNEON::sin_f32(float32 *dst, const float32 *x, size_t length) {
   op_f32_a<SinOP>(dst, x, length);
 }
@@ -552,7 +621,6 @@ void ArrayMathNEON::ramp_f32(float32 *dst, float32 first, float32 last, size_t l
   }
 
   // 2) Main NEON loop.
-  static const float32x4_t kFour = vdupq_n_f32(4.0f);
   static const float32x4_t kIdxRamp = { 0.0f, 1.0f, 2.0f, 3.0f };
   float32x4_t _first = vdupq_n_f32(first);
   float32x4_t _step = vdupq_n_f32(step);
@@ -560,7 +628,7 @@ void ArrayMathNEON::ramp_f32(float32 *dst, float32 first, float32 last, size_t l
   size_t mainLoopSize = (length / 4) * 4;
   for (; length >= 4; length -= 4) {
     vst1qa_inc_f32(dst, vaddq_f32(_first, vmulq_f32(_step, _k)));
-    _k = vaddq_f32(_k, kFour);
+    _k = vaddq_f32(_k, constants::four);
   }
   k += mainLoopSize;
 

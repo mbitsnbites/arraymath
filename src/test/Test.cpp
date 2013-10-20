@@ -121,6 +121,28 @@ void testArrayMath() {
   }
 
   {
+    std::vector<float> x(55), y_f(55), y_r(55), y_c(55);
+    math.ramp(&x[0], -2.2f, 2.2f, x.size());
+    x[20] = -1.0f;
+    x[21] = -0.5f;
+    x[22] = 0.5f;
+    x[23] = 1.0f;
+    x[24] = -8589934592.0f;
+    x[25] = -33554432.0f;
+    x[26] = 33554432.0f;
+    x[27] = 8589934592.0f;
+    std::cout << std::endl << "Test floor(), round(), ceil()" << std::endl;
+    std::cout << "x = "; printArray(x); std::cout << std::endl;
+    math.floor(&y_f[0], &x[0], x.size());
+    math.round(&y_r[0], &x[0], x.size());
+    math.ceil(&y_c[0], &x[0], x.size());
+    std::cout << "x -> floor(x), round(x), ceil(x)" << std::endl;
+    for (size_t k = 0; k < x.size(); ++k) {
+      std::cout << x[k] << " -> " << y_f[k] << ", " << y_r[k] << ", " << y_c[k] << std::endl;
+    }
+  }
+
+  {
     std::vector<float> t(33), y(33), x(4);
     math.ramp(&t[0], -0.5f, 4.0f, t.size());
     math.ramp(&x[0], -1.0f, 1.0f, x.size());
