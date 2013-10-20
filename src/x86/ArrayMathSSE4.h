@@ -39,6 +39,7 @@ class ArrayMathSSE4 {
     static void ceil_f32(float32 *dst, const float32 *x, size_t length);
     static void floor_f32(float32 *dst, const float32 *x, size_t length);
     static void round_f32(float32 *dst, const float32 *x, size_t length);
+    static void fract_f32(float32 *dst, const float32 *x, size_t length);
 };
 
 }  // namespace arraymath

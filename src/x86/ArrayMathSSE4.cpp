@@ -101,6 +101,16 @@ struct RoundOP {
   }
 };
 
+struct FractOP {
+  static float32 op(float32 a) {
+    return a - std::floor(a);
+  }
+  static __m128 opSSE4(__m128 a) {
+    return _mm_sub_ps(a, _mm_round_ps(a, _MM_FROUND_FLOOR));
+  }
+};
+
+
 } // anonymous namespace
 
 
@@ -118,6 +128,10 @@ void ArrayMathSSE4::ceil_f32(float32 *dst, const float32 *x, size_t length) {
 
 void ArrayMathSSE4::round_f32(float32 *dst, const float32 *x, size_t length) {
   op_f32_a<RoundOP>(dst, x, length);
+}
+
+void ArrayMathSSE4::fract_f32(float32 *dst, const float32 *x, size_t length) {
+  op_f32_a<FractOP>(dst, x, length);
 }
 
 }  // namespace arraymath

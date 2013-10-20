@@ -121,6 +121,15 @@ void testArrayMath() {
   }
 
   {
+    std::vector<float> x(33), y(33);
+    math.ramp(&x[0], -5.0f, 5.0f, x.size());
+    math.fract(&y[0], &x[0], x.size());
+    std::cout << std::endl << "Test fract()" << std::endl;
+    std::cout << "x = "; printArray(x); std::cout << std::endl;
+    std::cout << "y = "; printArray(y); std::cout << std::endl;
+  }
+
+  {
     std::vector<float> x(55), y_f(55), y_r(55), y_c(55);
     math.ramp(&x[0], -2.2f, 2.2f, x.size());
     x[20] = -1.0f;

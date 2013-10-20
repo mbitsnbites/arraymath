@@ -318,6 +318,16 @@ struct LogOP {
   }
 };
 
+struct FractOP {
+  static float32 op(float32 a) {
+    return a - std::floor(a);
+  }
+  static float32x4_t opNEON(float32x4_t a) {
+    return vsubq_f32(a, FloorOP::opNEON(a));
+  }
+};
+
+
 } // anonymous namespace
 
 
@@ -582,6 +592,10 @@ void ArrayMathNEON::clamp_f32(float32 *dst, const float32 *x, float32 xMin, floa
     float32 val = *x++;
     *dst++ = val < xMin ? xMin : val > xMax ? xMax : val;
   }
+}
+
+void ArrayMathNEON::fract_f32(float32 *dst, const float32 *x, size_t length) {
+  op_f32_a<FractOP>(dst, x, length);
 }
 
 void ArrayMathNEON::fill_f32(float32 *dst, float32 value, size_t length) {

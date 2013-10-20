@@ -131,6 +131,7 @@ ArrayMath::ArrayMath() {
     p_ceil_f32 = ArrayMathSSE4::ceil_f32;
     p_floor_f32 = ArrayMathSSE4::floor_f32;
     p_round_f32 = ArrayMathSSE4::round_f32;
+    p_fract_f32 = ArrayMathSSE4::fract_f32;
   }
 #endif // AM_USE_X86 && AM_HAS_SSE4
 
@@ -199,6 +200,7 @@ ArrayMath::ArrayMath() {
     p_min_f32 = ArrayMathNEON::min_f32;
     p_round_f32 = ArrayMathNEON::round_f32;
     p_clamp_f32 = ArrayMathNEON::clamp_f32;
+    p_fract_f32 = ArrayMathNEON::fract_f32;
     p_fill_f32 = ArrayMathNEON::fill_f32;
     p_ramp_f32 = ArrayMathNEON::ramp_f32;
     if (cpu.hasNEON_FMA()) {
