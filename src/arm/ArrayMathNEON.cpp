@@ -730,7 +730,7 @@ void ArrayMathNEON::sampleLinearRepeat_f32(float32 *dst, const float32 *x, const
     int i[4];
   } p1, p2;
 
-  // 1) Main AVX loop.
+  // 1) Main NEON loop.
   for (; length >= 4; length -= 4) {
     float32x4_t _t2 = vld1q_f32(t);
     _t2 = vsubq_f32(_t2, vmulq_f32(FloorOP::opNEON(vmulq_f32(_t2, _xLengthFInv)), _xLengthF));
