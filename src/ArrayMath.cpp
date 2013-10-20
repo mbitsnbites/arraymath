@@ -203,6 +203,8 @@ ArrayMath::ArrayMath() {
     p_fract_f32 = ArrayMathNEON::fract_f32;
     p_fill_f32 = ArrayMathNEON::fill_f32;
     p_ramp_f32 = ArrayMathNEON::ramp_f32;
+    p_sampleLinear_f32 = ArrayMathNEON::sampleLinear_f32;
+    p_sampleLinearRepeat_f32 = ArrayMathNEON::sampleLinearRepeat_f32;
     if (cpu.hasNEON_FMA()) {
       // TODO(m): madd() should probably be implemented using vmla.
     }

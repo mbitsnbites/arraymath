@@ -653,6 +653,116 @@ void ArrayMathNEON::ramp_f32(float32 *dst, float32 first, float32 last, size_t l
   }
 }
 
+void ArrayMathNEON::sampleLinear_f32(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength) {
+  if (xLength == 0) {
+    // If we have nothing to sample, act as if we're sampling only zeros.
+    fill_f32(dst, 0.0f, length);
+    return;
+  }
+
+  size_t maxIdx = xLength - 1;
+  float32x4_t _maxIdx = vdupq_n_f32(static_cast<float32>(maxIdx));
+
+  union {
+    uint32x4_t v;
+    unsigned int u[4];
+  } idx1, idx2;
+
+  union {
+    float32x4_t v;
+    int i[4];
+  } p1, p2;
+
+  // 1) Main NEON loop.
+  for (; length >= 4; length -= 4) {
+    float32x4_t _t2 = vld1q_f32(t);
+    _t2 = vmaxq_f32(constants::zero, vminq_f32(_maxIdx, _t2));
+    float32x4_t _w = FloorOP::opNEON(_t2);
+
+    idx1.v = vcvtq_u32_f32(_w);
+    idx2.v = vcvtq_u32_f32(vminq_f32(_maxIdx, vaddq_f32(_w, constants::one)));
+
+    // TODO(m): Can we do this in a better way?
+    for (int k = 0; k < 4; ++k) {
+      p1.i[k] = reinterpret_cast<const int*>(x)[idx1.u[k]];
+      p2.i[k] = reinterpret_cast<const int*>(x)[idx2.u[k]];
+    }
+
+    _w = vsubq_f32(_t2, _w);
+    vst1q_f32(dst, vmlaq_f32(p1.v, _w, vsubq_f32(p2.v, p1.v)));
+
+    dst += 4; t += 4;
+  }
+
+  // 2) Tail loop.
+  while (length--) {
+    float32 t2 = *t++;
+    t2 = t2 < 0 ? 0 : t2 > maxIdx ? maxIdx : t2;
+    size_t idx = std::floor(t2);
+    float32 w = t2 - static_cast<float32>(idx);
+    float32 p1 = x[idx];
+    float32 p2 = x[idx < maxIdx ? idx + 1 : maxIdx];
+    *dst++ = p1 + w * (p2 - p1);
+  }
+}
+
+void ArrayMathNEON::sampleLinearRepeat_f32(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength) {
+  if (xLength == 0) {
+    // If we have nothing to sample, act as if we're sampling only zeros.
+    fill_f32(dst, 0.0f, length);
+    return;
+  }
+
+  size_t maxIdx = xLength - 1;
+  float32 xLengthF = static_cast<float32>(xLength);
+  float32 xLengthFInv = 1.0f / xLengthF;
+  float32x4_t _maxIdx = vdupq_n_f32(static_cast<float32>(maxIdx));
+  float32x4_t _xLengthF = vdupq_n_f32(xLengthF);
+  float32x4_t _xLengthFInv = vdupq_n_f32(xLengthFInv);
+
+  union {
+    uint32x4_t v;
+    unsigned int u[4];
+  } idx1, idx2;
+
+  union {
+    float32x4_t v;
+    int i[4];
+  } p1, p2;
+
+  // 1) Main AVX loop.
+  for (; length >= 4; length -= 4) {
+    float32x4_t _t2 = vld1q_f32(t);
+    _t2 = vsubq_f32(_t2, vmulq_f32(FloorOP::opNEON(vmulq_f32(_t2, _xLengthFInv)), _xLengthF));
+    float32x4_t _w = FloorOP::opNEON(_t2);
+
+    idx1.v = vcvtq_u32_f32(_w);
+    idx2.v = vbicq_u32(vcvtq_u32_f32(vaddq_f32(_w, constants::one)), vceqq_f32(_w, _maxIdx));
+
+    // TODO(m): Can we do this in a better way?
+    for (int k = 0; k < 4; ++k) {
+      p1.i[k] = reinterpret_cast<const int*>(x)[idx1.u[k]];
+      p2.i[k] = reinterpret_cast<const int*>(x)[idx2.u[k]];
+    }
+
+    _w = vsubq_f32(_t2, _w);
+    vst1q_f32(dst, vmlaq_f32(p1.v, _w, vsubq_f32(p2.v, p1.v)));
+
+    dst += 4; t += 4;
+  }
+
+  // 2) Tail loop.
+  while (length--) {
+    float32 t2 = *t++;
+    t2 = t2 - std::floor(t2 * xLengthFInv) * xLengthF;
+    size_t idx = std::floor(t2);
+    float32 w = t2 - static_cast<float32>(idx);
+    float32 p1 = x[idx];
+    float32 p2 = x[idx < maxIdx ? idx + 1 : 0];
+    *dst++ = p1 + w * (p2 - p1);
+  }
+}
+
 }  // namespace arraymath
 
 #endif // AM_USE_ARM && AM_HAS_NEON
