@@ -141,7 +141,7 @@ void RandomNEON::random(float32 *dst, float32 low, float32 high, size_t length) 
   while (m_generated_idx < 4 && length--) {
     *dst++ = m_generated[m_generated_idx++] * scale + offset;
   }
-  if (m_generated_idx < 4) {
+  if (AM_UNLIKELY(m_generated_idx < 4)) {
     // If we didn't finish the current batch, exit now (we'll continue the line
     // up operation during the next call).
     return;

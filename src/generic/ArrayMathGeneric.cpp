@@ -270,10 +270,10 @@ void ArrayMathGeneric::fill_f32(float32 *dst, float32 value, size_t length) {
 }
 
 void ArrayMathGeneric::ramp_f32(float32 *dst, float32 first, float32 last, size_t length) {
-  if (length == 0) {
+  if (AM_UNLIKELY(length == 0)) {
     return;
   }
-  if (length == 1) {
+  if (AM_UNLIKELY(length == 1)) {
     *dst = first;
     return;
   }
@@ -302,7 +302,7 @@ float32 ArrayMathGeneric::sum_f32(const float32 *x, size_t length) {
 }
 
 void ArrayMathGeneric::sampleLinear_f32(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength) {
-  if (xLength == 0) {
+  if (AM_UNLIKELY(xLength == 0)) {
     // If we have nothing to sample, act as if we're sampling only zeros.
     fill_f32(dst, 0.0f, length);
     return;
@@ -321,7 +321,7 @@ void ArrayMathGeneric::sampleLinear_f32(float32 *dst, const float32 *x, const fl
 }
 
 void ArrayMathGeneric::sampleLinearRepeat_f32(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength) {
-  if (xLength == 0) {
+  if (AM_UNLIKELY(xLength == 0)) {
     // If we have nothing to sample, act as if we're sampling only zeros.
     fill_f32(dst, 0.0f, length);
     return;
@@ -342,7 +342,7 @@ void ArrayMathGeneric::sampleLinearRepeat_f32(float32 *dst, const float32 *x, co
 }
 
 void ArrayMathGeneric::sampleCubic_f32(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength) {
-  if (xLength == 0) {
+  if (AM_UNLIKELY(xLength == 0)) {
     // If we have nothing to sample, act as if we're sampling only zeros.
     fill_f32(dst, 0.0f, length);
     return;
@@ -369,7 +369,7 @@ void ArrayMathGeneric::sampleCubic_f32(float32 *dst, const float32 *x, const flo
 }
 
 void ArrayMathGeneric::sampleCubicRepeat_f32(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength) {
-  if (xLength == 0) {
+  if (AM_UNLIKELY(xLength == 0)) {
     // If we have nothing to sample, act as if we're sampling only zeros.
     fill_f32(dst, 0.0f, length);
     return;

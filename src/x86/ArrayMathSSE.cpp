@@ -785,10 +785,10 @@ void ArrayMathSSE::fill_f32(float32 *dst, float32 value, size_t length) {
 }
 
 void ArrayMathSSE::ramp_f32(float32 *dst, float32 first, float32 last, size_t length) {
-  if (length == 0) {
+  if (AM_UNLIKELY(length == 0)) {
     return;
   }
-  if (length == 1) {
+  if (AM_UNLIKELY(length == 1)) {
     *dst = first;
     return;
   }

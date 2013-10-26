@@ -50,7 +50,7 @@ void ArrayMathARM::abs_f32(float32 *dst, const float32 *x, size_t length) {
   uint32 *dst_u32 = reinterpret_cast<uint32*>(dst);
   const uint32 *x_u32 = reinterpret_cast<const uint32*>(x);
 
-  if (length >= 31) {
+  if (AM_LIKELY(length >= 31)) {
       // 1) Align x to a 64-byte boundary.
       size_t num_unaligned = reinterpret_cast<size_t>(x_u32) & 63;
       num_unaligned = num_unaligned ? 16 - (num_unaligned >> 2) : 0;
@@ -125,7 +125,7 @@ void ArrayMathARM::fill_f32(float32 *dst, float32 value, size_t length) {
   uint32 *dst_u32 = reinterpret_cast<uint32*>(dst);
   uint32 value_u32 = asUint32(value);
 
-  if (length >= 23) {
+  if (AM_LIKELY(length >= 23)) {
       // 1) Align dst to a 64-byte boundary.
       size_t num_unaligned = reinterpret_cast<size_t>(dst_u32) & 63;
       num_unaligned = num_unaligned ? 16 - (num_unaligned >> 2) : 0;
@@ -181,7 +181,7 @@ void ArrayMathARM::sign_f32(float32 *dst, const float32 *x, size_t length) {
   uint32 *dst_u32 = reinterpret_cast<uint32*>(dst);
   const uint32 *x_u32 = reinterpret_cast<const uint32*>(x);
 
-  if (length >= 31) {
+  if (AM_LIKELY(length >= 31)) {
       // 1) Align x to a 64-byte boundary.
       size_t num_unaligned = reinterpret_cast<size_t>(x_u32) & 63;
       num_unaligned = num_unaligned ? 16 - (num_unaligned >> 2) : 0;

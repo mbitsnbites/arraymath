@@ -33,6 +33,15 @@
 # define AM_INLINE inline
 #endif
 
+// Branch optimization macros.
+#if defined(__GNUC__)
+# define AM_LIKELY(expr) __builtin_expect(!!(expr), 1)
+# define AM_UNLIKELY(expr) __builtin_expect(!!(expr), 0)
+#else
+# define AM_LIKELY(expr) (expr)
+# define AM_UNLIKELY(expr) (expr)
+#endif
+
 // Needed for size_t.
 #include <cstdlib>
 

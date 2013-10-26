@@ -825,7 +825,7 @@ void ArrayMathAVX::fract_f32(float32 *dst, const float32 *x, size_t length) {
 }
 
 void ArrayMathAVX::fill_f32(float32 *dst, float32 value, size_t length) {
-  if (length >= 16) {
+  if (AM_LIKELY(length >= 16)) {
     // 1) Align dst to a 32-byte boundary.
     size_t num_unaligned = (reinterpret_cast<size_t>(dst) & 31) >> 2;
     num_unaligned = num_unaligned ? 8 - num_unaligned : 0;
@@ -856,10 +856,10 @@ void ArrayMathAVX::fill_f32(float32 *dst, float32 value, size_t length) {
 }
 
 void ArrayMathAVX::ramp_f32(float32 *dst, float32 first, float32 last, size_t length) {
-  if (length == 0) {
+  if (AM_UNLIKELY(length == 0)) {
     return;
   }
-  if (length == 1) {
+  if (AM_UNLIKELY(length == 1)) {
     *dst = first;
     return;
   }
@@ -943,7 +943,7 @@ void ArrayMathAVX::sign_f32(float32 *dst, const float32 *x, size_t length) {
 }
 
 void ArrayMathAVX::sampleLinear_f32(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength) {
-  if (xLength == 0) {
+  if (AM_UNLIKELY(xLength == 0)) {
     // If we have nothing to sample, act as if we're sampling only zeros.
     fill_f32(dst, 0.0f, length);
     return;
@@ -998,7 +998,7 @@ void ArrayMathAVX::sampleLinear_f32(float32 *dst, const float32 *x, const float3
 }
 
 void ArrayMathAVX::sampleLinearRepeat_f32(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength) {
-  if (xLength == 0) {
+  if (AM_UNLIKELY(xLength == 0)) {
     // If we have nothing to sample, act as if we're sampling only zeros.
     fill_f32(dst, 0.0f, length);
     return;

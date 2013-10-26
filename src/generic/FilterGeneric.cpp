@@ -178,7 +178,7 @@ void FilterGeneric_1_1::filter(float32 *dst, const float32 *x, size_t length) {
   int k = runIn(dst, x, length);
   int samplesLeft = static_cast<int>(length) - k;
 
-  if (samplesLeft > 0) {
+  if (AM_LIKELY(samplesLeft > 0)) {
     // Optimized core loop for first order IIR filtes (bSize = 1, aSize = 1).
     float32 b0 = m_b[0], a1 = m_a[0];
     float32 y = dst[k - 1];
@@ -213,7 +213,7 @@ void FilterGeneric_3_2::filter(float32 *dst, const float32 *x, size_t length) {
   int k = runIn(dst, x, length);
   int samplesLeft = static_cast<int>(length) - k;
 
-  if (samplesLeft > 0) {
+  if (AM_LIKELY(samplesLeft > 0)) {
     // Optimized core loop for biquad filtes (bSize = 3, aSize = 2).
     float32 b0 = m_b[0], b1 = m_b[1], b2 = m_b[2], a1 = m_a[0], a2 = m_a[1];
     float32 x0 = x[k - 1], x1 = x[k - 2], x2;

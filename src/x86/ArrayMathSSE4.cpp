@@ -137,7 +137,7 @@ void ArrayMathSSE4::fract_f32(float32 *dst, const float32 *x, size_t length) {
 }
 
 void ArrayMathSSE4::sampleLinear_f32(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength) {
-  if (xLength == 0) {
+  if (AM_UNLIKELY(xLength == 0)) {
     // If we have nothing to sample, act as if we're sampling only zeros.
     ArrayMathSSE::fill_f32(dst, 0.0f, length);
     return;
@@ -192,7 +192,7 @@ void ArrayMathSSE4::sampleLinear_f32(float32 *dst, const float32 *x, const float
 }
 
 void ArrayMathSSE4::sampleLinearRepeat_f32(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength) {
-  if (xLength == 0) {
+  if (AM_UNLIKELY(xLength == 0)) {
     // If we have nothing to sample, act as if we're sampling only zeros.
     ArrayMathSSE::fill_f32(dst, 0.0f, length);
     return;
