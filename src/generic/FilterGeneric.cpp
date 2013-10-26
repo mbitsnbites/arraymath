@@ -178,28 +178,30 @@ void FilterGeneric_1_1::filter(float32 *dst, const float32 *x, size_t length) {
   int k = runIn(dst, x, length);
   int samplesLeft = static_cast<int>(length) - k;
 
-  // Optimized core loop for first order IIR filtes (bSize = 1, aSize = 1).
-  float32 b0 = m_b[0], a1 = m_a[0];
-  float32 y = dst[k - 1];
-  const float32* in = &x[k];
-  float32* out = &dst[k];
-  for(; samplesLeft >= 4; samplesLeft -= 4) {
-    float32 x1 = *in++;
-    float32 x2 = *in++;
-    float32 x3 = *in++;
-    float32 x4 = *in++;
-    y = b0 * x1 - a1 * y;
-    *out++ = y;
-    y = b0 * x2 - a1 * y;
-    *out++ = y;
-    y = b0 * x3 - a1 * y;
-    *out++ = y;
-    y = b0 * x4 - a1 * y;
-    *out++ = y;
-  }
-  while(samplesLeft--) {
-    y = b0 * *in++ - a1 * y;
-    *out++ = y;
+  if (samplesLeft > 0) {
+    // Optimized core loop for first order IIR filtes (bSize = 1, aSize = 1).
+    float32 b0 = m_b[0], a1 = m_a[0];
+    float32 y = dst[k - 1];
+    const float32* in = &x[k];
+    float32* out = &dst[k];
+    for (; samplesLeft >= 4; samplesLeft -= 4) {
+      float32 x1 = *in++;
+      float32 x2 = *in++;
+      float32 x3 = *in++;
+      float32 x4 = *in++;
+      y = b0 * x1 - a1 * y;
+      *out++ = y;
+      y = b0 * x2 - a1 * y;
+      *out++ = y;
+      y = b0 * x3 - a1 * y;
+      *out++ = y;
+      y = b0 * x4 - a1 * y;
+      *out++ = y;
+    }
+    while (samplesLeft--) {
+      y = b0 * *in++ - a1 * y;
+      *out++ = y;
+    }
   }
 
   // Update history state.
@@ -209,19 +211,22 @@ void FilterGeneric_1_1::filter(float32 *dst, const float32 *x, size_t length) {
 void FilterGeneric_3_2::filter(float32 *dst, const float32 *x, size_t length) {
   // Perform run-in part using the history (slow).
   int k = runIn(dst, x, length);
+  int samplesLeft = static_cast<int>(length) - k;
 
-  // Optimized core loop for biquad filtes (bSize = 3, aSize = 2).
-  float32 b0 = m_b[0], b1 = m_b[1], b2 = m_b[2], a1 = m_a[0], a2 = m_a[1];
-  float32 x0 = x[k - 1], x1 = x[k - 2], x2;
-  float32 y0 = dst[k - 1], y1 = dst[k - 2], y2;
-  for (; k < static_cast<int>(length); ++k) {
-    x2 = x1;
-    x1 = x0;
-    x0 = x[k];
-    y2 = y1;
-    y1 = y0;
-    y0 = b0 * x0 + b1 * x1 + b2 * x2 - a1 * y1 - a2 * y2;
-    dst[k] = y0;
+  if (samplesLeft > 0) {
+    // Optimized core loop for biquad filtes (bSize = 3, aSize = 2).
+    float32 b0 = m_b[0], b1 = m_b[1], b2 = m_b[2], a1 = m_a[0], a2 = m_a[1];
+    float32 x0 = x[k - 1], x1 = x[k - 2], x2;
+    float32 y0 = dst[k - 1], y1 = dst[k - 2], y2;
+    const float32* in = &x[k];
+    float32* out = &dst[k];
+    while (samplesLeft--) {
+      x2 = x1; x1 = x0;
+      x0 = *in++;
+      y2 = y1; y1 = y0;
+      y0 = b0 * x0 + b1 * x1 + b2 * x2 - a1 * y1 - a2 * y2;
+      *out++ = y0;
+    }
   }
 
   // Update history state.
