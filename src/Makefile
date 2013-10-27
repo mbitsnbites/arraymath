@@ -59,6 +59,7 @@ OBJS = $(OUTDIR)/ArrayMath.o \
        $(OUTDIR)/ArrayMathSSE.o \
        $(OUTDIR)/ArrayMathSSE4.o \
        $(OUTDIR)/CPUFeatureDetector.o \
+       $(OUTDIR)/FilterAVX.o \
        $(OUTDIR)/FilterFactory.o \
        $(OUTDIR)/FilterGeneric.o \
        $(OUTDIR)/FFTFactory.o \
@@ -93,6 +94,9 @@ $(OUTDIR)/ArrayMathSSE4.o: x86/ArrayMathSSE4.cpp
 	$(CPP) $(CPPFLAGS_SSE4) -o $@ $<
 
 $(OUTDIR)/ArrayMathAVX.o: x86/ArrayMathAVX.cpp
+	$(CPP) $(CPPFLAGS_AVX) -o $@ $<
+
+$(OUTDIR)/FilterAVX.o: x86/FilterAVX.cpp
 	$(CPP) $(CPPFLAGS_AVX) -o $@ $<
 
 $(OUTDIR)/RandomSSE2.o: x86/RandomSSE2.cpp

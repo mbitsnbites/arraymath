@@ -23,47 +23,37 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //------------------------------------------------------------------------------
 
-#include "FilterFactory.h"
+#ifndef _ARRAYMATH_FILTERAVX_H
+#define _ARRAYMATH_FILTERAVX_H
 
-#include "generic/FilterGeneric.h"
-#include "x86/FilterAVX.h"
+#include "Filter.h"
 
 namespace arraymath {
 
-Filter* FilterFactory::createFilter(int bSize, int aSize) {
-  // Sanity check.
-  if (bSize < 1 || aSize < 0) {
-    return NULL;
+class FilterAVX_FIR : public Filter {
+ public:
+  virtual ~FilterAVX_FIR();
+  virtual void setB(const float32 *b, size_t length);
+  virtual void setA(const float32*, size_t) {}
+  virtual void clearHistory();
+  virtual void filter(float32 *dst, const float32 *x, size_t length);
+
+ protected:
+  FilterAVX_FIR();
+
+  bool init(int size);
+
+  virtual bool init(int bSize, int) {
+    return init(bSize);
   }
 
-  Filter* filter = NULL;
-  if (bSize == 1 && aSize == 1) {
-    // Optimized filter type: first order filter.
-    filter = new FilterGeneric_1_1();
-  }
-  else if (bSize == 3 && aSize == 2) {
-    // Optimized filter type: biquad filter.
-    filter = new FilterGeneric_3_2();
-  }
-#if defined(AM_USE_X86) && defined(AM_HAS_AVX)
-  else if (aSize == 0 && bSize >= 8 && m_cpu.hasAVX()) {
-    filter = new FilterAVX_FIR();
-  }
-#endif // AM_USE_X86 && AM_HAS_AVX
-  else {
-    // Generic (fallback) filter that can handle all filter orders.
-    filter = new FilterGeneric();
-  }
+  friend class FilterFactory;
 
-  // Initialize the filter object.
-  if (filter) {
-    if (!filter->init(bSize, aSize)) {
-      delete filter;
-      filter = NULL;
-    }
-  }
-
-  return filter;
-}
+  float32 *m_b;
+  float32 *m_history;
+  int m_size;
+};
 
 }  // namespace arraymath
+
+#endif // _ARRAYMATH_FILTERAVX_H

@@ -1150,10 +1150,29 @@ void benchmarkFilter() {
   for (int i = 0; i < kNumArrayLengths; ++i) {
     benchmark_filter(math, factory, 3, 2, kArrayLengths[i]);
   }
+  std::cout << std::endl << "Filter(4,0)" << std::endl;
+  for (int i = 0; i < kNumArrayLengths; ++i) {
+    benchmark_filter(math, factory, 4, 0, kArrayLengths[i]);
+  }
+
+  std::cout << std::endl << "Filter(8,0)" << std::endl;
+  for (int i = 0; i < kNumArrayLengths; ++i) {
+    benchmark_filter(math, factory, 8, 0, kArrayLengths[i]);
+  }
 
   std::cout << std::endl << "Filter(16,0)" << std::endl;
   for (int i = 0; i < kNumArrayLengths; ++i) {
     benchmark_filter(math, factory, 16, 0, kArrayLengths[i]);
+  }
+
+  std::cout << std::endl << "Filter(32,0)" << std::endl;
+  for (int i = 0; i < kNumArrayLengths; ++i) {
+    benchmark_filter(math, factory, 32, 0, kArrayLengths[i]);
+  }
+
+  std::cout << std::endl << "Filter(50,0)" << std::endl;
+  for (int i = 0; i < kNumArrayLengths; ++i) {
+    benchmark_filter(math, factory, 50, 0, kArrayLengths[i]);
   }
 
   std::cout << std::endl << "Filter(128,0)" << std::endl;
