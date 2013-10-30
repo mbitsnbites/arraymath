@@ -125,7 +125,7 @@ void ArrayMathGeneric::madd_f32_saa(float32 *dst, float32 x, const float32 *y, c
 
 void ArrayMathGeneric::madd_f32_aaa(float32 *dst, const float32 *x, const float32 *y, const float32 *z, size_t length) {
   while (length--) {
-    *dst++ = *x++ + *y++ * *z++;
+    *dst++ = *x++ * *y++ + *z++;
   }
 }
 
