@@ -460,6 +460,48 @@ void ArrayMathNEON::div_f32_aa(float32 *dst, const float32 *x, const float32 *y,
   op_f32_aa<DivOP>(dst, x, y, length);
 }
 
+void ArrayMathNEON::madd_f32_saa(float32 *dst, float32 x, const float32 *y, const float32 *z, size_t length) {
+  // 1) Align dst to a 16-byte boundary.
+  while ((reinterpret_cast<size_t>(dst) & 15) && length--) {
+    *dst++ = x * *y++ + *z++;
+  }
+
+  // 2) Main NEON loop.
+  float32x4_t _x = vdupq_n_f32(x);
+  for (; length >= 4; length -= 4) {
+    float32x4_t _y = vld1q_f32(y);
+    float32x4_t _z = vld1q_f32(z);
+    vst1qa_inc_f32(dst, vmlaq_f32(_z, _x, _y));
+    y += 4; z += 4;
+  }
+
+  // 3) Tail loop.
+  while (length--) {
+    *dst++ = x * *y++ + *z++;
+  }
+}
+
+void ArrayMathNEON::madd_f32_aaa(float32 *dst, const float32 *x, const float32 *y, const float32 *z, size_t length) {
+  // 1) Align dst to a 16-byte boundary.
+  while ((reinterpret_cast<size_t>(dst) & 15) && length--) {
+    *dst++ = *x++ * *y++ + *z++;
+  }
+
+  // 2) Main NEON loop.
+  for (; length >= 4; length -= 4) {
+    float32x4_t _x = vld1q_f32(x);
+    float32x4_t _y = vld1q_f32(y);
+    float32x4_t _z = vld1q_f32(z);
+    vst1qa_inc_f32(dst, vmlaq_f32(_z, _x, _y));
+    x += 4; y += 4; z += 4;
+  }
+
+  // 3) Tail loop.
+  while (length--) {
+    *dst++ = *x++ * *y++ + *z++;
+  }
+}
+
 void ArrayMathNEON::abs_f32(float32 *dst, const float32 *x, size_t length) {
   op_f32_a<AbsOP>(dst, x, length);
 }

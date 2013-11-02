@@ -190,6 +190,8 @@ ArrayMath::ArrayMath() {
     p_mulCplx_f32_aa = ArrayMathNEON::mulCplx_f32_aa;
     p_div_f32_sa = ArrayMathNEON::div_f32_sa;
     p_div_f32_aa = ArrayMathNEON::div_f32_aa;
+    p_madd_f32_saa = ArrayMathNEON::madd_f32_saa;
+    p_madd_f32_aaa = ArrayMathNEON::madd_f32_aaa;
     p_abs_f32 = ArrayMathNEON::abs_f32;
     p_sin_f32 = ArrayMathNEON::sin_f32;
     p_cos_f32 = ArrayMathNEON::cos_f32;

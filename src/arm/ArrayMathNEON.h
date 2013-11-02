@@ -46,6 +46,8 @@ class ArrayMathNEON {
   static void mulCplx_f32_aa(float32 *dstReal, float32 *dstImag, const float32 *xReal, const float32 *xImag, const float32 *yReal, const float32 *yImag, size_t length);
   static void div_f32_sa(float32 *dst, float32 x, const float32 *y, size_t length);
   static void div_f32_aa(float32 *dst, const float32 *x, const float32 *y, size_t length);
+  static void madd_f32_saa(float32 *dst, float32 x, const float32 *y, const float32 *z, size_t length);
+  static void madd_f32_aaa(float32 *dst, const float32 *x, const float32 *y, const float32 *z, size_t length);
   static void abs_f32(float32 *dst, const float32 *x, size_t length);
   static void ceil_f32(float32 *dst, const float32 *x, size_t length);
   static void floor_f32(float32 *dst, const float32 *x, size_t length);
