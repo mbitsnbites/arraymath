@@ -60,7 +60,10 @@ __m128 rcp_23bit(__m128 x) {
 template <class OP>
 void op_f32_sa(float32 *dst, float32 x, const float32 *y, size_t length) {
   // 1) Align dst to a 16-byte boundary.
-  while ((reinterpret_cast<size_t>(dst) & 15) && length--) {
+  size_t numUnaligned = (reinterpret_cast<size_t>(dst) & 15) >> 2;
+  numUnaligned = std::min(numUnaligned ? 4 - numUnaligned : 0, length);
+  length -= numUnaligned;
+  while (numUnaligned--) {
     *dst++ = OP::op(x, *y++);
   }
 
@@ -105,7 +108,10 @@ void op_f32_sa(float32 *dst, float32 x, const float32 *y, size_t length) {
 template <class OP>
 void op_f32_aa(float32 *dst, const float32 *x, const float32 *y, size_t length) {
   // 1) Align dst to a 16-byte boundary.
-  while ((reinterpret_cast<size_t>(dst) & 15) && length--) {
+  size_t numUnaligned = (reinterpret_cast<size_t>(dst) & 15) >> 2;
+  numUnaligned = std::min(numUnaligned ? 4 - numUnaligned : 0, length);
+  length -= numUnaligned;
+  while (numUnaligned--) {
     *dst++ = OP::op(*x++, *y++);
   }
 
@@ -153,7 +159,10 @@ void op_f32_aa(float32 *dst, const float32 *x, const float32 *y, size_t length) 
 template <class OP>
 void op_f32_a(float32 *dst, const float32 *x, size_t length) {
   // 1) Align dst to a 16-byte boundary.
-  while ((reinterpret_cast<size_t>(dst) & 15) && length--) {
+  size_t numUnaligned = (reinterpret_cast<size_t>(dst) & 15) >> 2;
+  numUnaligned = std::min(numUnaligned ? 4 - numUnaligned : 0, length);
+  length -= numUnaligned;
+  while (numUnaligned--) {
     *dst++ = OP::op(*x++);
   }
 
@@ -397,7 +406,10 @@ float32 ArrayMathSSE::max_f32(const float32 *x, size_t length) {
   float32 result = -std::numeric_limits<float>::infinity();
 
   // 1) Align x to a 16-byte boundary.
-  while ((reinterpret_cast<size_t>(x) & 15) && length--) {
+  size_t numUnaligned = (reinterpret_cast<size_t>(x) & 15) >> 2;
+  numUnaligned = std::min(numUnaligned ? 4 - numUnaligned : 0, length);
+  length -= numUnaligned;
+  while (numUnaligned--) {
     result = std::max(result, *x++);
   }
 
@@ -444,7 +456,10 @@ float32 ArrayMathSSE::min_f32(const float32 *x, size_t length) {
   float32 result = std::numeric_limits<float>::infinity();
 
   // 1) Align x to a 16-byte boundary.
-  while ((reinterpret_cast<size_t>(x) & 15) && length--) {
+  size_t numUnaligned = (reinterpret_cast<size_t>(x) & 15) >> 2;
+  numUnaligned = std::min(numUnaligned ? 4 - numUnaligned : 0, length);
+  length -= numUnaligned;
+  while (numUnaligned--) {
     result = std::min(result, *x++);
   }
 
@@ -489,7 +504,10 @@ float32 ArrayMathSSE::min_f32(const float32 *x, size_t length) {
 
 void ArrayMathSSE::abs_f32(float32 *dst, const float32 *x, size_t length) {
   // 1) Align dst to a 16-byte boundary.
-  while ((reinterpret_cast<size_t>(dst) & 15) && length--) {
+  size_t numUnaligned = (reinterpret_cast<size_t>(dst) & 15) >> 2;
+  numUnaligned = std::min(numUnaligned ? 4 - numUnaligned : 0, length);
+  length -= numUnaligned;
+  while (numUnaligned--) {
     *dst++ = std::abs(*x++);
   }
 
@@ -529,7 +547,10 @@ void ArrayMathSSE::abs_f32(float32 *dst, const float32 *x, size_t length) {
 
 void ArrayMathSSE::absCplx_f32(float32 *dst, const float32 *xReal, const float32 *xImag, size_t length) {
   // 1) Align dst to a 16-byte boundary.
-  while ((reinterpret_cast<size_t>(dst) & 15) && length--) {
+  size_t numUnaligned = (reinterpret_cast<size_t>(dst) & 15) >> 2;
+  numUnaligned = std::min(numUnaligned ? 4 - numUnaligned : 0, length);
+  length -= numUnaligned;
+  while (numUnaligned--) {
     float32 re = *xReal++;
     float32 im = *xImag++;
     *dst++ = std::sqrt(re * re + im * im);
@@ -631,7 +652,10 @@ void ArrayMathSSE::log_f32(float32 *dst, const float32 *x, size_t length) {
 
 void ArrayMathSSE::pow_f32_as(float32 *dst, const float32 *x, float32 y, size_t length) {
   // 1) Align dst to a 16-byte boundary.
-  while ((reinterpret_cast<size_t>(dst) & 15) && length--) {
+  size_t numUnaligned = (reinterpret_cast<size_t>(dst) & 15) >> 2;
+  numUnaligned = std::min(numUnaligned ? 4 - numUnaligned : 0, length);
+  length -= numUnaligned;
+  while (numUnaligned--) {
     *dst++ = std::pow(*x++, y);
   }
 
@@ -653,7 +677,10 @@ void ArrayMathSSE::pow_f32_as(float32 *dst, const float32 *x, float32 y, size_t 
 
 void ArrayMathSSE::pow_f32_aa(float32 *dst, const float32 *x, const float32 *y, size_t length) {
   // 1) Align dst to a 16-byte boundary.
-  while ((reinterpret_cast<size_t>(dst) & 15) && length--) {
+  size_t numUnaligned = (reinterpret_cast<size_t>(dst) & 15) >> 2;
+  numUnaligned = std::min(numUnaligned ? 4 - numUnaligned : 0, length);
+  length -= numUnaligned;
+  while (numUnaligned--) {
     *dst++ = std::pow(*x++, *y++);
   }
 
@@ -675,7 +702,10 @@ void ArrayMathSSE::pow_f32_aa(float32 *dst, const float32 *x, const float32 *y, 
 
 void ArrayMathSSE::sqrt_f32(float32 *dst, const float32 *x, size_t length) {
   // 1) Align dst to a 16-byte boundary.
-  while ((reinterpret_cast<size_t>(dst) & 15) && length--) {
+  size_t numUnaligned = (reinterpret_cast<size_t>(dst) & 15) >> 2;
+  numUnaligned = std::min(numUnaligned ? 4 - numUnaligned : 0, length);
+  length -= numUnaligned;
+  while (numUnaligned--) {
     *dst++ = std::sqrt(*x++);
   }
 
@@ -717,7 +747,10 @@ void ArrayMathSSE::sqrt_f32(float32 *dst, const float32 *x, size_t length) {
 
 void ArrayMathSSE::clamp_f32(float32 *dst, const float32 *x, float32 xMin, float32 xMax, size_t length) {
   // 1) Align dst to a 16-byte boundary.
-  while ((reinterpret_cast<size_t>(dst) & 15) && length--) {
+  size_t numUnaligned = (reinterpret_cast<size_t>(dst) & 15) >> 2;
+  numUnaligned = std::min(numUnaligned ? 4 - numUnaligned : 0, length);
+  length -= numUnaligned;
+  while (numUnaligned--) {
     float32 val = *x++;
     *dst++ = val < xMin ? xMin : val > xMax ? xMax : val;
   }
@@ -760,7 +793,10 @@ void ArrayMathSSE::clamp_f32(float32 *dst, const float32 *x, float32 xMin, float
 
 void ArrayMathSSE::fill_f32(float32 *dst, float32 value, size_t length) {
   // 1) Align dst to a 16-byte boundary.
-  while ((reinterpret_cast<size_t>(dst) & 15) && length--) {
+  size_t numUnaligned = (reinterpret_cast<size_t>(dst) & 15) >> 2;
+  numUnaligned = std::min(numUnaligned ? 4 - numUnaligned : 0, length);
+  length -= numUnaligned;
+  while (numUnaligned--) {
     *dst++ = value;
   }
 
@@ -797,7 +833,10 @@ void ArrayMathSSE::ramp_f32(float32 *dst, float32 first, float32 last, size_t le
   float32 k = 0.0f;
 
   // 1) Align dst to a 16-byte boundary.
-  while ((reinterpret_cast<size_t>(dst) & 15) && length--) {
+  size_t numUnaligned = (reinterpret_cast<size_t>(dst) & 15) >> 2;
+  numUnaligned = std::min(numUnaligned ? 4 - numUnaligned : 0, length);
+  length -= numUnaligned;
+  while (numUnaligned--) {
     *dst++ = first + step * k;
     k += 1.0f;
   }

@@ -95,7 +95,10 @@ AM_INLINE void vst1qa_inc_f32(float *&addr, const float32x4_t x) {
 template <class OP>
 void op_f32_sa(float32 *dst, float32 x, const float32 *y, size_t length) {
   // 1) Align dst to a 16-byte boundary.
-  while ((reinterpret_cast<size_t>(dst) & 15) && length--) {
+  size_t numUnaligned = (reinterpret_cast<size_t>(dst) & 15) >> 2;
+  numUnaligned = std::min(numUnaligned ? 4 - numUnaligned : 0, length);
+  length -= numUnaligned;
+  while (numUnaligned--) {
     *dst++ = OP::op(x, *y++);
   }
 
@@ -125,7 +128,10 @@ void op_f32_sa(float32 *dst, float32 x, const float32 *y, size_t length) {
 template <class OP>
 void op_f32_aa(float32 *dst, const float32 *x, const float32 *y, size_t length) {
   // 1) Align dst to a 16-byte boundary.
-  while ((reinterpret_cast<size_t>(dst) & 15) && length--) {
+  size_t numUnaligned = (reinterpret_cast<size_t>(dst) & 15) >> 2;
+  numUnaligned = std::min(numUnaligned ? 4 - numUnaligned : 0, length);
+  length -= numUnaligned;
+  while (numUnaligned--) {
     *dst++ = OP::op(*x++, *y++);
   }
 
@@ -144,7 +150,10 @@ void op_f32_aa(float32 *dst, const float32 *x, const float32 *y, size_t length) 
 template <class OP>
 void op_f32_a(float32 *dst, const float32 *x, size_t length) {
   // 1) Align dst to a 16-byte boundary.
-  while ((reinterpret_cast<size_t>(dst) & 15) && length--) {
+  size_t numUnaligned = (reinterpret_cast<size_t>(dst) & 15) >> 2;
+  numUnaligned = std::min(numUnaligned ? 4 - numUnaligned : 0, length);
+  length -= numUnaligned;
+  while (numUnaligned--) {
     *dst++ = OP::op(*x++);
   }
 
@@ -462,7 +471,10 @@ void ArrayMathNEON::div_f32_aa(float32 *dst, const float32 *x, const float32 *y,
 
 void ArrayMathNEON::madd_f32_saa(float32 *dst, float32 x, const float32 *y, const float32 *z, size_t length) {
   // 1) Align dst to a 16-byte boundary.
-  while ((reinterpret_cast<size_t>(dst) & 15) && length--) {
+  size_t numUnaligned = (reinterpret_cast<size_t>(dst) & 15) >> 2;
+  numUnaligned = std::min(numUnaligned ? 4 - numUnaligned : 0, length);
+  length -= numUnaligned;
+  while (numUnaligned--) {
     *dst++ = x * *y++ + *z++;
   }
 
@@ -483,7 +495,10 @@ void ArrayMathNEON::madd_f32_saa(float32 *dst, float32 x, const float32 *y, cons
 
 void ArrayMathNEON::madd_f32_aaa(float32 *dst, const float32 *x, const float32 *y, const float32 *z, size_t length) {
   // 1) Align dst to a 16-byte boundary.
-  while ((reinterpret_cast<size_t>(dst) & 15) && length--) {
+  size_t numUnaligned = (reinterpret_cast<size_t>(dst) & 15) >> 2;
+  numUnaligned = std::min(numUnaligned ? 4 - numUnaligned : 0, length);
+  length -= numUnaligned;
+  while (numUnaligned--) {
     *dst++ = *x++ * *y++ + *z++;
   }
 
@@ -542,7 +557,10 @@ float32 ArrayMathNEON::max_f32(const float32 *x, size_t length) {
   float32 result = -std::numeric_limits<float>::infinity();
 
   // 1) Align x to a 16-byte boundary.
-  while ((reinterpret_cast<size_t>(x) & 15) && length--) {
+  size_t numUnaligned = (reinterpret_cast<size_t>(x) & 15) >> 2;
+  numUnaligned = std::min(numUnaligned ? 4 - numUnaligned : 0, length);
+  length -= numUnaligned;
+  while (numUnaligned--) {
     result = std::max(result, *x++);
   }
 
@@ -575,7 +593,10 @@ float32 ArrayMathNEON::min_f32(const float32 *x, size_t length) {
   float32 result = std::numeric_limits<float>::infinity();
 
   // 1) Align x to a 16-byte boundary.
-  while ((reinterpret_cast<size_t>(x) & 15) && length--) {
+  size_t numUnaligned = (reinterpret_cast<size_t>(x) & 15) >> 2;
+  numUnaligned = std::min(numUnaligned ? 4 - numUnaligned : 0, length);
+  length -= numUnaligned;
+  while (numUnaligned--) {
     result = std::min(result, *x++);
   }
 
@@ -606,7 +627,10 @@ float32 ArrayMathNEON::min_f32(const float32 *x, size_t length) {
 
 void ArrayMathNEON::clamp_f32(float32 *dst, const float32 *x, float32 xMin, float32 xMax, size_t length) {
   // 1) Align dst to a 16-byte boundary.
-  while ((reinterpret_cast<size_t>(dst) & 15) && length--) {
+  size_t numUnaligned = (reinterpret_cast<size_t>(dst) & 15) >> 2;
+  numUnaligned = std::min(numUnaligned ? 4 - numUnaligned : 0, length);
+  length -= numUnaligned;
+  while (numUnaligned--) {
     float32 val = *x++;
     *dst++ = val < xMin ? xMin : val > xMax ? xMax : val;
   }
@@ -642,7 +666,10 @@ void ArrayMathNEON::fract_f32(float32 *dst, const float32 *x, size_t length) {
 
 void ArrayMathNEON::fill_f32(float32 *dst, float32 value, size_t length) {
   // 1) Align dst to a 16-byte boundary.
-  while ((reinterpret_cast<size_t>(dst) & 15) && length--) {
+  size_t numUnaligned = (reinterpret_cast<size_t>(dst) & 15) >> 2;
+  numUnaligned = std::min(numUnaligned ? 4 - numUnaligned : 0, length);
+  length -= numUnaligned;
+  while (numUnaligned--) {
     *dst++ = value;
   }
 
@@ -671,7 +698,10 @@ void ArrayMathNEON::ramp_f32(float32 *dst, float32 first, float32 last, size_t l
   float32 k = 0.0f;
 
   // 1) Align dst to a 16-byte boundary.
-  while ((reinterpret_cast<size_t>(dst) & 15) && length--) {
+  size_t numUnaligned = (reinterpret_cast<size_t>(dst) & 15) >> 2;
+  numUnaligned = std::min(numUnaligned ? 4 - numUnaligned : 0, length);
+  length -= numUnaligned;
+  while (numUnaligned--) {
     *dst++ = first + step * k;
     k += 1.0f;
   }

@@ -64,7 +64,10 @@ __m256 rcp_23bit(__m256 x) {
 template <class OP>
 void op_f32_sa(float32 *dst, float32 x, const float32 *y, size_t length) {
   // 1) Align dst to a 32-byte boundary.
-  while ((reinterpret_cast<size_t>(dst) & 31) && length--) {
+  size_t numUnaligned = (reinterpret_cast<size_t>(dst) & 31) >> 2;
+  numUnaligned = std::min(numUnaligned ? 8 - numUnaligned : 0, length);
+  length -= numUnaligned;
+  while (numUnaligned--) {
     *dst++ = OP::op(x, *y++);
   }
 
@@ -105,7 +108,10 @@ void op_f32_sa(float32 *dst, float32 x, const float32 *y, size_t length) {
 template <class OP>
 void op_f32_aa(float32 *dst, const float32 *x, const float32 *y, size_t length) {
   // 1) Align dst to a 32-byte boundary.
-  while ((reinterpret_cast<size_t>(dst) & 31) && length--) {
+  size_t numUnaligned = (reinterpret_cast<size_t>(dst) & 31) >> 2;
+  numUnaligned = std::min(numUnaligned ? 8 - numUnaligned : 0, length);
+  length -= numUnaligned;
+  while (numUnaligned--) {
     *dst++ = OP::op(*x++, *y++);
   }
 
@@ -153,7 +159,10 @@ void op_f32_aa(float32 *dst, const float32 *x, const float32 *y, size_t length) 
 template <class OP>
 void op_f32_a(float32 *dst, const float32 *x, size_t length) {
   // 1) Align dst to a 32-byte boundary.
-  while ((reinterpret_cast<size_t>(dst) & 31) && length--) {
+  size_t numUnaligned = (reinterpret_cast<size_t>(dst) & 31) >> 2;
+  numUnaligned = std::min(numUnaligned ? 8 - numUnaligned : 0, length);
+  length -= numUnaligned;
+  while (numUnaligned--) {
     *dst++ = OP::op(*x++);
   }
 
@@ -394,7 +403,10 @@ void ArrayMathAVX::divCplx_f32_aa(float32 *dstReal, float32 *dstImag, const floa
 
 void ArrayMathAVX::madd_f32_saa(float32 *dst, float32 x, const float32 *y, const float32 *z, size_t length) {
   // 1) Align dst to a 32-byte boundary.
-  while ((reinterpret_cast<size_t>(dst) & 31) && length--) {
+  size_t numUnaligned = (reinterpret_cast<size_t>(dst) & 31) >> 2;
+  numUnaligned = std::min(numUnaligned ? 8 - numUnaligned : 0, length);
+  length -= numUnaligned;
+  while (numUnaligned--) {
     *dst++ = x * *y++ + *z++;
   }
 
@@ -446,7 +458,10 @@ void ArrayMathAVX::madd_f32_saa(float32 *dst, float32 x, const float32 *y, const
 
 void ArrayMathAVX::madd_f32_aaa(float32 *dst, const float32 *x, const float32 *y, const float32 *z, size_t length) {
   // 1) Align dst to a 32-byte boundary.
-  while ((reinterpret_cast<size_t>(dst) & 31) && length--) {
+  size_t numUnaligned = (reinterpret_cast<size_t>(dst) & 31) >> 2;
+  numUnaligned = std::min(numUnaligned ? 8 - numUnaligned : 0, length);
+  length -= numUnaligned;
+  while (numUnaligned--) {
     *dst++ = *x++ * *y++ + *z++;
   }
 
@@ -531,7 +546,10 @@ void ArrayMathAVX::madd_f32_aaa(float32 *dst, const float32 *x, const float32 *y
 
 void ArrayMathAVX::abs_f32(float32 *dst, const float32 *x, size_t length) {
   // 1) Align dst to a 32-byte boundary.
-  while ((reinterpret_cast<size_t>(dst) & 31) && length--) {
+  size_t numUnaligned = (reinterpret_cast<size_t>(dst) & 31) >> 2;
+  numUnaligned = std::min(numUnaligned ? 8 - numUnaligned : 0, length);
+  length -= numUnaligned;
+  while (numUnaligned--) {
     *dst++ = std::abs(*x++);
   }
 
@@ -561,7 +579,10 @@ void ArrayMathAVX::abs_f32(float32 *dst, const float32 *x, size_t length) {
 
 void ArrayMathAVX::absCplx_f32(float32 *dst, const float32 *xReal, const float32 *xImag, size_t length) {
   // 1) Align dst to a 32-byte boundary.
-  while ((reinterpret_cast<size_t>(dst) & 31) && length--) {
+  size_t numUnaligned = (reinterpret_cast<size_t>(dst) & 31) >> 2;
+  numUnaligned = std::min(numUnaligned ? 8 - numUnaligned : 0, length);
+  length -= numUnaligned;
+  while (numUnaligned--) {
     float32 re = *xReal++;
     float32 im = *xImag++;
     *dst++ = std::sqrt(re * re + im * im);
@@ -643,7 +664,10 @@ void ArrayMathAVX::absCplx_f32(float32 *dst, const float32 *xReal, const float32
 
 void ArrayMathAVX::sqrt_f32(float32 *dst, const float32 *x, size_t length) {
   // 1) Align dst to a 32-byte boundary.
-  while ((reinterpret_cast<size_t>(dst) & 31) && length--) {
+  size_t numUnaligned = (reinterpret_cast<size_t>(dst) & 31) >> 2;
+  numUnaligned = std::min(numUnaligned ? 8 - numUnaligned : 0, length);
+  length -= numUnaligned;
+  while (numUnaligned--) {
     *dst++ = std::sqrt(*x++);
   }
 
@@ -695,7 +719,10 @@ float32 ArrayMathAVX::max_f32(const float32 *x, size_t length) {
   float32 result = -std::numeric_limits<float>::infinity();
 
   // 1) Align x to a 32-byte boundary.
-  while ((reinterpret_cast<size_t>(x) & 31) && length--) {
+  size_t numUnaligned = (reinterpret_cast<size_t>(x) & 31) >> 2;
+  numUnaligned = std::min(numUnaligned ? 8 - numUnaligned : 0, length);
+  length -= numUnaligned;
+  while (numUnaligned--) {
     result = std::max(result, *x++);
   }
 
@@ -736,7 +763,10 @@ float32 ArrayMathAVX::min_f32(const float32 *x, size_t length) {
   float32 result = std::numeric_limits<float>::infinity();
 
   // 1) Align x to a 32-byte boundary.
-  while ((reinterpret_cast<size_t>(x) & 31) && length--) {
+  size_t numUnaligned = (reinterpret_cast<size_t>(x) & 31) >> 2;
+  numUnaligned = std::min(numUnaligned ? 8 - numUnaligned : 0, length);
+  length -= numUnaligned;
+  while (numUnaligned--) {
     result = std::min(result, *x++);
   }
 
@@ -779,7 +809,10 @@ void ArrayMathAVX::round_f32(float32 *dst, const float32 *x, size_t length) {
 
 void ArrayMathAVX::clamp_f32(float32 *dst, const float32 *x, float32 xMin, float32 xMax, size_t length) {
   // 1) Align dst to a 32-byte boundary.
-  while ((reinterpret_cast<size_t>(dst) & 31) && length--) {
+  size_t numUnaligned = (reinterpret_cast<size_t>(dst) & 31) >> 2;
+  numUnaligned = std::min(numUnaligned ? 8 - numUnaligned : 0, length);
+  length -= numUnaligned;
+  while (numUnaligned--) {
     float32 val = *x++;
     *dst++ = val < xMin ? xMin : val > xMax ? xMax : val;
   }
@@ -827,10 +860,10 @@ void ArrayMathAVX::fract_f32(float32 *dst, const float32 *x, size_t length) {
 void ArrayMathAVX::fill_f32(float32 *dst, float32 value, size_t length) {
   if (AM_LIKELY(length >= 16)) {
     // 1) Align dst to a 32-byte boundary.
-    size_t num_unaligned = (reinterpret_cast<size_t>(dst) & 31) >> 2;
-    num_unaligned = num_unaligned ? 8 - num_unaligned : 0;
-    length -= num_unaligned;
-    while (num_unaligned--) {
+    size_t numUnaligned = (reinterpret_cast<size_t>(dst) & 31) >> 2;
+    numUnaligned = std::min(numUnaligned ? 8 - numUnaligned : 0, length);
+    length -= numUnaligned;
+    while (numUnaligned--) {
       *dst++ = value;
     }
 
@@ -868,7 +901,10 @@ void ArrayMathAVX::ramp_f32(float32 *dst, float32 first, float32 last, size_t le
   float32 k = 0.0f;
 
   // 1) Align dst to a 32-byte boundary.
-  while ((reinterpret_cast<size_t>(dst) & 31) && length--) {
+  size_t numUnaligned = (reinterpret_cast<size_t>(dst) & 31) >> 2;
+  numUnaligned = std::min(numUnaligned ? 8 - numUnaligned : 0, length);
+  length -= numUnaligned;
+  while (numUnaligned--) {
     *dst++ = first + step * k;
     k += 1.0f;
   }
@@ -896,7 +932,10 @@ void ArrayMathAVX::ramp_f32(float32 *dst, float32 first, float32 last, size_t le
 
 void ArrayMathAVX::sign_f32(float32 *dst, const float32 *x, size_t length) {
   // 1) Align dst to a 32-byte boundary.
-  while ((reinterpret_cast<size_t>(dst) & 31) && length--) {
+  size_t numUnaligned = (reinterpret_cast<size_t>(dst) & 31) >> 2;
+  numUnaligned = std::min(numUnaligned ? 8 - numUnaligned : 0, length);
+  length -= numUnaligned;
+  while (numUnaligned--) {
     *dst++ = *x++ < 0.0f ? -1.0f : 1.0f;
   }
 

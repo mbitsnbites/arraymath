@@ -42,6 +42,8 @@
 
 #include <arm_neon.h>
 
+#include <algorithm>
+
 #include "Random.h"
 
 namespace arraymath {
@@ -138,7 +140,9 @@ void RandomNEON::random(float32 *dst, float32 low, float32 high, size_t length) 
   float32 offset = low - 0.5f * scale;
 
   // 1) Line up with the batch generator.
-  while (m_generated_idx < 4 && length--) {
+  unsigned numLineUp = std::min(m_generated_idx ? 4 - m_generated_idx : 0, static_cast<unsigned>(length));
+  length -= numLineUp;
+  while (numLineUp--) {
     *dst++ = m_generated[m_generated_idx++] * scale + offset;
   }
   if (AM_UNLIKELY(m_generated_idx < 4)) {

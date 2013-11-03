@@ -29,6 +29,7 @@
 
 #include <smmintrin.h>
 
+#include <algorithm>
 #include <cmath>
 
 #include "x86/ArrayMathSSE.h"
@@ -44,7 +45,10 @@ namespace {
 template <class OP>
 void op_f32_a(float32 *dst, const float32 *x, size_t length) {
   // 1) Align dst to a 16-byte boundary.
-  while ((reinterpret_cast<size_t>(dst) & 15) && length--) {
+  size_t numUnaligned = (reinterpret_cast<size_t>(dst) & 15) >> 2;
+  numUnaligned = std::min(numUnaligned ? 4 - numUnaligned : 0, length);
+  length -= numUnaligned;
+  while (numUnaligned--) {
     *dst++ = OP::op(*x++);
   }
 
