@@ -26,6 +26,7 @@
 #ifndef _ARRAYMATH_TEST_TESTER_H
 #define _ARRAYMATH_TEST_TESTER_H
 
+#include <cmath>
 #include <cstddef>
 
 namespace test {
@@ -35,7 +36,33 @@ class Tester {
     void beginTest(const char* name);
     void endTest();
 
-    bool expectAll(const float* array, size_t size, float value);
+    bool expectAll(const float* array, size_t size, float value, bool (*compare)(float, float));
+
+    static bool compareExact(float a, float b) {
+      return a == b;
+    }
+
+    static bool compare23bit(float a, float b) {
+      float err = std::abs(a - b);
+      if (err == 0.0f)
+        return true;
+      float denom = std::abs(b);
+      if (denom == 0.0f)
+        return false;
+      // 0x3F800001 - 0x3F800000 = 0.0000001192092896
+      return (err / denom) < 1.2e-7;
+    }
+
+    static bool compare21bit(float a, float b) {
+      float err = std::abs(a - b);
+      if (err == 0.0f)
+        return true;
+      float denom = std::abs(b);
+      if (denom == 0.0f)
+        return false;
+      // 0x3F800004 - 0x3F800000 = 0.0000004768371582
+      return (err / denom) < 4.8e-7;
+    }
 
   private:
     int m_failCount;

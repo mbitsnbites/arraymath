@@ -43,9 +43,9 @@ void Tester::endTest() {
   std::cout << std::endl;
 }
 
-bool Tester::expectAll(const float* array, size_t size, float value) {
+bool Tester::expectAll(const float* array, size_t size, float value, bool (*compare)(float, float)) {
   for (size_t k = 0; k < size; ++k) {
-    if (array[k] != value) {
+    if (!compare(array[k], value)) {
       m_failCount++;
       return false;
     }
