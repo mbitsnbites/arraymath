@@ -42,6 +42,18 @@ class Tester {
       return a == b;
     }
 
+    // Mantissa precision factors:
+    // 23-bit: 0x3f800001 - 0x3f800000 = 0.0000001192092896
+    // 22-bit: 0x3f800002 - 0x3f800000 = 0.000000238418579
+    // 21-bit: 0x3f800004 - 0x3f800000 = 0.0000004768371582
+    // 20-bit: 0x3f800008 - 0x3f800000 = 0.0000009536743164
+    // 19-bit: 0x3f800010 - 0x3f800000 = 0.0000019073486328
+    // 18-bit: 0x3f800020 - 0x3f800000 = 0.0000038146972656
+    // 17-bit: 0x3f800040 - 0x3f800000 = 0.0000076293945312
+    // 16-bit: 0x3f800080 - 0x3f800000 = 0.0000152587890625
+    // 15-bit: 0x3f800100 - 0x3f800000 = 0.000030517578125
+    // 14-bit: 0x3f800200 - 0x3f800000 = 0.00006103515625
+
     static bool compare23bit(float a, float b) {
       float err = std::abs(a - b);
       if (err == 0.0f)
@@ -49,8 +61,17 @@ class Tester {
       float denom = std::abs(b);
       if (denom == 0.0f)
         return false;
-      // 0x3F800001 - 0x3F800000 = 0.0000001192092896
       return (err / denom) < 1.2e-7;
+    }
+
+    static bool compare22bit(float a, float b) {
+      float err = std::abs(a - b);
+      if (err == 0.0f)
+        return true;
+      float denom = std::abs(b);
+      if (denom == 0.0f)
+        return false;
+      return (err / denom) < 2.4e-7;
     }
 
     static bool compare21bit(float a, float b) {
@@ -60,7 +81,6 @@ class Tester {
       float denom = std::abs(b);
       if (denom == 0.0f)
         return false;
-      // 0x3F800004 - 0x3F800000 = 0.0000004768371582
       return (err / denom) < 4.8e-7;
     }
 

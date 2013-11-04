@@ -216,11 +216,11 @@ struct DivOP {
     return a / b;
   }
   static float32x4_t opNEON(float32x4_t a, float32x4_t b) {
-    // See http://rcl-rs-vvg.blogspot.se/2010_08_08_archive.html
-    const float32x4_t q_inv0 = vrecpeq_f32(b);
-    const float32x4_t q_step0 = vrecpsq_f32(q_inv0, b);
-    const float32x4_t q_inv1 = vmulq_f32(q_step0, q_inv0);
-    return vmulq_f32(a, q_inv1);
+    // This is quite accurate. It should give ~23 bits of mantissa precision.
+    float32x4_t r =  vrecpeq_f32(b);
+    r = vmulq_f32(vrecpsq_f32(b, r), r);
+    r = vmulq_f32(vrecpsq_f32(b, r), r);
+    return vmulq_f32(a, r);
   }
 };
 
