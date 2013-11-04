@@ -51,7 +51,7 @@ namespace {
 AM_INLINE
 __m256 rcp_23bit(__m256 x) {
   __m256 r = _mm256_rcp_ps(x);
-  __m256 mask = _mm256_cmp_ps(x, _mm256_setzero_ps(), _CMP_EQ_OQ);
+  __m256 mask = _mm256_cmp_ps(x, _mm256_setzero_ps(), _CMP_NEQ_UQ);
   __m256 filtered = _mm256_and_ps(mask, _mm256_mul_ps(_mm256_mul_ps(r, r), x));
   return _mm256_sub_ps(_mm256_add_ps(r, r), filtered);
 }

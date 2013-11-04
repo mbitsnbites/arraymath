@@ -47,7 +47,7 @@ namespace {
 // precision).
 __m128 rcp_23bit(__m128 x) {
   __m128 r = _mm_rcp_ps(x);
-  __m128 mask = _mm_cmpeq_ps(x, _mm_setzero_ps());
+  __m128 mask = _mm_cmpneq_ps(x, _mm_setzero_ps());
   __m128 filtered = _mm_and_ps(mask, _mm_mul_ps(_mm_mul_ps(r, r), x));
   return _mm_sub_ps(_mm_add_ps(r, r), filtered);
 }
