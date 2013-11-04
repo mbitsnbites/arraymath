@@ -56,22 +56,42 @@ OBJS = $(OUTDIR)\ArrayMath.obj \
        $(OUTDIR)\RandomSSE2.obj \
        $(FFT_OBJS)
 
+BENCHMARK_OBJS = $(OUTDIR)/Benchmark.obj
+
+TEST_OBJS = $(OUTDIR)/Test.obj \
+            $(OUTDIR)/Tester.obj \
+            $(OUTDIR)/TestArrayMath.obj \
+            $(OUTDIR)/TestFFTFactory.obj \
+            $(OUTDIR)/TestFilterFactory.obj
+
 all: $(OUTDIR)\Benchmark.exe $(OUTDIR)\Test.exe
 
 clean:
-	$(RM) $(OBJS) $(OUTDIR)\Test.obj $(OUTDIR)\Test.exe $(OUTDIR)\Benchmark.obj $(OUTDIR)\Benchmark.exe
+	$(RM) $(OBJS) $(BENCHMARK_OBJS) $(TEST_OBJS) $(OUTDIR)\Test.exe $(OUTDIR)\Benchmark.exe
 
-$(OUTDIR)\Benchmark.exe: $(OBJS) $(OUTDIR)\Benchmark.obj
-	$(CPP) /nologo /Fe$@ $(OBJS) $(OUTDIR)\Benchmark.obj
+$(OUTDIR)\Benchmark.exe: $(OBJS) $(BENCHMARK_OBJS)
+	$(CPP) /nologo /Fe$@ $(OBJS) $(BENCHMARK_OBJS)
 
-$(OUTDIR)\Test.exe: $(OBJS) $(OUTDIR)\Test.obj
-	$(CPP) /nologo /Fe$@ $(OBJS) $(OUTDIR)\Test.obj
+$(OUTDIR)\Test.exe: $(OBJS) $(TEST_OBJS)
+	$(CPP) /nologo /Fe$@ $(OBJS) $(TEST_OBJS)
 
 $(OUTDIR)\Benchmark.obj: test\Benchmark.cpp
 	$(CPP) $(CPPFLAGS) /Fo$@ test\Benchmark.cpp
 
 $(OUTDIR)\Test.obj: test\Test.cpp
 	$(CPP) $(CPPFLAGS) /Fo$@ test\Test.cpp
+
+$(OUTDIR)\Tester.obj: test\Tester.cpp
+	$(CPP) $(CPPFLAGS) /Fo$@ test\Tester.cpp
+
+$(OUTDIR)\TestArrayMath.obj: test\TestArrayMath.cpp
+	$(CPP) $(CPPFLAGS) /Fo$@ test\TestArrayMath.cpp
+
+$(OUTDIR)\TestFFTFactory.obj: test\TestFFTFactory.cpp
+	$(CPP) $(CPPFLAGS) /Fo$@ test\TestFFTFactory.cpp
+
+$(OUTDIR)\TestFilterFactory.obj: test\TestFilterFactory.cpp
+	$(CPP) $(CPPFLAGS) /Fo$@ test\TestFilterFactory.cpp
 
 $(OUTDIR)\ArrayMath.obj: ArrayMath.cpp
 	$(CPP) $(CPPFLAGS) /Fo$@ ArrayMath.cpp

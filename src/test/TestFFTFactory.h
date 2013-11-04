@@ -23,21 +23,13 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //------------------------------------------------------------------------------
 
-#include <iostream>
+#ifndef _ARRAYMATH_TEST_TESTFFTFACTORY_H
+#define _ARRAYMATH_TEST_TESTFFTFACTORY_H
 
-#include "test/TestArrayMath.h"
-#include "test/TestFilterFactory.h"
-#include "test/TestFFTFactory.h"
+namespace test {
 
-int main() {
-  std::cout << "Testing ArrayMath..." << std::endl;
-  test::testArrayMath();
+void testFFTFactory();
 
-  std::cout << std::endl << "Testing FilterFactory..." << std::endl;
-  test::testFilterFactory();
+} // namespace test
 
-  std::cout << std::endl << "Testing FFTFactory..." << std::endl;
-  test::testFFTFactory();
-
-  return 0;
-}
+#endif // _ARRAYMATH_TEST_TESTFFTFACTORY_H

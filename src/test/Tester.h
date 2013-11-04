@@ -23,21 +23,25 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //------------------------------------------------------------------------------
 
-#include <iostream>
+#ifndef _ARRAYMATH_TEST_TESTER_H
+#define _ARRAYMATH_TEST_TESTER_H
 
-#include "test/TestArrayMath.h"
-#include "test/TestFilterFactory.h"
-#include "test/TestFFTFactory.h"
+#include <cstddef>
 
-int main() {
-  std::cout << "Testing ArrayMath..." << std::endl;
-  test::testArrayMath();
+namespace test {
 
-  std::cout << std::endl << "Testing FilterFactory..." << std::endl;
-  test::testFilterFactory();
+class Tester {
+  protected:
+    void beginTest(const char* name);
+    void endTest();
 
-  std::cout << std::endl << "Testing FFTFactory..." << std::endl;
-  test::testFFTFactory();
+    bool expectAll(const float* array, size_t size, float value);
 
-  return 0;
-}
+  private:
+    int m_failCount;
+    int m_passCount;
+};
+
+} // namespace test
+
+#endif // _ARRAYMATH_TEST_TESTER_H

@@ -23,21 +23,35 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //------------------------------------------------------------------------------
 
+#include "test/Tester.h"
+
 #include <iostream>
 
-#include "test/TestArrayMath.h"
-#include "test/TestFilterFactory.h"
-#include "test/TestFFTFactory.h"
+namespace test {
 
-int main() {
-  std::cout << "Testing ArrayMath..." << std::endl;
-  test::testArrayMath();
-
-  std::cout << std::endl << "Testing FilterFactory..." << std::endl;
-  test::testFilterFactory();
-
-  std::cout << std::endl << "Testing FFTFactory..." << std::endl;
-  test::testFFTFactory();
-
-  return 0;
+void Tester::beginTest(const char* name) {
+  std::cout << name << ": ";
+  m_failCount = 0;
+  m_passCount = 0;
 }
+
+void Tester::endTest() {
+  if (m_failCount == 0)
+    std::cout << "OK!";
+  else
+    std::cout << m_failCount << "/" << (m_passCount + m_failCount) << " failed.";
+  std::cout << std::endl;
+}
+
+bool Tester::expectAll(const float* array, size_t size, float value) {
+  for (size_t k = 0; k < size; ++k) {
+    if (array[k] != value) {
+      m_failCount++;
+      return false;
+    }
+  }
+  m_passCount++;
+  return true;
+}
+
+} // namespace test

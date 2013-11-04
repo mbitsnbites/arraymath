@@ -34,6 +34,9 @@ CPP = g++
 CPPFLAGS = -c -O3 -ffast-math -W -Wall -Wextra -pedantic -I. -Ikiss_fft
 RM = rm -rf
 
+# Compiler settings for the test programs
+TESTFLAGS = -c -g -W -Wall -Wextra -pedantic -I.
+
 # Automatically generate dependency files
 CFLAGS += -MMD -MP
 CPPFLAGS += -MMD -MP
@@ -67,15 +70,23 @@ OBJS = $(OUTDIR)/ArrayMath.o \
        $(OUTDIR)/RandomSSE2.o \
        $(FFT_OBJS)
 
+BENCHMARK_OBJS = $(OUTDIR)/Benchmark.o
+
+TEST_OBJS = $(OUTDIR)/Test.o \
+            $(OUTDIR)/Tester.o \
+            $(OUTDIR)/TestArrayMath.o \
+            $(OUTDIR)/TestFFTFactory.o \
+            $(OUTDIR)/TestFilterFactory.o
+
 all: $(OUTDIR)/Benchmark $(OUTDIR)/Test
 
 clean:
-	$(RM) $(OBJS) $(OBJS:.o=.d) $(OUTDIR)/Test.d $(OUTDIR)/Test.o $(OUTDIR)/Test $(OUTDIR)/Benchmark.d $(OUTDIR)/Benchmark.o $(OUTDIR)/Benchmark
+	$(RM) $(OBJS) $(OBJS:.o=.d) $(BENCHMARK_OBJS) $(BENCHMARK_OBJS:.o=.d) $(TEST_OBJS) $(TEST_OBJS:.o=.d) $(OUTDIR)/Test $(OUTDIR)/Benchmark
 
-$(OUTDIR)/Benchmark: $(OBJS) $(OUTDIR)/Benchmark.o
+$(OUTDIR)/Benchmark: $(OBJS) $(BENCHMARK_OBJS)
 	$(CPP) -o $@ $^
 
-$(OUTDIR)/Test: $(OBJS) $(OUTDIR)/Test.o
+$(OUTDIR)/Test: $(OBJS) $(TEST_OBJS)
 	$(CPP) -o $@ $^
 
 $(OUTDIR)/%.o: %.cpp
@@ -103,7 +114,7 @@ $(OUTDIR)/RandomSSE2.o: x86/RandomSSE2.cpp
 	$(CPP) $(CPPFLAGS_SSE2) -o $@ $<
 
 $(OUTDIR)/%.o: test/%.cpp
-	$(CPP) $(CPPFLAGS) -o $@ $<
+	$(CPP) $(TESTFLAGS) -o $@ $<
 
 # Kiss FFT compilation rules
 $(OUTDIR)/%.o: kiss_fft/%.c

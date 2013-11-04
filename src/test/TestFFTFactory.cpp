@@ -23,21 +23,29 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //------------------------------------------------------------------------------
 
-#include <iostream>
-
-#include "test/TestArrayMath.h"
-#include "test/TestFilterFactory.h"
 #include "test/TestFFTFactory.h"
 
-int main() {
-  std::cout << "Testing ArrayMath..." << std::endl;
-  test::testArrayMath();
+#include <cmath>
+#include <iostream>
+#include <vector>
 
-  std::cout << std::endl << "Testing FilterFactory..." << std::endl;
-  test::testFilterFactory();
+#include "FFTFactory.h"
+#include "test/Tester.h"
 
-  std::cout << std::endl << "Testing FFTFactory..." << std::endl;
-  test::testFFTFactory();
+namespace test {
 
-  return 0;
+class FFTFactoryTester : public Tester {
+  public:
+    void runTests();
+};
+
+void FFTFactoryTester::runTests() {
+  // TODO(m): Implement unit tests.
 }
+
+void testFFTFactory() {
+  FFTFactoryTester tester;
+  tester.runTests();
+}
+
+} // namespace test
