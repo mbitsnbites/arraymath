@@ -24,12 +24,12 @@
 //------------------------------------------------------------------------------
 
 #include <iostream>
-#include <vector>
 
 #include "ArrayMath.h"
 #include "FilterFactory.h"
 #include "FFTFactory.h"
 #include "common/Architecture.h"
+#include "test/AlignedArray.h"
 
 #ifdef AM_OS_WINDOWS
 # define WIN32_LEAN_AND_MEAN
@@ -116,8 +116,8 @@ template <class OP>
 void benchmark_sa(ArrayMath& math, size_t arrayLength) {
   Timer timer;
 
-  std::vector<float32> dst(arrayLength);
-  std::vector<float32> y(arrayLength);
+  test::AlignedArray dst(arrayLength);
+  test::AlignedArray y(arrayLength);
   math.ramp(&y[0], 1.0f, 4.0f, arrayLength);
 
   size_t totalSamples = 0;
@@ -147,9 +147,9 @@ template <class OP>
 void benchmark_aa(ArrayMath& math, size_t arrayLength) {
   Timer timer;
 
-  std::vector<float32> dst(arrayLength);
-  std::vector<float32> x(arrayLength);
-  std::vector<float32> y(arrayLength);
+  test::AlignedArray dst(arrayLength);
+  test::AlignedArray x(arrayLength);
+  test::AlignedArray y(arrayLength);
   math.ramp(&x[0], 1.0f, 2.0f, arrayLength);
   math.ramp(&y[0], 1.0f, 4.0f, arrayLength);
 
@@ -180,8 +180,8 @@ template <class OP>
 void benchmark_cplx_sa(ArrayMath& math, size_t arrayLength) {
   Timer timer;
 
-  std::vector<float32> dstReal(arrayLength), dstImag(arrayLength);
-  std::vector<float32> yReal(arrayLength), yImag(arrayLength);
+  test::AlignedArray dstReal(arrayLength), dstImag(arrayLength);
+  test::AlignedArray yReal(arrayLength), yImag(arrayLength);
   math.ramp(&yReal[0], 1.0f, 4.0f, arrayLength);
   math.ramp(&yImag[0], 2.0f, 8.0f, arrayLength);
 
@@ -212,9 +212,9 @@ template <class OP>
 void benchmark_cplx_aa(ArrayMath& math, size_t arrayLength) {
   Timer timer;
 
-  std::vector<float32> dstReal(arrayLength), dstImag(arrayLength);
-  std::vector<float32> xReal(arrayLength), xImag(arrayLength);
-  std::vector<float32> yReal(arrayLength), yImag(arrayLength);
+  test::AlignedArray dstReal(arrayLength), dstImag(arrayLength);
+  test::AlignedArray xReal(arrayLength), xImag(arrayLength);
+  test::AlignedArray yReal(arrayLength), yImag(arrayLength);
   math.ramp(&xReal[0], 0.5f, 2.0f, arrayLength);
   math.ramp(&xImag[0], 1.0f, 3.0f, arrayLength);
   math.ramp(&yReal[0], 1.0f, 4.0f, arrayLength);
@@ -247,8 +247,8 @@ template <class OP>
 void benchmark_a(ArrayMath& math, size_t arrayLength) {
   Timer timer;
 
-  std::vector<float32> dst(arrayLength);
-  std::vector<float32> x(arrayLength);
+  test::AlignedArray dst(arrayLength);
+  test::AlignedArray x(arrayLength);
   math.ramp(&x[0], 0.5f, 2.0f, arrayLength);
 
   size_t totalSamples = 0;
@@ -278,7 +278,7 @@ template <class OP>
 void benchmark_const(ArrayMath& math, size_t arrayLength) {
   Timer timer;
 
-  std::vector<float32> x(arrayLength);
+  test::AlignedArray x(arrayLength);
   math.ramp(&x[0], 0.5f, 2.0f, arrayLength);
 
   size_t totalSamples = 0;
@@ -307,9 +307,9 @@ void benchmark_const(ArrayMath& math, size_t arrayLength) {
 void benchmark_madd_saa(ArrayMath& math, size_t arrayLength) {
   Timer timer;
 
-  std::vector<float32> dst(arrayLength);
-  std::vector<float32> y(arrayLength);
-  std::vector<float32> z(arrayLength);
+  test::AlignedArray dst(arrayLength);
+  test::AlignedArray y(arrayLength);
+  test::AlignedArray z(arrayLength);
   math.ramp(&y[0], 1.0f, 2.0f, arrayLength);
   math.ramp(&z[0], 1.0f, 4.0f, arrayLength);
 
@@ -339,10 +339,10 @@ void benchmark_madd_saa(ArrayMath& math, size_t arrayLength) {
 void benchmark_madd_aaa(ArrayMath& math, size_t arrayLength) {
   Timer timer;
 
-  std::vector<float32> dst(arrayLength);
-  std::vector<float32> x(arrayLength);
-  std::vector<float32> y(arrayLength);
-  std::vector<float32> z(arrayLength);
+  test::AlignedArray dst(arrayLength);
+  test::AlignedArray x(arrayLength);
+  test::AlignedArray y(arrayLength);
+  test::AlignedArray z(arrayLength);
   math.ramp(&x[0], 0.5f, 1.5f, arrayLength);
   math.ramp(&y[0], 1.0f, 2.0f, arrayLength);
   math.ramp(&z[0], 1.0f, 4.0f, arrayLength);
@@ -373,8 +373,8 @@ void benchmark_madd_aaa(ArrayMath& math, size_t arrayLength) {
 void benchmark_pow_as(ArrayMath& math, size_t arrayLength) {
   Timer timer;
 
-  std::vector<float32> dst(arrayLength);
-  std::vector<float32> x(arrayLength);
+  test::AlignedArray dst(arrayLength);
+  test::AlignedArray x(arrayLength);
   math.ramp(&x[0], 0.5f, 2.0f, arrayLength);
   math.sin(&x[0], &x[0], arrayLength);
 
@@ -404,7 +404,7 @@ void benchmark_pow_as(ArrayMath& math, size_t arrayLength) {
 void benchmark_random(ArrayMath& math, size_t arrayLength) {
   Timer timer;
 
-  std::vector<float32> dst(arrayLength);
+  test::AlignedArray dst(arrayLength);
 
   size_t totalSamples = 0;
   double totalT = 0.0, maxSpeed = 0.0;
@@ -432,8 +432,8 @@ void benchmark_random(ArrayMath& math, size_t arrayLength) {
 void benchmark_clamp(ArrayMath& math, size_t arrayLength) {
   Timer timer;
 
-  std::vector<float32> dst(arrayLength);
-  std::vector<float32> x(arrayLength);
+  test::AlignedArray dst(arrayLength);
+  test::AlignedArray x(arrayLength);
   math.ramp(&x[0], 0.0f, 20.0f, arrayLength);
   math.sin(&x[0], &x[0], arrayLength);
 
@@ -463,7 +463,7 @@ void benchmark_clamp(ArrayMath& math, size_t arrayLength) {
 void benchmark_fill(ArrayMath& math, size_t arrayLength) {
   Timer timer;
 
-  std::vector<float32> dst(arrayLength);
+  test::AlignedArray dst(arrayLength);
 
   size_t totalSamples = 0;
   double totalT = 0.0, maxSpeed = 0.0;
@@ -491,7 +491,7 @@ void benchmark_fill(ArrayMath& math, size_t arrayLength) {
 void benchmark_ramp(ArrayMath& math, size_t arrayLength) {
   Timer timer;
 
-  std::vector<float32> dst(arrayLength);
+  test::AlignedArray dst(arrayLength);
 
   size_t totalSamples = 0;
   double totalT = 0.0, maxSpeed = 0.0;
@@ -521,9 +521,9 @@ void benchmark_sampler(ArrayMath& math, size_t arrayLength) {
   Timer timer;
 
   size_t xLength = arrayLength + 100;
-  std::vector<float32> dst(arrayLength);
-  std::vector<float32> x(xLength);
-  std::vector<float32> t(arrayLength);
+  test::AlignedArray dst(arrayLength);
+  test::AlignedArray x(xLength);
+  test::AlignedArray t(arrayLength);
   math.ramp(&x[0], 1.0f, 4.0f, xLength);
   math.ramp(&t[0], -2.5f, static_cast<float32>(xLength + 2), arrayLength);
 
@@ -775,8 +775,8 @@ struct sampleCubicRepeat_OP {
 void benchmark_filter(ArrayMath& math, FilterFactory& factory, int bSize, int aSize, size_t arrayLength) {
   Timer timer;
 
-  std::vector<float32> dst(arrayLength);
-  std::vector<float32> x(arrayLength);
+  test::AlignedArray dst(arrayLength);
+  test::AlignedArray x(arrayLength);
   math.random(&x[0], -1.0f, 1.0f, arrayLength);
 
   Filter* filter = factory.createFilter(bSize, aSize);
@@ -813,9 +813,9 @@ void benchmark_filter(ArrayMath& math, FilterFactory& factory, int bSize, int aS
 void benchmark_fft(ArrayMath& math, FFTFactory& factory, size_t size) {
   Timer timer;
 
-  std::vector<float32> dstReal(size);
-  std::vector<float32> dstImag(size);
-  std::vector<float32> x(size);
+  test::AlignedArray dstReal(size);
+  test::AlignedArray dstImag(size);
+  test::AlignedArray x(size);
   math.random(&x[0], -1.0f, 1.0f, size);
 
   FFT* fft = factory.createFFT(size);
@@ -852,10 +852,10 @@ void benchmark_fft(ArrayMath& math, FFTFactory& factory, size_t size) {
 void benchmark_fftComplex(ArrayMath& math, FFTFactory& factory, size_t size) {
   Timer timer;
 
-  std::vector<float32> dstReal(size);
-  std::vector<float32> dstImag(size);
-  std::vector<float32> xReal(size);
-  std::vector<float32> xImag(size);
+  test::AlignedArray dstReal(size);
+  test::AlignedArray dstImag(size);
+  test::AlignedArray xReal(size);
+  test::AlignedArray xImag(size);
   math.random(&xReal[0], -1.0f, 1.0f, size);
   math.random(&xImag[0], -1.0f, 1.0f, size);
 
@@ -1150,6 +1150,7 @@ void benchmarkFilter() {
   for (int i = 0; i < kNumArrayLengths; ++i) {
     benchmark_filter(math, factory, 3, 2, kArrayLengths[i]);
   }
+
   std::cout << std::endl << "Filter(4,0)" << std::endl;
   for (int i = 0; i < kNumArrayLengths; ++i) {
     benchmark_filter(math, factory, 4, 0, kArrayLengths[i]);
