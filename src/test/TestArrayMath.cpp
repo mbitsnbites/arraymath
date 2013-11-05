@@ -35,6 +35,25 @@
 
 namespace test {
 
+#define TEST_A(NAME, XVALUES, RESULTS, METHOD, COMPARE) \
+  do { \
+    beginTest(NAME); \
+    AlignedArray dst(kArraySize), x(kArraySize); \
+    static const size_t numValues = sizeof(RESULTS) / sizeof(RESULTS[0]); \
+    for (size_t size = 1; size <= kMaxArraySize; ++size) { \
+      for (size_t j = 0; j <= kMaxUnalignment; ++j) { \
+        float* dst_ = dst.get() + j; \
+        float* x_ = x.get() + j; \
+        for (size_t k = 0; k < numValues; ++k) { \
+          fillArray(x_, size, XVALUES[k]); \
+          METHOD(dst_, x_, size); \
+          expectAll(dst_, size, RESULTS[k], COMPARE); \
+        } \
+      } \
+    } \
+    endTest(); \
+  } while(0)
+
 #define TEST_SA(NAME, XVALUES, YVALUES, RESULTS, METHOD, COMPARE) \
   do { \
     beginTest(NAME); \
@@ -75,6 +94,11 @@ namespace test {
     endTest(); \
   } while(0)
 
+#define CALC_RESULTS_1(RESULTS, XVALUES, OP) \
+  const size_t len_ = sizeof(XVALUES) / sizeof(XVALUES[0]); \
+  float RESULTS[len_]; \
+  for (size_t i_ = 0; i_ < len_; ++i_) \
+    RESULTS[i_] = OP(XVALUES[i_]);
 
 class ArrayMathTester : public Tester {
   private:
@@ -116,6 +140,10 @@ class ArrayMathTester : public Tester {
       }
 
       {
+        // TODO(m): mulCplx
+      }
+
+      {
         static const float xValues[] = { 0.0f, -5.0f, 1001010.0f, 4.0f };
         static const float yValues[] = { 5.0f, 2.0f, 7.0f, 3.0f };
         static const float results[] = { 0.0f, -2.5f, 143001.429f, 1.3333334f };
@@ -123,7 +151,144 @@ class ArrayMathTester : public Tester {
         TEST_AA("div - vector", xValues, yValues, results, m_math.div, compare23bit);
       }
 
-      // TODO(m): Implement all unit tests.
+      {
+        // TODO(m): divCplx
+      }
+
+      {
+        // TODO(m): madd
+      }
+
+      {
+        static const float xValues[] = { 0.0f, -5.0f, 1001010.0f };
+        CALC_RESULTS_1(results, xValues, std::abs);
+        TEST_A("abs", xValues, results, m_math.abs, compareExact);
+      }
+
+      {
+        // TODO(m): absCplx
+      }
+
+      {
+        static const float xValues[] = { 0.0f, 0.5f, -1.0f, 1001010.0f };
+        CALC_RESULTS_1(results, xValues, std::acos);
+        TEST_A("acos", xValues, results, m_math.acos, compareExact);
+      }
+
+      {
+        static const float xValues[] = { 0.0f, 0.5f, -1.0f, 1001010.0f };
+        CALC_RESULTS_1(results, xValues, std::asin);
+        TEST_A("asin", xValues, results, m_math.asin, compareExact);
+      }
+
+      {
+        static const float xValues[] = { 0.0f, 0.5f, -1.0f, 1001010.0f };
+        CALC_RESULTS_1(results, xValues, std::atan);
+        TEST_A("atan", xValues, results, m_math.atan, compareExact);
+      }
+
+      {
+        // TODO(m): atan2
+      }
+
+      {
+        static const float xValues[] = { 0.0f, 0.5f, 0.2f, 0.7f, -0.5f, -0.2f, -0.7f, -1.0f, 10000000000.0f };
+        CALC_RESULTS_1(results, xValues, std::ceil);
+        TEST_A("ceil", xValues, results, m_math.ceil, compareExact);
+      }
+
+      {
+        static const float xValues[] = { 0.0f, 0.5f, -1.0f, 3.14159265f, 10000.0f, -1000.0 };
+        CALC_RESULTS_1(results, xValues, std::cos);
+        TEST_A("cos", xValues, results, m_math.cos, compare23bit);
+      }
+
+      {
+        static const float xValues[] = { 0.0f, 0.5f, 0.2f, 0.7f, -0.5f, 9.0f, 81.25f, 10000000000.0f };
+        CALC_RESULTS_1(results, xValues, std::exp);
+        TEST_A("exp", xValues, results, m_math.exp, compare23bit);
+      }
+
+      {
+        static const float xValues[] = { 0.0f, 0.5f, 0.2f, 0.7f, -0.5f, -0.2f, -0.7f, -1.0f, 10000000000.0f };
+        CALC_RESULTS_1(results, xValues, std::floor);
+        TEST_A("floor", xValues, results, m_math.floor, compareExact);
+      }
+
+      {
+        static const float xValues[] = { 0.0f, 0.5f, 0.2f, 0.7f, -0.5f, 9.0f, 81.25f, 10000000000.0f };
+        CALC_RESULTS_1(results, xValues, std::log);
+        TEST_A("log", xValues, results, m_math.log, compare23bit);
+      }
+
+      {
+        // TODO(m): max
+      }
+
+      {
+        // TODO(m): min
+      }
+
+      {
+        // TODO(m): pow
+      }
+
+      {
+        // TODO(m): We need to define what should happen for -2.5, -1.5, 0.5,
+        // 1.5, 2.5, etc.
+        static const float xValues[] = { 0.0f, 0.2f, 0.7f, -0.2f, -0.7f, -1.0f, 10000000000.0f };
+        static const float results[] = { 0.0f, 0.0f, 1.0f, 0.0f, -1.0f, -1.0f, 10000000000.0f };
+        TEST_A("round", xValues, results, m_math.round, compareExact);
+      }
+
+      {
+        static const float xValues[] = { 0.0f, 0.5f, -1.0f, 3.14159265f, 10000.0f, -1000.0 };
+        CALC_RESULTS_1(results, xValues, std::sin);
+        TEST_A("sin", xValues, results, m_math.sin, compare23bit);
+      }
+
+      {
+        static const float xValues[] = { 0.0f, 0.5f, 0.2f, 0.7f, -0.5f, 9.0f, 81.25f, 10000000000.0f };
+        CALC_RESULTS_1(results, xValues, std::sqrt);
+        TEST_A("sqrt", xValues, results, m_math.sqrt, compare23bit);
+      }
+
+      {
+        static const float xValues[] = { 0.0f, 0.5f, -1.0f, 3.14159265f, 10000.0f, -1000.0 };
+        CALC_RESULTS_1(results, xValues, std::tan);
+        TEST_A("tan", xValues, results, m_math.tan, compare23bit);
+      }
+
+      {
+        // TODO(m): clamp
+      }
+
+      {
+        static const float xValues[] = { 0.0f, 0.2f, 3.375f, -0.25f, -7.5f, -1.0f, 10000000000.125f };
+        static const float results[] = { 0.0f, 0.2f, 0.375f, 0.75f, 0.5f, 0.0f, 0.0f };
+        TEST_A("fract", xValues, results, m_math.fract, compareExact);
+      }
+
+      {
+        // TODO(m): fill
+      }
+
+      {
+        // TODO(m): ramp
+      }
+
+      {
+        static const float xValues[] = { 0.0f, 0.2f, 0.7f, -0.2f, -0.7f, -1.0f, 10000000000.0f };
+        static const float results[] = { 1.0f, 1.0f, 1.0f, -1.0f, -1.0f, -1.0f, 1.0f };
+        TEST_A("sign", xValues, results, m_math.sign, compareExact);
+      }
+
+      {
+        // TODO(m): sum
+      }
+
+      // TODO(m): Add unit tests for random() and sample*() methods. Do it
+      // in another test unit?
     }
 };
 

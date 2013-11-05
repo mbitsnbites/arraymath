@@ -39,7 +39,7 @@ class Tester {
     bool expectAll(const float* array, size_t size, float value, bool (*compare)(float, float));
 
     static bool compareExact(float a, float b) {
-      return a == b;
+      return a == b || (std::isnan(a) && std::isnan(b));
     }
 
     // Mantissa precision factors:
@@ -55,36 +55,27 @@ class Tester {
     // 14-bit: 0x3f800200 - 0x3f800000 = 0.00006103515625
 
     static bool compare23bit(float a, float b) {
-      float err = std::abs(a - b);
-      if (err == 0.0f)
-        return true;
-      float denom = std::abs(b);
-      if (denom == 0.0f)
-        return false;
-      return (err / denom) < 1.2e-7;
+      return compareWithThreshold(a, b, 1.2e-7);
     }
 
     static bool compare22bit(float a, float b) {
-      float err = std::abs(a - b);
-      if (err == 0.0f)
-        return true;
-      float denom = std::abs(b);
-      if (denom == 0.0f)
-        return false;
-      return (err / denom) < 2.4e-7;
+      return compareWithThreshold(a, b, 2.4e-7);
     }
 
     static bool compare21bit(float a, float b) {
-      float err = std::abs(a - b);
-      if (err == 0.0f)
+      return compareWithThreshold(a, b, 4.8e-7);
+    }
+
+  private:
+    static bool compareWithThreshold(float a, float b, float threshold) {
+      if (compareExact(a, b))
         return true;
       float denom = std::abs(b);
       if (denom == 0.0f)
         return false;
-      return (err / denom) < 4.8e-7;
+      return (std::abs(a - b) / denom) < threshold;
     }
 
-  private:
     int m_failCount;
     int m_passCount;
 };
