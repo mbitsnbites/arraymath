@@ -948,29 +948,29 @@ void ArrayMathAVX::sign_f32(float32 *dst, const float32 *x, size_t length) {
   static const __m256 kMinusOne = _mm256_set1_ps(-1.0f);
   if (aligned) {
     for (; length >= 16; length -= 16) {
-      __m256 mask = _mm256_cmp_ps(kZero, _mm256_load_ps(x), _CMP_LT_OS);
-      _mm256_store_ps(dst, _mm256_blendv_ps(kMinusOne, kOne, mask));
-      mask = _mm256_cmp_ps(kZero, _mm256_load_ps(x + 8), _CMP_LT_OS);
-      _mm256_store_ps(dst + 8, _mm256_blendv_ps(kMinusOne, kOne, mask));
+      __m256 mask = _mm256_cmp_ps(_mm256_load_ps(x), kZero, _CMP_LT_OQ);
+      _mm256_store_ps(dst, _mm256_blendv_ps(kOne, kMinusOne, mask));
+      mask = _mm256_cmp_ps(_mm256_load_ps(x + 8), kZero, _CMP_LT_OQ);
+      _mm256_store_ps(dst + 8, _mm256_blendv_ps(kOne, kMinusOne, mask));
       dst += 16; x += 16;
     }
     for (; length >= 8; length -= 8) {
-      __m256 mask = _mm256_cmp_ps(kZero, _mm256_load_ps(x), _CMP_LT_OS);
-      _mm256_store_ps(dst, _mm256_blendv_ps(kMinusOne, kOne, mask));
+      __m256 mask = _mm256_cmp_ps(_mm256_load_ps(x), kZero, _CMP_LT_OQ);
+      _mm256_store_ps(dst, _mm256_blendv_ps(kOne, kMinusOne, mask));
       dst += 8; x += 8;
     }
   }
   else {
     for (; length >= 16; length -= 16) {
-      __m256 mask = _mm256_cmp_ps(kZero, _mm256_loadu_ps(x), _CMP_LT_OS);
-      _mm256_store_ps(dst, _mm256_blendv_ps(kMinusOne, kOne, mask));
-      mask = _mm256_cmp_ps(kZero, _mm256_loadu_ps(x + 8), _CMP_LT_OS);
-      _mm256_store_ps(dst + 8, _mm256_blendv_ps(kMinusOne, kOne, mask));
+      __m256 mask = _mm256_cmp_ps(_mm256_loadu_ps(x), kZero, _CMP_LT_OQ);
+      _mm256_store_ps(dst, _mm256_blendv_ps(kOne, kMinusOne, mask));
+      mask = _mm256_cmp_ps(_mm256_loadu_ps(x + 8), kZero, _CMP_LT_OQ);
+      _mm256_store_ps(dst + 8, _mm256_blendv_ps(kOne, kMinusOne, mask));
       dst += 16; x += 16;
     }
     for (; length >= 8; length -= 8) {
-      __m256 mask = _mm256_cmp_ps(kZero, _mm256_loadu_ps(x), _CMP_LT_OS);
-      _mm256_store_ps(dst, _mm256_blendv_ps(kMinusOne, kOne, mask));
+      __m256 mask = _mm256_cmp_ps(_mm256_loadu_ps(x), kZero, _CMP_LT_OQ);
+      _mm256_store_ps(dst, _mm256_blendv_ps(kOne, kMinusOne, mask));
       dst += 8; x += 8;
     }
   }
