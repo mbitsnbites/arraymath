@@ -62,7 +62,7 @@ class ArrayMath {
   /// \param[in] y Source array (\c length elements).
   /// \param[in] length Number of elements to process.
   AM_INLINE void add(float32 *dst, float32 x, const float32 *y, size_t length) {
-    p_add_f32_sa(dst, x, y, length);
+    m_add_f32_sa(dst, x, y, length);
   }
 
   /// Compute x + y and store the result in dst.
@@ -71,7 +71,7 @@ class ArrayMath {
   /// \param[in] y Source array (\c length elements).
   /// \param[in] length Number of elements to process.
   AM_INLINE void add(float32 *dst, const float32 *x, const float32 *y, size_t length) {
-    p_add_f32_aa(dst, x, y, length);
+    m_add_f32_aa(dst, x, y, length);
   }
 
   /// Compute x - y and store the result in dst.
@@ -80,7 +80,7 @@ class ArrayMath {
   /// \param[in] y Source array (\c length elements).
   /// \param[in] length Number of elements to process.
   AM_INLINE void sub(float32 *dst, float32 x, const float32 *y, size_t length) {
-    p_sub_f32_sa(dst, x, y, length);
+    m_sub_f32_sa(dst, x, y, length);
   }
 
   /// Compute x - y and store the result in dst.
@@ -89,7 +89,7 @@ class ArrayMath {
   /// \param[in] y Source array (\c length elements).
   /// \param[in] length Number of elements to process.
   AM_INLINE void sub(float32 *dst, const float32 *x, const float32 *y, size_t length) {
-    p_sub_f32_aa(dst, x, y, length);
+    m_sub_f32_aa(dst, x, y, length);
   }
 
   /// Compute x * y and store the result in dst.
@@ -98,7 +98,7 @@ class ArrayMath {
   /// \param[in] y Source array (\c length elements).
   /// \param[in] length Number of elements to process.
   AM_INLINE void mul(float32 *dst, float32 x, const float32 *y, size_t length) {
-    p_mul_f32_sa(dst, x, y, length);
+    m_mul_f32_sa(dst, x, y, length);
   }
 
   /// Compute x * y and store the result in dst.
@@ -107,7 +107,7 @@ class ArrayMath {
   /// \param[in] y Source array (\c length elements).
   /// \param[in] length Number of elements to process.
   AM_INLINE void mul(float32 *dst, const float32 *x, const float32 *y, size_t length) {
-    p_mul_f32_aa(dst, x, y, length);
+    m_mul_f32_aa(dst, x, y, length);
   }
 
   /// Complex multiplication.
@@ -120,7 +120,7 @@ class ArrayMath {
   /// \param[in] yImag Source array, imaginary part (\c length elements).
   /// \param[in] length Number of elements to process.
   AM_INLINE void mulCplx(float32 *dstReal, float32 *dstImag, float32 xReal, float32 xImag, const float32 *yReal, const float32 *yImag, size_t length) {
-    p_mulCplx_f32_sa(dstReal, dstImag, xReal, xImag, yReal, yImag, length);
+    m_mulCplx_f32_sa(dstReal, dstImag, xReal, xImag, yReal, yImag, length);
   }
 
   /// Complex multiplication.
@@ -133,7 +133,7 @@ class ArrayMath {
   /// \param[in] yImag Source array, imaginary part (\c length elements).
   /// \param[in] length Number of elements to process.
   AM_INLINE void mulCplx(float32 *dstReal, float32 *dstImag, const float32 *xReal, const float32 *xImag, const float32 *yReal, const float32 *yImag, size_t length) {
-    p_mulCplx_f32_aa(dstReal, dstImag, xReal, xImag, yReal, yImag, length);
+    m_mulCplx_f32_aa(dstReal, dstImag, xReal, xImag, yReal, yImag, length);
   }
 
   /// Compute x / y and store the result in dst.
@@ -142,7 +142,7 @@ class ArrayMath {
   /// \param[in] y Source array (\c length elements).
   /// \param[in] length Number of elements to process.
   AM_INLINE void div(float32 *dst, float32 x, const float32 *y, size_t length) {
-    p_div_f32_sa(dst, x, y, length);
+    m_div_f32_sa(dst, x, y, length);
   }
 
   /// Compute x / y and store the result in dst.
@@ -151,7 +151,7 @@ class ArrayMath {
   /// \param[in] y Source array (\c length elements).
   /// \param[in] length Number of elements to process.
   AM_INLINE void div(float32 *dst, const float32 *x, const float32 *y, size_t length) {
-    p_div_f32_aa(dst, x, y, length);
+    m_div_f32_aa(dst, x, y, length);
   }
 
   /// Complex division.
@@ -164,7 +164,7 @@ class ArrayMath {
   /// \param[in] yImag Source array, imaginary part (\c length elements).
   /// \param[in] length Number of elements to process.
   AM_INLINE void divCplx(float32 *dstReal, float32 *dstImag, float32 xReal, float32 xImag, const float32 *yReal, const float32 *yImag, size_t length) {
-    p_divCplx_f32_sa(dstReal, dstImag, xReal, xImag, yReal, yImag, length);
+    m_divCplx_f32_sa(dstReal, dstImag, xReal, xImag, yReal, yImag, length);
   }
 
   /// Complex division.
@@ -177,7 +177,7 @@ class ArrayMath {
   /// \param[in] yImag Source array, imaginary part (\c length elements).
   /// \param[in] length Number of elements to process.
   AM_INLINE void divCplx(float32 *dstReal, float32 *dstImag, const float32 *xReal, const float32 *xImag, const float32 *yReal, const float32 *yImag, size_t length) {
-    p_divCplx_f32_aa(dstReal, dstImag, xReal, xImag, yReal, yImag, length);
+    m_divCplx_f32_aa(dstReal, dstImag, xReal, xImag, yReal, yImag, length);
   }
 
   /// Compute x * y + z and store the result in dst.
@@ -187,7 +187,7 @@ class ArrayMath {
   /// \param[in] z Source array (\c length elements).
   /// \param[in] length Number of elements to process.
   AM_INLINE void madd(float32 *dst, float32 x, const float32 *y, const float32 *z, size_t length) {
-    p_madd_f32_saa(dst, x, y, z, length);
+    m_madd_f32_saa(dst, x, y, z, length);
   }
 
   /// Compute x * y + z and store the result in dst.
@@ -197,7 +197,7 @@ class ArrayMath {
   /// \param[in] z Source array (\c length elements).
   /// \param[in] length Number of elements to process.
   AM_INLINE void madd(float32 *dst, const float32 *x, const float32 *y, const float32 *z, size_t length) {
-    p_madd_f32_aaa(dst, x, y, z, length);
+    m_madd_f32_aaa(dst, x, y, z, length);
   }
 
   /// Compute abs(x) and store the result in dst.
@@ -205,7 +205,7 @@ class ArrayMath {
   /// \param[in] x Source array (\c length elements).
   /// \param[in] length Number of elements to process.
   AM_INLINE void abs(float32 *dst, const float32 *x, size_t length) {
-    p_abs_f32(dst, x, length);
+    m_abs_f32(dst, x, length);
   }
 
   /// Complex absolute value.
@@ -215,7 +215,7 @@ class ArrayMath {
   /// \param[in] xImag Source array, imaginary part (\c length elements).
   /// \param[in] length Number of elements to process.
   AM_INLINE void absCplx(float32 *dst, const float32 *xReal, const float32 *xImag, size_t length) {
-    p_absCplx_f32(dst, xReal, xImag, length);
+    m_absCplx_f32(dst, xReal, xImag, length);
   }
 
   /// Compute acos(x) and store the result in dst.
@@ -223,7 +223,7 @@ class ArrayMath {
   /// \param[in] x Source array (\c length elements).
   /// \param[in] length Number of elements to process.
   AM_INLINE void acos(float32 *dst, const float32 *x, size_t length) {
-    p_acos_f32(dst, x, length);
+    m_acos_f32(dst, x, length);
   }
 
   /// Compute asin(x) and store the result in dst.
@@ -231,7 +231,7 @@ class ArrayMath {
   /// \param[in] x Source array (\c length elements).
   /// \param[in] length Number of elements to process.
   AM_INLINE void asin(float32 *dst, const float32 *x, size_t length) {
-    p_asin_f32(dst, x, length);
+    m_asin_f32(dst, x, length);
   }
 
   /// Compute atan(x) and store the result in dst.
@@ -239,7 +239,7 @@ class ArrayMath {
   /// \param[in] x Source array (\c length elements).
   /// \param[in] length Number of elements to process.
   AM_INLINE void atan(float32 *dst, const float32 *x, size_t length) {
-    p_atan_f32(dst, x, length);
+    m_atan_f32(dst, x, length);
   }
 
   /// Compute atan2(y, x) and store the result in dst.
@@ -248,7 +248,7 @@ class ArrayMath {
   /// \param[in] x Source array (\c length elements).
   /// \param[in] length Number of elements to process.
   AM_INLINE void atan2(float32 *dst, const float32 *y, const float32 *x, size_t length) {
-    p_atan2_f32(dst, y, x, length);
+    m_atan2_f32(dst, y, x, length);
   }
 
   /// Compute ceil(x) and store the result in dst.
@@ -256,7 +256,7 @@ class ArrayMath {
   /// \param[in] x Source array (\c length elements).
   /// \param[in] length Number of elements to process.
   AM_INLINE void ceil(float32 *dst, const float32 *x, size_t length) {
-    p_ceil_f32(dst, x, length);
+    m_ceil_f32(dst, x, length);
   }
 
   /// Compute cos(x) and store the result in dst.
@@ -264,7 +264,7 @@ class ArrayMath {
   /// \param[in] x Source array (\c length elements).
   /// \param[in] length Number of elements to process.
   AM_INLINE void cos(float32 *dst, const float32 *x, size_t length) {
-    p_cos_f32(dst, x, length);
+    m_cos_f32(dst, x, length);
   }
 
   /// Compute exp(x) and store the result in dst.
@@ -272,7 +272,7 @@ class ArrayMath {
   /// \param[in] x Source array (\c length elements).
   /// \param[in] length Number of elements to process.
   AM_INLINE void exp(float32 *dst, const float32 *x, size_t length) {
-    p_exp_f32(dst, x, length);
+    m_exp_f32(dst, x, length);
   }
 
   /// Compute floor(x) and store the result in dst.
@@ -280,7 +280,7 @@ class ArrayMath {
   /// \param[in] x Source array (\c length elements).
   /// \param[in] length Number of elements to process.
   AM_INLINE void floor(float32 *dst, const float32 *x, size_t length) {
-    p_floor_f32(dst, x, length);
+    m_floor_f32(dst, x, length);
   }
 
   /// Compute log(x) and store the result in dst.
@@ -288,7 +288,7 @@ class ArrayMath {
   /// \param[in] x Source array (\c length elements).
   /// \param[in] length Number of elements to process.
   AM_INLINE void log(float32 *dst, const float32 *x, size_t length) {
-    p_log_f32(dst, x, length);
+    m_log_f32(dst, x, length);
   }
 
   /// Find the maximum value in the source array.
@@ -296,7 +296,7 @@ class ArrayMath {
   /// \param[in] length Number of elements to process.
   /// \return The maxium value found in the array \c x.
   AM_INLINE float32 max(const float32 *x, size_t length) {
-    return p_max_f32(x, length);
+    return m_max_f32(x, length);
   }
 
   /// Find the minimum value in the source array.
@@ -304,7 +304,7 @@ class ArrayMath {
   /// \param[in] length Number of elements to process.
   /// \return The minimum value found in the array \c x.
   AM_INLINE float32 min(const float32 *x, size_t length) {
-    return p_min_f32(x, length);
+    return m_min_f32(x, length);
   }
 
   /// Compute pow(x, y) and store the result in dst.
@@ -313,7 +313,7 @@ class ArrayMath {
   /// \param[in] y Source scalar.
   /// \param[in] length Number of elements to process.
   AM_INLINE void pow(float32 *dst, const float32 *x, float32 y, size_t length) {
-    p_pow_f32_as(dst, x, y, length);
+    m_pow_f32_as(dst, x, y, length);
   }
 
   /// Compute pow(x, y) and store the result in dst.
@@ -322,7 +322,7 @@ class ArrayMath {
   /// \param[in] y Source array (\c length elements).
   /// \param[in] length Number of elements to process.
   AM_INLINE void pow(float32 *dst, const float32 *x, const float32 *y, size_t length) {
-    p_pow_f32_aa(dst, x, y, length);
+    m_pow_f32_aa(dst, x, y, length);
   }
 
   /// Generate random numbers and store the result in dst.
@@ -339,7 +339,7 @@ class ArrayMath {
   /// \param[in] x Source array (\c length elements).
   /// \param[in] length Number of elements to process.
   AM_INLINE void round(float32 *dst, const float32 *x, size_t length) {
-    p_round_f32(dst, x, length);
+    m_round_f32(dst, x, length);
   }
 
   /// Compute sin(x) and store the result in dst.
@@ -347,7 +347,7 @@ class ArrayMath {
   /// \param[in] x Source array (\c length elements).
   /// \param[in] length Number of elements to process.
   AM_INLINE void sin(float32 *dst, const float32 *x, size_t length) {
-    p_sin_f32(dst, x, length);
+    m_sin_f32(dst, x, length);
   }
 
   /// Compute sqrt(x) and store the result in dst.
@@ -355,7 +355,7 @@ class ArrayMath {
   /// \param[in] x Source array (\c length elements).
   /// \param[in] length Number of elements to process.
   AM_INLINE void sqrt(float32 *dst, const float32 *x, size_t length) {
-    p_sqrt_f32(dst, x, length);
+    m_sqrt_f32(dst, x, length);
   }
 
   /// Compute tan(x) and store the result in dst.
@@ -363,7 +363,7 @@ class ArrayMath {
   /// \param[in] x Source array (\c length elements).
   /// \param[in] length Number of elements to process.
   AM_INLINE void tan(float32 *dst, const float32 *x, size_t length) {
-    p_tan_f32(dst, x, length);
+    m_tan_f32(dst, x, length);
   }
 
   /// Clamp the input array and store the result in dst.
@@ -373,7 +373,7 @@ class ArrayMath {
   /// \param[in] xMax Maximum value to clamp to.
   /// \param[in] length Number of elements to process.
   AM_INLINE void clamp(float32 *dst, const float32 *x, float32 xMin, float32 xMax, size_t length) {
-    p_clamp_f32(dst, x, xMin, xMax, length);
+    m_clamp_f32(dst, x, xMin, xMax, length);
   }
 
   /// Extract the fractional part of the input array and store the result in dst.
@@ -381,7 +381,7 @@ class ArrayMath {
   /// \param[in] x Source array (\c length elements).
   /// \param[in] length Number of elements to process.
   AM_INLINE void fract(float32 *dst, const float32 *x, size_t length) {
-    p_fract_f32(dst, x, length);
+    m_fract_f32(dst, x, length);
   }
 
   /// Fill an array with a constant value.
@@ -389,7 +389,7 @@ class ArrayMath {
   /// \param[in] value The value to fill the array with.
   /// \param[in] length Number of elements to process.
   AM_INLINE void fill(float32 *dst, float32 value, size_t length) {
-    p_fill_f32(dst, value, length);
+    m_fill_f32(dst, value, length);
   }
 
   /// Generate a linear ramp.
@@ -398,7 +398,7 @@ class ArrayMath {
   /// \param[in] last Last value.
   /// \param[in] length Number of elements to process.
   AM_INLINE void ramp(float32 *dst, float32 first, float32 last, size_t length) {
-    p_ramp_f32(dst, first, last, length);
+    m_ramp_f32(dst, first, last, length);
   }
 
   /// Extract the sign of the input array and store the result in dst.
@@ -406,7 +406,7 @@ class ArrayMath {
   /// \param[in] x Source array (\c length elements).
   /// \param[in] length Number of elements to process.
   AM_INLINE void sign(float32 *dst, const float32 *x, size_t length) {
-    p_sign_f32(dst, x, length);
+    m_sign_f32(dst, x, length);
   }
 
   /// Calculate the sum of all elements in an array.
@@ -414,7 +414,7 @@ class ArrayMath {
   /// \param[in] length Number of elements to process.
   /// \return The sum of all elements in the array \c x.
   AM_INLINE float32 sum(const float32 *x, size_t length) {
-    return p_sum_f32(x, length);
+    return m_sum_f32(x, length);
   }
 
   /// Perform linear interpolation (clamping index).
@@ -424,7 +424,7 @@ class ArrayMath {
   /// \param[in] length Number of elements to process.
   /// \param[in] xLength Number of elements in the value array.
   AM_INLINE void sampleLinear(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength) {
-    p_sampleLinear_f32(dst, x, t, length, xLength);
+    m_sampleLinear_f32(dst, x, t, length, xLength);
   }
 
   /// Perform linear interpolation (repeating index).
@@ -434,7 +434,7 @@ class ArrayMath {
   /// \param[in] length Number of elements to process.
   /// \param[in] xLength Number of elements in the value array.
   AM_INLINE void sampleLinearRepeat(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength) {
-    p_sampleLinearRepeat_f32(dst, x, t, length, xLength);
+    m_sampleLinearRepeat_f32(dst, x, t, length, xLength);
   }
 
   /// Perform cubic interpolation (clamping index).
@@ -444,7 +444,7 @@ class ArrayMath {
   /// \param[in] length Number of elements to process.
   /// \param[in] xLength Number of elements in the value array.
   AM_INLINE void sampleCubic(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength) {
-    p_sampleCubic_f32(dst, x, t, length, xLength);
+    m_sampleCubic_f32(dst, x, t, length, xLength);
   }
 
   /// Perform cubic interpolation (repeating index).
@@ -454,54 +454,54 @@ class ArrayMath {
   /// \param[in] length Number of elements to process.
   /// \param[in] xLength Number of elements in the value array.
   AM_INLINE void sampleCubicRepeat(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength) {
-    p_sampleCubicRepeat_f32(dst, x, t, length, xLength);
+    m_sampleCubicRepeat_f32(dst, x, t, length, xLength);
   }
 
  private:
   // Dispatch table (dynamically assigned function pointers).
-  void (*p_add_f32_sa)(float32 *dst, float32 x, const float32 *y, size_t length);
-  void (*p_add_f32_aa)(float32 *dst, const float32 *x, const float32 *y, size_t length);
-  void (*p_sub_f32_sa)(float32 *dst, float32 x, const float32 *y, size_t length);
-  void (*p_sub_f32_aa)(float32 *dst, const float32 *x, const float32 *y, size_t length);
-  void (*p_mul_f32_sa)(float32 *dst, float32 x, const float32 *y, size_t length);
-  void (*p_mul_f32_aa)(float32 *dst, const float32 *x, const float32 *y, size_t length);
-  void (*p_mulCplx_f32_sa)(float32 *dstReal, float32 *dstImag, float32 xReal, float32 xImag, const float32 *yReal, const float32 *yImag, size_t length);
-  void (*p_mulCplx_f32_aa)(float32 *dstReal, float32 *dstImag, const float32 *xReal, const float32 *xImag, const float32 *yReal, const float32 *yImag, size_t length);
-  void (*p_div_f32_sa)(float32 *dst, float32 x, const float32 *y, size_t length);
-  void (*p_div_f32_aa)(float32 *dst, const float32 *x, const float32 *y, size_t length);
-  void (*p_divCplx_f32_sa)(float32 *dstReal, float32 *dstImag, float32 xReal, float32 xImag, const float32 *yReal, const float32 *yImag, size_t length);
-  void (*p_divCplx_f32_aa)(float32 *dstReal, float32 *dstImag, const float32 *xReal, const float32 *xImag, const float32 *yReal, const float32 *yImag, size_t length);
-  void (*p_madd_f32_saa)(float32 *dst, float32 x, const float32 *y, const float32 *z, size_t length);
-  void (*p_madd_f32_aaa)(float32 *dst, const float32 *x, const float32 *y, const float32 *z, size_t length);
-  void (*p_abs_f32)(float32 *dst, const float32 *x, size_t length);
-  void (*p_absCplx_f32)(float32 *dst, const float32 *xReal, const float32 *xImag, size_t length);
-  void (*p_acos_f32)(float32 *dst, const float32 *x, size_t length);
-  void (*p_asin_f32)(float32 *dst, const float32 *x, size_t length);
-  void (*p_atan_f32)(float32 *dst, const float32 *x, size_t length);
-  void (*p_atan2_f32)(float32 *dst, const float32 *y, const float32 *x, size_t length);
-  void (*p_ceil_f32)(float32 *dst, const float32 *x, size_t length);
-  void (*p_cos_f32)(float32 *dst, const float32 *x, size_t length);
-  void (*p_exp_f32)(float32 *dst, const float32 *x, size_t length);
-  void (*p_floor_f32)(float32 *dst, const float32 *x, size_t length);
-  void (*p_log_f32)(float32 *dst, const float32 *x, size_t length);
-  float32 (*p_max_f32)(const float32 *x, size_t length);
-  float32 (*p_min_f32)(const float32 *x, size_t length);
-  void (*p_pow_f32_as)(float32 *dst, const float32 *x, float32 y, size_t length);
-  void (*p_pow_f32_aa)(float32 *dst, const float32 *x, const float32 *y, size_t length);
-  void (*p_round_f32)(float32 *dst, const float32 *x, size_t length);
-  void (*p_sin_f32)(float32 *dst, const float32 *x, size_t length);
-  void (*p_sqrt_f32)(float32 *dst, const float32 *x, size_t length);
-  void (*p_tan_f32)(float32 *dst, const float32 *x, size_t length);
-  void (*p_clamp_f32)(float32 *dst, const float32 *x, float32 xMin, float32 xMax, size_t length);
-  void (*p_fract_f32)(float32 *dst, const float32 *x, size_t length);
-  void (*p_fill_f32)(float32 *dst, float32 value, size_t length);
-  void (*p_ramp_f32)(float32 *dst, float32 first, float32 last, size_t length);
-  void (*p_sign_f32)(float32 *dst, const float32 *x, size_t length);
-  float32 (*p_sum_f32)(const float32 *x, size_t length);
-  void (*p_sampleLinear_f32)(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength);
-  void (*p_sampleLinearRepeat_f32)(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength);
-  void (*p_sampleCubic_f32)(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength);
-  void (*p_sampleCubicRepeat_f32)(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength);
+  void (*m_add_f32_sa)(float32 *dst, float32 x, const float32 *y, size_t length);
+  void (*m_add_f32_aa)(float32 *dst, const float32 *x, const float32 *y, size_t length);
+  void (*m_sub_f32_sa)(float32 *dst, float32 x, const float32 *y, size_t length);
+  void (*m_sub_f32_aa)(float32 *dst, const float32 *x, const float32 *y, size_t length);
+  void (*m_mul_f32_sa)(float32 *dst, float32 x, const float32 *y, size_t length);
+  void (*m_mul_f32_aa)(float32 *dst, const float32 *x, const float32 *y, size_t length);
+  void (*m_mulCplx_f32_sa)(float32 *dstReal, float32 *dstImag, float32 xReal, float32 xImag, const float32 *yReal, const float32 *yImag, size_t length);
+  void (*m_mulCplx_f32_aa)(float32 *dstReal, float32 *dstImag, const float32 *xReal, const float32 *xImag, const float32 *yReal, const float32 *yImag, size_t length);
+  void (*m_div_f32_sa)(float32 *dst, float32 x, const float32 *y, size_t length);
+  void (*m_div_f32_aa)(float32 *dst, const float32 *x, const float32 *y, size_t length);
+  void (*m_divCplx_f32_sa)(float32 *dstReal, float32 *dstImag, float32 xReal, float32 xImag, const float32 *yReal, const float32 *yImag, size_t length);
+  void (*m_divCplx_f32_aa)(float32 *dstReal, float32 *dstImag, const float32 *xReal, const float32 *xImag, const float32 *yReal, const float32 *yImag, size_t length);
+  void (*m_madd_f32_saa)(float32 *dst, float32 x, const float32 *y, const float32 *z, size_t length);
+  void (*m_madd_f32_aaa)(float32 *dst, const float32 *x, const float32 *y, const float32 *z, size_t length);
+  void (*m_abs_f32)(float32 *dst, const float32 *x, size_t length);
+  void (*m_absCplx_f32)(float32 *dst, const float32 *xReal, const float32 *xImag, size_t length);
+  void (*m_acos_f32)(float32 *dst, const float32 *x, size_t length);
+  void (*m_asin_f32)(float32 *dst, const float32 *x, size_t length);
+  void (*m_atan_f32)(float32 *dst, const float32 *x, size_t length);
+  void (*m_atan2_f32)(float32 *dst, const float32 *y, const float32 *x, size_t length);
+  void (*m_ceil_f32)(float32 *dst, const float32 *x, size_t length);
+  void (*m_cos_f32)(float32 *dst, const float32 *x, size_t length);
+  void (*m_exp_f32)(float32 *dst, const float32 *x, size_t length);
+  void (*m_floor_f32)(float32 *dst, const float32 *x, size_t length);
+  void (*m_log_f32)(float32 *dst, const float32 *x, size_t length);
+  float32 (*m_max_f32)(const float32 *x, size_t length);
+  float32 (*m_min_f32)(const float32 *x, size_t length);
+  void (*m_pow_f32_as)(float32 *dst, const float32 *x, float32 y, size_t length);
+  void (*m_pow_f32_aa)(float32 *dst, const float32 *x, const float32 *y, size_t length);
+  void (*m_round_f32)(float32 *dst, const float32 *x, size_t length);
+  void (*m_sin_f32)(float32 *dst, const float32 *x, size_t length);
+  void (*m_sqrt_f32)(float32 *dst, const float32 *x, size_t length);
+  void (*m_tan_f32)(float32 *dst, const float32 *x, size_t length);
+  void (*m_clamp_f32)(float32 *dst, const float32 *x, float32 xMin, float32 xMax, size_t length);
+  void (*m_fract_f32)(float32 *dst, const float32 *x, size_t length);
+  void (*m_fill_f32)(float32 *dst, float32 value, size_t length);
+  void (*m_ramp_f32)(float32 *dst, float32 first, float32 last, size_t length);
+  void (*m_sign_f32)(float32 *dst, const float32 *x, size_t length);
+  float32 (*m_sum_f32)(const float32 *x, size_t length);
+  void (*m_sampleLinear_f32)(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength);
+  void (*m_sampleLinearRepeat_f32)(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength);
+  void (*m_sampleCubic_f32)(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength);
+  void (*m_sampleCubicRepeat_f32)(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength);
 
   // Random number generator.
   Random *m_random_f32;
