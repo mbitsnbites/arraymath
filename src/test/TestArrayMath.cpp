@@ -263,7 +263,46 @@ class ArrayMathTester : public Tester {
       }
 
       {
-        // TODO(m): pow
+        static const float xValues[] = { 999.0f, 2.2f, 7.375f, 0.25f, -1.0f };
+        static const float yValues[] = { 0.0f, -1.0f, 0.5f, -1.25f, -1.0f };
+        static const size_t numValues = sizeof(xValues) / sizeof(xValues[0]);
+        float results[numValues];
+        for (size_t i = 0; i < numValues; ++i)
+          results[i] = std::pow(xValues[i], yValues[i]);
+        {
+          beginTest("pow - scalar");
+          AlignedArray dst(kArraySize), x(kArraySize);
+          for (size_t size = 1; size <= kMaxArraySize; ++size) {
+            for (size_t j = 0; j <= kMaxUnalignment; ++j) {
+              float* dstPtr = dst.get() + j;
+              float* xPtr = x.get() + j;
+              for (size_t k = 0; k < sizeof(xValues) / sizeof(xValues[0]); ++k) {
+                fillArray(xPtr, size, xValues[k]);
+                m_math.pow(dstPtr, xPtr, yValues[k], size);
+                expectAll(dstPtr, size, results[k], compare23bit);
+              }
+            }
+          }
+          endTest();
+        }
+        {
+          beginTest("pow - array");
+          AlignedArray dst(kArraySize), x(kArraySize), y(kArraySize);
+          for (size_t size = 1; size <= kMaxArraySize; ++size) {
+            for (size_t j = 0; j <= kMaxUnalignment; ++j) {
+              float* dstPtr = dst.get() + j;
+              float* xPtr = x.get() + j;
+              float* yPtr = y.get() + j;
+              for (size_t k = 0; k < sizeof(xValues) / sizeof(xValues[0]); ++k) {
+                fillArray(xPtr, size, xValues[k]);
+                fillArray(yPtr, size, yValues[k]);
+                m_math.pow(dstPtr, xPtr, yPtr, size);
+                expectAll(dstPtr, size, results[k], compare23bit);
+              }
+            }
+          }
+          endTest();
+        }
       }
 
       {
@@ -300,7 +339,24 @@ class ArrayMathTester : public Tester {
       }
 
       {
-        // TODO(m): clamp
+        static const float xValues[] = { 1.5f, -2.2f, 7.375f, -0.25f, -1.0f, 20000000000.0f };
+        static const float minValues[] = { 0.0f, -1.0f, -3.375f, -1.25f, -1.0f, 0.0f };
+        static const float maxValues[] = { 4.0f, 1.0f, 3.375f, -0.5f, -1.0f, 10000000000.0f };
+        static const float results[] = { 1.5f, -1.0f, 3.375f, -0.5f, -1.0f, 10000000000.0f };
+        beginTest("clamp");
+        AlignedArray dst(kArraySize), x(kArraySize);
+        for (size_t size = 1; size <= kMaxArraySize; ++size) {
+          for (size_t j = 0; j <= kMaxUnalignment; ++j) {
+            float* dstPtr = dst.get() + j;
+            float* xPtr = x.get() + j;
+            for (size_t k = 0; k < sizeof(xValues) / sizeof(xValues[0]); ++k) {
+              fillArray(xPtr, size, xValues[k]);
+              m_math.clamp(dstPtr, xPtr, minValues[k], maxValues[k], size);
+              expectAll(dstPtr, size, results[k], compareExact);
+            }
+          }
+        }
+        endTest();
       }
 
       {
@@ -311,7 +367,19 @@ class ArrayMathTester : public Tester {
       }
 
       {
-        // TODO(m): fill
+        static const float values[] = { 0.0f, 0.2f, 3.375f, -0.25f, -7.5f, -1.0f, 10000000000.125f };
+        beginTest("fill");
+        AlignedArray dst(kArraySize);
+        for (size_t size = 1; size <= kMaxArraySize; ++size) {
+          for (size_t j = 0; j <= kMaxUnalignment; ++j) {
+            float* dstPtr = dst.get() + j;
+            for (size_t k = 0; k < sizeof(values) / sizeof(values[0]); ++k) {
+              m_math.fill(dstPtr, values[k], size);
+              expectAll(dstPtr, size, values[k], compareExact);
+            }
+          }
+        }
+        endTest();
       }
 
       {
