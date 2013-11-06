@@ -35,71 +35,6 @@
 
 namespace test {
 
-#define TEST_A(NAME, XVALUES, RESULTS, METHOD, COMPARE) \
-  do { \
-    beginTest(NAME); \
-    AlignedArray dst(kArraySize), x(kArraySize); \
-    static const size_t numValues = sizeof(RESULTS) / sizeof(RESULTS[0]); \
-    for (size_t size = 1; size <= kMaxArraySize; ++size) { \
-      for (size_t j = 0; j <= kMaxUnalignment; ++j) { \
-        float* dst_ = dst.get() + j; \
-        float* x_ = x.get() + j; \
-        for (size_t k = 0; k < numValues; ++k) { \
-          fillArray(x_, size, XVALUES[k]); \
-          METHOD(dst_, x_, size); \
-          expectAll(dst_, size, RESULTS[k], COMPARE); \
-        } \
-      } \
-    } \
-    endTest(); \
-  } while(0)
-
-#define TEST_SA(NAME, XVALUES, YVALUES, RESULTS, METHOD, COMPARE) \
-  do { \
-    beginTest(NAME); \
-    AlignedArray dst(kArraySize), x(kArraySize), y(kArraySize); \
-    static const size_t numValues = sizeof(RESULTS) / sizeof(float); \
-    for (size_t size = 1; size <= kMaxArraySize; ++size) { \
-      for (size_t j = 0; j <= kMaxUnalignment; ++j) { \
-        float* dst_ = dst.get() + j; \
-        float* y_ = y.get() + j; \
-        for (size_t k = 0; k < numValues; ++k) { \
-          fillArray(y_, size, YVALUES[k]); \
-          METHOD(dst_, XVALUES[k], y_, size); \
-          expectAll(dst_, size, RESULTS[k], COMPARE); \
-        } \
-      } \
-    } \
-    endTest(); \
-  } while(0)
-
-#define TEST_AA(NAME, XVALUES, YVALUES, RESULTS, METHOD, COMPARE) \
-  do { \
-    beginTest(NAME); \
-    AlignedArray dst(kArraySize), x(kArraySize), y(kArraySize); \
-    static const size_t numValues = sizeof(RESULTS) / sizeof(float); \
-    for (size_t size = 1; size <= kMaxArraySize; ++size) { \
-      for (size_t j = 0; j <= kMaxUnalignment; ++j) { \
-        float* dst_ = dst.get() + j; \
-        float* x_ = x.get() + j; \
-        float* y_ = y.get() + j; \
-        for (size_t k = 0; k < numValues; ++k) { \
-          fillArray(x_, size, XVALUES[k]); \
-          fillArray(y_, size, YVALUES[k]); \
-          METHOD(dst_, x_, y_, size); \
-          expectAll(dst_, size, RESULTS[k], COMPARE); \
-        } \
-      } \
-    } \
-    endTest(); \
-  } while(0)
-
-#define CALC_RESULTS_1(RESULTS, XVALUES, OP) \
-  const size_t len_ = sizeof(XVALUES) / sizeof(XVALUES[0]); \
-  float RESULTS[len_]; \
-  for (size_t i_ = 0; i_ < len_; ++i_) \
-    RESULTS[i_] = OP(XVALUES[i_]);
-
 class ArrayMathTester : public Tester {
   private:
     static const size_t kMaxUnalignment = 15;
@@ -113,30 +48,109 @@ class ArrayMathTester : public Tester {
         array[i] = value;
     }
 
+    void calcResults(float* results, const float* xValues, size_t numValues, float (*op)(float)) {
+      for (size_t i = 0; i < numValues; ++i)
+        results[i] = op(xValues[i]);
+    }
+
+    void testA(const char* name,
+                const float* xValues,
+                const float* results,
+                size_t numValues,
+                void (arraymath::ArrayMath::*method)(arraymath::float32*, const arraymath::float32*, size_t),
+                bool (*compare)(float, float)) {
+      beginTest(name);
+      AlignedArray dst(kArraySize), x(kArraySize);
+      for (size_t size = 1; size <= kMaxArraySize; ++size) {
+        for (size_t j = 0; j <= kMaxUnalignment; ++j) {
+          float* dstPtr = dst.get() + j;
+          float* xPtr = x.get() + j;
+          for (size_t k = 0; k < numValues; ++k) {
+            fillArray(xPtr, size, xValues[k]);
+            (m_math.*method)(dstPtr, xPtr, size);
+            expectAll(dstPtr, size, results[k], compare);
+          }
+        }
+      }
+      endTest();
+    }
+
+    void testSA(const char* name,
+                const float* xValues,
+                const float* yValues,
+                const float* results,
+                size_t numValues,
+                void (arraymath::ArrayMath::*method)(arraymath::float32*, arraymath::float32, const arraymath::float32*, size_t),
+                bool (*compare)(float, float)) {
+      beginTest(name);
+      AlignedArray dst(kArraySize), y(kArraySize);
+      for (size_t size = 1; size <= kMaxArraySize; ++size) {
+        for (size_t j = 0; j <= kMaxUnalignment; ++j) {
+          float* dstPtr = dst.get() + j;
+          float* yPtr = y.get() + j;
+          for (size_t k = 0; k < numValues; ++k) {
+            fillArray(yPtr, size, yValues[k]);
+            (m_math.*method)(dstPtr, xValues[k], yPtr, size);
+            expectAll(dstPtr, size, results[k], compare);
+          }
+        }
+      }
+      endTest();
+    }
+
+    void testAA(const char* name,
+                const float* xValues,
+                const float* yValues,
+                const float* results,
+                size_t numValues,
+                void (arraymath::ArrayMath::*method)(arraymath::float32*, const arraymath::float32*, const arraymath::float32*, size_t),
+                bool (*compare)(float, float)) {
+      beginTest(name);
+      AlignedArray dst(kArraySize), x(kArraySize), y(kArraySize);
+      for (size_t size = 1; size <= kMaxArraySize; ++size) {
+        for (size_t j = 0; j <= kMaxUnalignment; ++j) {
+          float* dstPtr = dst.get() + j;
+          float* xPtr = x.get() + j;
+          float* yPtr = y.get() + j;
+          for (size_t k = 0; k < numValues; ++k) {
+            fillArray(xPtr, size, xValues[k]);
+            fillArray(yPtr, size, yValues[k]);
+            (m_math.*method)(dstPtr, xPtr, yPtr, size);
+            expectAll(dstPtr, size, results[k], compare);
+          }
+        }
+      }
+      endTest();
+    }
+
+
   public:
     void runTests() {
       {
         static const float xValues[] = { 0.0f, 1.0f, 1001010.0f };
         static const float yValues[] = { 5.0f, 5.0f, 5.0f };
         static const float results[] = { 5.0f, 6.0f, 1001015.0f };
-        TEST_SA("add - scalar", xValues, yValues, results, m_math.add, compareExact);
-        TEST_AA("add - vector", xValues, yValues, results, m_math.add, compareExact);
+        static const size_t numValues = sizeof(xValues) / sizeof(xValues[0]);
+        testSA("add - scalar", xValues, yValues, results, numValues, &arraymath::ArrayMath::add, compareExact);
+        testAA("add - vector", xValues, yValues, results, numValues, &arraymath::ArrayMath::add, compareExact);
       }
 
       {
         static const float xValues[] = { 0.0f, 1.0f, 1001010.0f };
         static const float yValues[] = { 5.0f, 5.0f, 5.0f };
         static const float results[] = { -5.0f, -4.0f, 1001005.0f };
-        TEST_SA("sub - scalar", xValues, yValues, results, m_math.sub, compareExact);
-        TEST_AA("sub - vector", xValues, yValues, results, m_math.sub, compareExact);
+        static const size_t numValues = sizeof(xValues) / sizeof(xValues[0]);
+        testSA("sub - scalar", xValues, yValues, results, numValues, &arraymath::ArrayMath::sub, compareExact);
+        testAA("sub - vector", xValues, yValues, results, numValues, &arraymath::ArrayMath::sub, compareExact);
       }
 
       {
         static const float xValues[] = { 0.0f, 1.0f, 1001010.0f };
         static const float yValues[] = { 5.0f, -5.0f, 5.0f };
         static const float results[] = { 0.0f, -5.0f, 5005050.0f };
-        TEST_SA("mul - scalar", xValues, yValues, results, m_math.mul, compareExact);
-        TEST_AA("mul - vector", xValues, yValues, results, m_math.mul, compareExact);
+        static const size_t numValues = sizeof(xValues) / sizeof(xValues[0]);
+        testSA("mul - scalar", xValues, yValues, results, numValues, &arraymath::ArrayMath::mul, compareExact);
+        testAA("mul - vector", xValues, yValues, results, numValues, &arraymath::ArrayMath::mul, compareExact);
       }
 
       {
@@ -147,8 +161,9 @@ class ArrayMathTester : public Tester {
         static const float xValues[] = { 0.0f, -5.0f, 1001010.0f, 4.0f };
         static const float yValues[] = { 5.0f, 2.0f, 7.0f, 3.0f };
         static const float results[] = { 0.0f, -2.5f, 143001.429f, 1.3333334f };
-        TEST_SA("div - scalar", xValues, yValues, results, m_math.div, compare23bit);
-        TEST_AA("div - vector", xValues, yValues, results, m_math.div, compare23bit);
+        static const size_t numValues = sizeof(xValues) / sizeof(xValues[0]);
+        testSA("div - scalar", xValues, yValues, results, numValues, &arraymath::ArrayMath::div, compare23bit);
+        testAA("div - vector", xValues, yValues, results, numValues, &arraymath::ArrayMath::div, compare23bit);
       }
 
       {
@@ -161,8 +176,10 @@ class ArrayMathTester : public Tester {
 
       {
         static const float xValues[] = { 0.0f, -5.0f, 1001010.0f };
-        CALC_RESULTS_1(results, xValues, std::abs);
-        TEST_A("abs", xValues, results, m_math.abs, compareExact);
+        static const size_t numValues = sizeof(xValues) / sizeof(xValues[0]);
+        float results[numValues];
+        calcResults(results, xValues, numValues, std::abs);
+        testA("abs", xValues, results, numValues, &arraymath::ArrayMath::abs, compareExact);
       }
 
       {
@@ -171,20 +188,26 @@ class ArrayMathTester : public Tester {
 
       {
         static const float xValues[] = { 0.0f, 0.5f, -1.0f, 1001010.0f };
-        CALC_RESULTS_1(results, xValues, std::acos);
-        TEST_A("acos", xValues, results, m_math.acos, compareExact);
+        static const size_t numValues = sizeof(xValues) / sizeof(xValues[0]);
+        float results[numValues];
+        calcResults(results, xValues, numValues, std::acos);
+        testA("acos", xValues, results, numValues, &arraymath::ArrayMath::acos, compareExact);
       }
 
       {
         static const float xValues[] = { 0.0f, 0.5f, -1.0f, 1001010.0f };
-        CALC_RESULTS_1(results, xValues, std::asin);
-        TEST_A("asin", xValues, results, m_math.asin, compareExact);
+        static const size_t numValues = sizeof(xValues) / sizeof(xValues[0]);
+        float results[numValues];
+        calcResults(results, xValues, numValues, std::asin);
+        testA("asin", xValues, results, numValues, &arraymath::ArrayMath::asin, compareExact);
       }
 
       {
         static const float xValues[] = { 0.0f, 0.5f, -1.0f, 1001010.0f };
-        CALC_RESULTS_1(results, xValues, std::atan);
-        TEST_A("atan", xValues, results, m_math.atan, compareExact);
+        static const size_t numValues = sizeof(xValues) / sizeof(xValues[0]);
+        float results[numValues];
+        calcResults(results, xValues, numValues, std::atan);
+        testA("atan", xValues, results, numValues, &arraymath::ArrayMath::atan, compareExact);
       }
 
       {
@@ -193,32 +216,42 @@ class ArrayMathTester : public Tester {
 
       {
         static const float xValues[] = { 0.0f, 0.5f, 0.2f, 0.7f, -0.5f, -0.2f, -0.7f, -1.0f, 10000000000.0f };
-        CALC_RESULTS_1(results, xValues, std::ceil);
-        TEST_A("ceil", xValues, results, m_math.ceil, compareExact);
+        static const size_t numValues = sizeof(xValues) / sizeof(xValues[0]);
+        float results[numValues];
+        calcResults(results, xValues, numValues, std::ceil);
+        testA("ceil", xValues, results, numValues, &arraymath::ArrayMath::ceil, compareExact);
       }
 
       {
         static const float xValues[] = { 0.0f, 0.5f, -1.0f, 3.14159265f, 10000.0f, -1000.0 };
-        CALC_RESULTS_1(results, xValues, std::cos);
-        TEST_A("cos", xValues, results, m_math.cos, compare23bit);
+        static const size_t numValues = sizeof(xValues) / sizeof(xValues[0]);
+        float results[numValues];
+        calcResults(results, xValues, numValues, std::cos);
+        testA("cos", xValues, results, numValues, &arraymath::ArrayMath::cos, compare23bit);
       }
 
       {
         static const float xValues[] = { 0.0f, 0.5f, 0.2f, 0.7f, -0.5f, 9.0f, 81.25f, 10000000000.0f };
-        CALC_RESULTS_1(results, xValues, std::exp);
-        TEST_A("exp", xValues, results, m_math.exp, compare23bit);
+        static const size_t numValues = sizeof(xValues) / sizeof(xValues[0]);
+        float results[numValues];
+        calcResults(results, xValues, numValues, std::exp);
+        testA("exp", xValues, results, numValues, &arraymath::ArrayMath::exp, compare23bit);
       }
 
       {
         static const float xValues[] = { 0.0f, 0.5f, 0.2f, 0.7f, -0.5f, -0.2f, -0.7f, -1.0f, 10000000000.0f };
-        CALC_RESULTS_1(results, xValues, std::floor);
-        TEST_A("floor", xValues, results, m_math.floor, compareExact);
+        static const size_t numValues = sizeof(xValues) / sizeof(xValues[0]);
+        float results[numValues];
+        calcResults(results, xValues, numValues, std::floor);
+        testA("floor", xValues, results, numValues, &arraymath::ArrayMath::floor, compareExact);
       }
 
       {
         static const float xValues[] = { 0.0f, 0.5f, 0.2f, 0.7f, -0.5f, 9.0f, 81.25f, 10000000000.0f };
-        CALC_RESULTS_1(results, xValues, std::log);
-        TEST_A("log", xValues, results, m_math.log, compare23bit);
+        static const size_t numValues = sizeof(xValues) / sizeof(xValues[0]);
+        float results[numValues];
+        calcResults(results, xValues, numValues, std::log);
+        testA("log", xValues, results, numValues, &arraymath::ArrayMath::log, compare23bit);
       }
 
       {
@@ -238,25 +271,32 @@ class ArrayMathTester : public Tester {
         // 1.5, 2.5, etc.
         static const float xValues[] = { 0.0f, 0.2f, 0.7f, -0.2f, -0.7f, -1.0f, 10000000000.0f };
         static const float results[] = { 0.0f, 0.0f, 1.0f, 0.0f, -1.0f, -1.0f, 10000000000.0f };
-        TEST_A("round", xValues, results, m_math.round, compareExact);
+        static const size_t numValues = sizeof(xValues) / sizeof(xValues[0]);
+        testA("round", xValues, results, numValues, &arraymath::ArrayMath::round, compareExact);
       }
 
       {
         static const float xValues[] = { 0.0f, 0.5f, -1.0f, 3.14159265f, 10000.0f, -1000.0 };
-        CALC_RESULTS_1(results, xValues, std::sin);
-        TEST_A("sin", xValues, results, m_math.sin, compare23bit);
+        static const size_t numValues = sizeof(xValues) / sizeof(xValues[0]);
+        float results[numValues];
+        calcResults(results, xValues, numValues, std::sin);
+        testA("sin", xValues, results, numValues, &arraymath::ArrayMath::sin, compare23bit);
       }
 
       {
         static const float xValues[] = { 0.0f, 0.5f, 0.2f, 0.7f, -0.5f, 9.0f, 81.25f, 10000000000.0f };
-        CALC_RESULTS_1(results, xValues, std::sqrt);
-        TEST_A("sqrt", xValues, results, m_math.sqrt, compare23bit);
+        static const size_t numValues = sizeof(xValues) / sizeof(xValues[0]);
+        float results[numValues];
+        calcResults(results, xValues, numValues, std::sqrt);
+        testA("sqrt", xValues, results, numValues, &arraymath::ArrayMath::sqrt, compare23bit);
       }
 
       {
         static const float xValues[] = { 0.0f, 0.5f, -1.0f, 3.14159265f, 10000.0f, -1000.0 };
-        CALC_RESULTS_1(results, xValues, std::tan);
-        TEST_A("tan", xValues, results, m_math.tan, compare23bit);
+        static const size_t numValues = sizeof(xValues) / sizeof(xValues[0]);
+        float results[numValues];
+        calcResults(results, xValues, numValues, std::tan);
+        testA("tan", xValues, results, numValues, &arraymath::ArrayMath::tan, compare23bit);
       }
 
       {
@@ -266,7 +306,8 @@ class ArrayMathTester : public Tester {
       {
         static const float xValues[] = { 0.0f, 0.2f, 3.375f, -0.25f, -7.5f, -1.0f, 10000000000.125f };
         static const float results[] = { 0.0f, 0.2f, 0.375f, 0.75f, 0.5f, 0.0f, 0.0f };
-        TEST_A("fract", xValues, results, m_math.fract, compareExact);
+        static const size_t numValues = sizeof(xValues) / sizeof(xValues[0]);
+        testA("fract", xValues, results, numValues, &arraymath::ArrayMath::fract, compareExact);
       }
 
       {
@@ -280,7 +321,8 @@ class ArrayMathTester : public Tester {
       {
         static const float xValues[] = { 0.0f, 0.2f, 0.7f, -0.2f, -0.7f, -1.0f, 10000000000.0f };
         static const float results[] = { 1.0f, 1.0f, 1.0f, -1.0f, -1.0f, -1.0f, 1.0f };
-        TEST_A("sign", xValues, results, m_math.sign, compareExact);
+        static const size_t numValues = sizeof(xValues) / sizeof(xValues[0]);
+        testA("sign", xValues, results, numValues, &arraymath::ArrayMath::sign, compareExact);
       }
 
       {
