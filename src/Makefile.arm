@@ -74,7 +74,8 @@ TEST_OBJS = $(OUTDIR)/Test.o \
             $(OUTDIR)/Tester.o \
             $(OUTDIR)/TestArrayMath.o \
             $(OUTDIR)/TestFFTFactory.o \
-            $(OUTDIR)/TestFilterFactory.o
+            $(OUTDIR)/TestFilterFactory.o \
+            $(OUTDIR)/TestRandom.o
 
 all: $(OUTDIR)/Benchmark $(OUTDIR)/Test
 

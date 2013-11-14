@@ -397,7 +397,7 @@ class ArrayMathTester : public Tester {
         // TODO(m): sum
       }
 
-      // TODO(m): Add unit tests for random() and sample*() methods. Do it
+      // TODO(m): Add unit tests for sample*() methods. Do it
       // in another test unit?
     }
 };

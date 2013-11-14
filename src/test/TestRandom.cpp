@@ -23,25 +23,49 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //------------------------------------------------------------------------------
 
-#include <iostream>
-
-#include "test/TestArrayMath.h"
-#include "test/TestFilterFactory.h"
-#include "test/TestFFTFactory.h"
 #include "test/TestRandom.h"
 
-int main() {
-  std::cout << "Testing ArrayMath..." << std::endl;
-  test::testArrayMath();
+#include <iostream>
 
-  std::cout << std::endl << "Testing ArrayMath: Random..." << std::endl;
-  test::testRandom();
+#include "ArrayMath.h"
+#include "test/AlignedArray.h"
+#include "test/Tester.h"
 
-  std::cout << std::endl << "Testing FilterFactory..." << std::endl;
-  test::testFilterFactory();
+namespace test {
 
-  std::cout << std::endl << "Testing FFTFactory..." << std::endl;
-  test::testFFTFactory();
+class RandomTester : public Tester {
+  private:
+    arraymath::ArrayMath m_math;
 
-  return 0;
+    static const int kNumIterations = 100;
+
+  public:
+    void runTests() {
+      static const size_t kArrayLengths[] = {
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 100, 1000, 100000
+      };
+      static const int kNumArrayLengths = sizeof(kArrayLengths) / sizeof(size_t);
+      static const size_t kMaxArrayLength = kArrayLengths[kNumArrayLengths - 1];
+
+      {
+        beginTest("range");
+        AlignedArray dst(kMaxArrayLength);
+        for (int j = 0; j < kNumIterations; ++j) {
+          for (int i = 0; i < kNumArrayLengths; ++i) {
+            size_t length = kArrayLengths[i];
+            m_math.random(dst.get(), 0.0f,1.0f, length);
+            expectAll(dst.get(), length, 0.0f, compareGE);
+            expectAll(dst.get(), length, 1.0f, compareLT);
+          }
+        }
+        endTest();
+      }
+    }
+};
+
+void testRandom() {
+  RandomTester tester;
+  tester.runTests();
 }
+
+} // namespace test

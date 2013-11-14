@@ -66,6 +66,14 @@ class Tester {
       return compareWithThreshold(a, b, 4.8e-7);
     }
 
+    static bool compareLT(float a, float b) {
+      return a < b && !std::isnan(b);
+    }
+
+    static bool compareGE(float a, float b) {
+      return a >= b && !std::isnan(b);
+    }
+
   private:
     static bool compareWithThreshold(float a, float b, float threshold) {
       if (compareExact(a, b))

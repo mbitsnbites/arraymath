@@ -23,25 +23,13 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //------------------------------------------------------------------------------
 
-#include <iostream>
+#ifndef _ARRAYMATH_TEST_TESTRANDOM_H
+#define _ARRAYMATH_TEST_TESTRANDOM_H
 
-#include "test/TestArrayMath.h"
-#include "test/TestFilterFactory.h"
-#include "test/TestFFTFactory.h"
-#include "test/TestRandom.h"
+namespace test {
 
-int main() {
-  std::cout << "Testing ArrayMath..." << std::endl;
-  test::testArrayMath();
+void testRandom();
 
-  std::cout << std::endl << "Testing ArrayMath: Random..." << std::endl;
-  test::testRandom();
+} // namespace test
 
-  std::cout << std::endl << "Testing FilterFactory..." << std::endl;
-  test::testFilterFactory();
-
-  std::cout << std::endl << "Testing FFTFactory..." << std::endl;
-  test::testFFTFactory();
-
-  return 0;
-}
+#endif // _ARRAYMATH_TEST_TESTRANDOM_H

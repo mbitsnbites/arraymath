@@ -62,7 +62,8 @@ TEST_OBJS = $(OUTDIR)/Test.obj \
             $(OUTDIR)/Tester.obj \
             $(OUTDIR)/TestArrayMath.obj \
             $(OUTDIR)/TestFFTFactory.obj \
-            $(OUTDIR)/TestFilterFactory.obj
+            $(OUTDIR)/TestFilterFactory.obj \
+            $(OUTDIR)/TestRandom.obj
 
 all: $(OUTDIR)\Benchmark.exe $(OUTDIR)\Test.exe
 
@@ -92,6 +93,9 @@ $(OUTDIR)\TestFFTFactory.obj: test\TestFFTFactory.cpp
 
 $(OUTDIR)\TestFilterFactory.obj: test\TestFilterFactory.cpp
 	$(CPP) $(CPPFLAGS) /Fo$@ test\TestFilterFactory.cpp
+
+$(OUTDIR)\TestRandom.obj: test\TestRandom.cpp
+	$(CPP) $(CPPFLAGS) /Fo$@ test\TestRandom.cpp
 
 $(OUTDIR)\ArrayMath.obj: ArrayMath.cpp
 	$(CPP) $(CPPFLAGS) /Fo$@ ArrayMath.cpp
