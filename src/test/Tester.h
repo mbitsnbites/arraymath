@@ -74,6 +74,11 @@ class Tester {
       return a >= b && !std::isnan(b);
     }
 
+    static void fillArray(float* array, size_t size, float value) {
+      for (size_t i = 0; i < size; ++i)
+        array[i] = value;
+    }
+
   private:
     static bool compareWithThreshold(float a, float b, float threshold) {
       if (compareExact(a, b))

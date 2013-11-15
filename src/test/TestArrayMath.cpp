@@ -43,11 +43,6 @@ class ArrayMathTester : public Tester {
 
     arraymath::ArrayMath m_math;
 
-    void fillArray(float* array, size_t size, float value) {
-      for (size_t i = 0; i < size; ++i)
-        array[i] = value;
-    }
-
     void calcResults(float* results, const float* xValues, size_t numValues, float (*op)(float)) {
       for (size_t i = 0; i < numValues; ++i)
         results[i] = op(xValues[i]);
@@ -66,6 +61,7 @@ class ArrayMathTester : public Tester {
           float* dstPtr = dst.get() + j;
           float* xPtr = x.get() + j;
           for (size_t k = 0; k < numValues; ++k) {
+            fillArray(dstPtr, size, 42.0f);
             fillArray(xPtr, size, xValues[k]);
             (m_math.*method)(dstPtr, xPtr, size);
             expectAll(dstPtr, size, results[k], compare);
@@ -89,6 +85,7 @@ class ArrayMathTester : public Tester {
           float* dstPtr = dst.get() + j;
           float* yPtr = y.get() + j;
           for (size_t k = 0; k < numValues; ++k) {
+            fillArray(dstPtr, size, 42.0f);
             fillArray(yPtr, size, yValues[k]);
             (m_math.*method)(dstPtr, xValues[k], yPtr, size);
             expectAll(dstPtr, size, results[k], compare);
@@ -113,6 +110,7 @@ class ArrayMathTester : public Tester {
           float* xPtr = x.get() + j;
           float* yPtr = y.get() + j;
           for (size_t k = 0; k < numValues; ++k) {
+            fillArray(dstPtr, size, 42.0f);
             fillArray(xPtr, size, xValues[k]);
             fillArray(yPtr, size, yValues[k]);
             (m_math.*method)(dstPtr, xPtr, yPtr, size);
@@ -277,6 +275,7 @@ class ArrayMathTester : public Tester {
               float* dstPtr = dst.get() + j;
               float* xPtr = x.get() + j;
               for (size_t k = 0; k < sizeof(xValues) / sizeof(xValues[0]); ++k) {
+                fillArray(dstPtr, size, 42.0f);
                 fillArray(xPtr, size, xValues[k]);
                 m_math.pow(dstPtr, xPtr, yValues[k], size);
                 expectAll(dstPtr, size, results[k], compare23bit);
@@ -294,6 +293,7 @@ class ArrayMathTester : public Tester {
               float* xPtr = x.get() + j;
               float* yPtr = y.get() + j;
               for (size_t k = 0; k < sizeof(xValues) / sizeof(xValues[0]); ++k) {
+                fillArray(dstPtr, size, 42.0f);
                 fillArray(xPtr, size, xValues[k]);
                 fillArray(yPtr, size, yValues[k]);
                 m_math.pow(dstPtr, xPtr, yPtr, size);
@@ -350,6 +350,7 @@ class ArrayMathTester : public Tester {
             float* dstPtr = dst.get() + j;
             float* xPtr = x.get() + j;
             for (size_t k = 0; k < sizeof(xValues) / sizeof(xValues[0]); ++k) {
+              fillArray(dstPtr, size, 42.0f);
               fillArray(xPtr, size, xValues[k]);
               m_math.clamp(dstPtr, xPtr, minValues[k], maxValues[k], size);
               expectAll(dstPtr, size, results[k], compareExact);
@@ -374,6 +375,7 @@ class ArrayMathTester : public Tester {
           for (size_t j = 0; j <= kMaxUnalignment; ++j) {
             float* dstPtr = dst.get() + j;
             for (size_t k = 0; k < sizeof(values) / sizeof(values[0]); ++k) {
+              fillArray(dstPtr, size, 42.0f);
               m_math.fill(dstPtr, values[k], size);
               expectAll(dstPtr, size, values[k], compareExact);
             }

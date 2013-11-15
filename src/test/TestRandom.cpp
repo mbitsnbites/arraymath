@@ -53,6 +53,7 @@ class RandomTester : public Tester {
         for (int j = 0; j < kNumIterations; ++j) {
           for (int i = 0; i < kNumArrayLengths; ++i) {
             size_t length = kArrayLengths[i];
+            fillArray(dst.get(), length, 42.0f);
             m_math.random(dst.get(), 0.0f,1.0f, length);
             expectAll(dst.get(), length, 0.0f, compareGE);
             expectAll(dst.get(), length, 1.0f, compareLT);
