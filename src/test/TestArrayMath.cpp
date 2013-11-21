@@ -37,9 +37,12 @@ namespace test {
 
 class ArrayMathTester : public Tester {
   private:
-    static const size_t kMaxUnalignment = 15;
-    static const size_t kMaxArraySize = 150;
-    static const size_t kArraySize = kMaxArraySize + kMaxUnalignment;
+    static const size_t kMaxArraySize = 150;  // Array length.
+    static const size_t kMaxUnalignment = 15; // Unalignment of destination.
+    static const size_t kMaxMisalignment = 2; // Misallignment (src vs dst).
+
+    // The size to allocate for each test, accomodating for different alignments
+    static const size_t kArraySize = kMaxArraySize + kMaxUnalignment + kMaxMisalignment;
 
     arraymath::ArrayMath m_math;
 
@@ -57,14 +60,16 @@ class ArrayMathTester : public Tester {
       beginTest(name);
       AlignedArray dst(kArraySize), x(kArraySize);
       for (size_t size = 1; size <= kMaxArraySize; ++size) {
-        for (size_t j = 0; j <= kMaxUnalignment; ++j) {
-          float* dstPtr = dst.get() + j;
-          float* xPtr = x.get() + j;
-          for (size_t k = 0; k < numValues; ++k) {
-            fillArray(dstPtr, size, 42.0f);
-            fillArray(xPtr, size, xValues[k]);
-            (m_math.*method)(dstPtr, xPtr, size);
-            expectAll(dstPtr, size, results[k], compare);
+        for (size_t u = 0; u <= kMaxUnalignment; ++u) {
+          float* dstPtr = dst.get() + u;
+          for (size_t m = 0; m <= kMaxMisalignment; ++m) {
+            float* xPtr = x.get() + u + m;
+            for (size_t k = 0; k < numValues; ++k) {
+              fillArray(dstPtr, size, 42.0f);
+              fillArray(xPtr, size, xValues[k]);
+              (m_math.*method)(dstPtr, xPtr, size);
+              expectAll(dstPtr, size, results[k], compare);
+            }
           }
         }
       }
@@ -81,14 +86,16 @@ class ArrayMathTester : public Tester {
       beginTest(name);
       AlignedArray dst(kArraySize), y(kArraySize);
       for (size_t size = 1; size <= kMaxArraySize; ++size) {
-        for (size_t j = 0; j <= kMaxUnalignment; ++j) {
-          float* dstPtr = dst.get() + j;
-          float* yPtr = y.get() + j;
-          for (size_t k = 0; k < numValues; ++k) {
-            fillArray(dstPtr, size, 42.0f);
-            fillArray(yPtr, size, yValues[k]);
-            (m_math.*method)(dstPtr, xValues[k], yPtr, size);
-            expectAll(dstPtr, size, results[k], compare);
+        for (size_t u = 0; u <= kMaxUnalignment; ++u) {
+          float* dstPtr = dst.get() + u;
+          for (size_t m = 0; m <= kMaxMisalignment; ++m) {
+            float* yPtr = y.get() + u + m;
+            for (size_t k = 0; k < numValues; ++k) {
+              fillArray(dstPtr, size, 42.0f);
+              fillArray(yPtr, size, yValues[k]);
+              (m_math.*method)(dstPtr, xValues[k], yPtr, size);
+              expectAll(dstPtr, size, results[k], compare);
+            }
           }
         }
       }
@@ -105,16 +112,94 @@ class ArrayMathTester : public Tester {
       beginTest(name);
       AlignedArray dst(kArraySize), x(kArraySize), y(kArraySize);
       for (size_t size = 1; size <= kMaxArraySize; ++size) {
-        for (size_t j = 0; j <= kMaxUnalignment; ++j) {
-          float* dstPtr = dst.get() + j;
-          float* xPtr = x.get() + j;
-          float* yPtr = y.get() + j;
-          for (size_t k = 0; k < numValues; ++k) {
-            fillArray(dstPtr, size, 42.0f);
-            fillArray(xPtr, size, xValues[k]);
-            fillArray(yPtr, size, yValues[k]);
-            (m_math.*method)(dstPtr, xPtr, yPtr, size);
-            expectAll(dstPtr, size, results[k], compare);
+        for (size_t u = 0; u <= kMaxUnalignment; ++u) {
+          float* dstPtr = dst.get() + u;
+          for (size_t m1 = 0; m1 <= kMaxMisalignment; ++m1) {
+            float* xPtr = x.get() + u + m1;
+            for (size_t m2 = 0; m2 <= kMaxMisalignment; ++m2) {
+              float* yPtr = y.get() + u + m1 + m2;
+              for (size_t k = 0; k < numValues; ++k) {
+                fillArray(dstPtr, size, 42.0f);
+                fillArray(xPtr, size, xValues[k]);
+                fillArray(yPtr, size, yValues[k]);
+                (m_math.*method)(dstPtr, xPtr, yPtr, size);
+                expectAll(dstPtr, size, results[k], compare);
+              }
+            }
+          }
+        }
+      }
+      endTest();
+    }
+
+    void testSACplx(const char* name,
+                    const float* xReValues,
+                    const float* xImValues,
+                    const float* yReValues,
+                    const float* yImValues,
+                    const float* resultsRe,
+                    const float* resultsIm,
+                    size_t numValues,
+                    void (arraymath::ArrayMath::*method)(arraymath::float32*, arraymath::float32*, arraymath::float32, arraymath::float32, const arraymath::float32*, const arraymath::float32*, size_t),
+                    bool (*compare)(float, float)) {
+      beginTest(name);
+      AlignedArray dstRe(kArraySize), dstIm(kArraySize), yRe(kArraySize), yIm(kArraySize);
+      for (size_t size = 1; size <= kMaxArraySize; ++size) {
+        for (size_t u = 0; u <= kMaxUnalignment; ++u) {
+          float* dstRePtr = dstRe.get() + u;
+          float* dstImPtr = dstIm.get() + u;
+          for (size_t m = 0; m <= kMaxMisalignment; ++m) {
+            float* yRePtr = yRe.get() + u + m;
+            float* yImPtr = yIm.get() + u + m;
+            for (size_t k = 0; k < numValues; ++k) {
+              fillArray(dstRePtr, size, 42.0f);
+              fillArray(dstImPtr, size, 42.0f);
+              fillArray(yRePtr, size, yReValues[k]);
+              fillArray(yImPtr, size, yImValues[k]);
+              (m_math.*method)(dstRePtr, dstImPtr, xReValues[k], xImValues[k], yRePtr, yImPtr, size);
+              expectAll(dstRePtr, size, resultsRe[k], compare);
+              expectAll(dstImPtr, size, resultsIm[k], compare);
+            }
+          }
+        }
+      }
+      endTest();
+    }
+
+    void testAACplx(const char* name,
+                    const float* xReValues,
+                    const float* xImValues,
+                    const float* yReValues,
+                    const float* yImValues,
+                    const float* resultsRe,
+                    const float* resultsIm,
+                    size_t numValues,
+                    void (arraymath::ArrayMath::*method)(arraymath::float32*, arraymath::float32*, const arraymath::float32*, const arraymath::float32*, const arraymath::float32*, const arraymath::float32*, size_t),
+                    bool (*compare)(float, float)) {
+      beginTest(name);
+      AlignedArray dstRe(kArraySize), dstIm(kArraySize), xRe(kArraySize), xIm(kArraySize), yRe(kArraySize), yIm(kArraySize);
+      for (size_t size = 1; size <= kMaxArraySize; ++size) {
+        for (size_t u = 0; u <= kMaxUnalignment; ++u) {
+          float* dstRePtr = dstRe.get() + u;
+          float* dstImPtr = dstIm.get() + u;
+          for (size_t m1 = 0; m1 <= kMaxMisalignment; ++m1) {
+            float* xRePtr = xRe.get() + u + m1;
+            float* xImPtr = xIm.get() + u + m1;
+            for (size_t m2 = 0; m2 <= kMaxMisalignment; ++m2) {
+              float* yRePtr = yRe.get() + u + m1 + m2;
+              float* yImPtr = yIm.get() + u + m1 + m2;
+              for (size_t k = 0; k < numValues; ++k) {
+                fillArray(dstRePtr, size, 42.0f);
+                fillArray(dstImPtr, size, 42.0f);
+                fillArray(xRePtr, size, xReValues[k]);
+                fillArray(xImPtr, size, xImValues[k]);
+                fillArray(yRePtr, size, yReValues[k]);
+                fillArray(yImPtr, size, yImValues[k]);
+                (m_math.*method)(dstRePtr, dstImPtr, xRePtr, xImPtr, yRePtr, yImPtr, size);
+                expectAll(dstRePtr, size, resultsRe[k], compare);
+                expectAll(dstImPtr, size, resultsIm[k], compare);
+              }
+            }
           }
         }
       }
@@ -152,7 +237,15 @@ class ArrayMathTester : public Tester {
       }
 
       {
-        // TODO(m): mulCplx
+        static const float xReValues[] = { 0.0f, 1.0f, 0.0f, 0.0f };
+        static const float xImValues[] = { 0.0f, 0.0f, 2.0f, 1001010.0f };
+        static const float yReValues[] = { 5.0f, -5.0f, 3.0f, 0.0f };
+        static const float yImValues[] = { 8.0f, 0.0f, 0.0f, 5.0f };
+        static const float resultsRe[] = { 0.0f, -5.0f, 0.0f, -5005050.0f };
+        static const float resultsIm[] = { 0.0f, 0.0f, 6.0f, 0.0f };
+        static const size_t numValues = sizeof(xReValues) / sizeof(xReValues[0]);
+        testSACplx("mulCplx - scalar", xReValues, xImValues, yReValues, yImValues, resultsRe, resultsIm, numValues, &arraymath::ArrayMath::mulCplx, compareExact);
+        testAACplx("mulCplx - vector", xReValues, xImValues, yReValues, yImValues, resultsRe, resultsIm, numValues, &arraymath::ArrayMath::mulCplx, compareExact);
       }
 
       {
@@ -165,7 +258,15 @@ class ArrayMathTester : public Tester {
       }
 
       {
-        // TODO(m): divCplx
+        static const float xReValues[] = { 0.0f, 5.0f, 0.0f, -5005050.0f };
+        static const float xImValues[] = { 0.0f, 0.0f, 4.0f, 0.0f };
+        static const float yReValues[] = { 5.0f, -1.0f, 2.0f, 0.0f };
+        static const float yImValues[] = { 8.0f, 0.0f, 0.0f, 5.0f };
+        static const float resultsRe[] = { 0.0f, -5.0f, 0.0f, 0.0f };
+        static const float resultsIm[] = { 0.0f, 0.0f, 2.0f, 1001010.0f };
+        static const size_t numValues = sizeof(xReValues) / sizeof(xReValues[0]);
+        testSACplx("divCplx - scalar", xReValues, xImValues, yReValues, yImValues, resultsRe, resultsIm, numValues, &arraymath::ArrayMath::divCplx, compare23bit);
+        testAACplx("divCplx - vector", xReValues, xImValues, yReValues, yImValues, resultsRe, resultsIm, numValues, &arraymath::ArrayMath::divCplx, compare23bit);
       }
 
       {
@@ -271,14 +372,16 @@ class ArrayMathTester : public Tester {
           beginTest("pow - scalar");
           AlignedArray dst(kArraySize), x(kArraySize);
           for (size_t size = 1; size <= kMaxArraySize; ++size) {
-            for (size_t j = 0; j <= kMaxUnalignment; ++j) {
-              float* dstPtr = dst.get() + j;
-              float* xPtr = x.get() + j;
-              for (size_t k = 0; k < sizeof(xValues) / sizeof(xValues[0]); ++k) {
-                fillArray(dstPtr, size, 42.0f);
-                fillArray(xPtr, size, xValues[k]);
-                m_math.pow(dstPtr, xPtr, yValues[k], size);
-                expectAll(dstPtr, size, results[k], compare23bit);
+            for (size_t u = 0; u <= kMaxUnalignment; ++u) {
+              float* dstPtr = dst.get() + u;
+              for (size_t m = 0; m <= kMaxMisalignment; ++m) {
+                float* xPtr = x.get() + u + m;
+                for (size_t k = 0; k < sizeof(xValues) / sizeof(xValues[0]); ++k) {
+                  fillArray(dstPtr, size, 42.0f);
+                  fillArray(xPtr, size, xValues[k]);
+                  m_math.pow(dstPtr, xPtr, yValues[k], size);
+                  expectAll(dstPtr, size, results[k], compare23bit);
+                }
               }
             }
           }
@@ -288,16 +391,20 @@ class ArrayMathTester : public Tester {
           beginTest("pow - array");
           AlignedArray dst(kArraySize), x(kArraySize), y(kArraySize);
           for (size_t size = 1; size <= kMaxArraySize; ++size) {
-            for (size_t j = 0; j <= kMaxUnalignment; ++j) {
-              float* dstPtr = dst.get() + j;
-              float* xPtr = x.get() + j;
-              float* yPtr = y.get() + j;
-              for (size_t k = 0; k < sizeof(xValues) / sizeof(xValues[0]); ++k) {
-                fillArray(dstPtr, size, 42.0f);
-                fillArray(xPtr, size, xValues[k]);
-                fillArray(yPtr, size, yValues[k]);
-                m_math.pow(dstPtr, xPtr, yPtr, size);
-                expectAll(dstPtr, size, results[k], compare23bit);
+            for (size_t u = 0; u <= kMaxUnalignment; ++u) {
+              float* dstPtr = dst.get() + u;
+              for (size_t m1 = 0; m1 <= kMaxMisalignment; ++m1) {
+                float* xPtr = x.get() + u + m1;
+                for (size_t m2 = 0; m2 <= kMaxMisalignment; ++m2) {
+                  float* yPtr = y.get() + u + m1 + m2;
+                  for (size_t k = 0; k < sizeof(xValues) / sizeof(xValues[0]); ++k) {
+                    fillArray(dstPtr, size, 42.0f);
+                    fillArray(xPtr, size, xValues[k]);
+                    fillArray(yPtr, size, yValues[k]);
+                    m_math.pow(dstPtr, xPtr, yPtr, size);
+                    expectAll(dstPtr, size, results[k], compare23bit);
+                  }
+                }
               }
             }
           }
@@ -346,14 +453,16 @@ class ArrayMathTester : public Tester {
         beginTest("clamp");
         AlignedArray dst(kArraySize), x(kArraySize);
         for (size_t size = 1; size <= kMaxArraySize; ++size) {
-          for (size_t j = 0; j <= kMaxUnalignment; ++j) {
-            float* dstPtr = dst.get() + j;
-            float* xPtr = x.get() + j;
-            for (size_t k = 0; k < sizeof(xValues) / sizeof(xValues[0]); ++k) {
-              fillArray(dstPtr, size, 42.0f);
-              fillArray(xPtr, size, xValues[k]);
-              m_math.clamp(dstPtr, xPtr, minValues[k], maxValues[k], size);
-              expectAll(dstPtr, size, results[k], compareExact);
+          for (size_t u = 0; u <= kMaxUnalignment; ++u) {
+            float* dstPtr = dst.get() + u;
+            for (size_t m = 0; m <= kMaxMisalignment; ++m) {
+              float* xPtr = x.get() + u + m;
+              for (size_t k = 0; k < sizeof(xValues) / sizeof(xValues[0]); ++k) {
+                fillArray(dstPtr, size, 42.0f);
+                fillArray(xPtr, size, xValues[k]);
+                m_math.clamp(dstPtr, xPtr, minValues[k], maxValues[k], size);
+                expectAll(dstPtr, size, results[k], compareExact);
+              }
             }
           }
         }
@@ -372,8 +481,8 @@ class ArrayMathTester : public Tester {
         beginTest("fill");
         AlignedArray dst(kArraySize);
         for (size_t size = 1; size <= kMaxArraySize; ++size) {
-          for (size_t j = 0; j <= kMaxUnalignment; ++j) {
-            float* dstPtr = dst.get() + j;
+          for (size_t u = 0; u <= kMaxUnalignment; ++u) {
+            float* dstPtr = dst.get() + u;
             for (size_t k = 0; k < sizeof(values) / sizeof(values[0]); ++k) {
               fillArray(dstPtr, size, 42.0f);
               m_math.fill(dstPtr, values[k], size);
