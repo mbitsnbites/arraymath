@@ -30,18 +30,61 @@
 #include <vector>
 
 #include "FilterFactory.h"
+#include "test/AlignedArray.h"
+#include "test/ScopedPtr.h"
 #include "test/Tester.h"
 
 namespace test {
 
 class FilterFactoryTester : public Tester {
-  public:
-    void runTests();
-};
+  private:
+    static const size_t kMaxArraySize = 150; // Array length.
+    static const int kMaxFIRSize = 50;       // FIR-filter length.
+    static const int kMaxIIRSize = 8;        // IIR-filter length.
 
-void FilterFactoryTester::runTests() {
-  // TODO(m): Implement unit tests.
-}
+    arraymath::FilterFactory m_factory;
+
+  public:
+    void runTests() {
+      {
+        beginTest("FIR");
+        AlignedArray dst(kMaxArraySize), x(kMaxArraySize);
+        for (int size = 1; size <= kMaxFIRSize; ++size) {
+          for (size_t length = 1; length <= kMaxArraySize; ++length) {
+            ScopedPtr<arraymath::Filter> f(m_factory.createFilter(size, 0));
+            size_t passes = 2 + size / length;
+            for (size_t pass = 1; pass <= passes; ++pass) {
+              float value = static_cast<float>(pass + length);
+              fillArray(dst.get(), length, 42.0f);
+              fillArray(x.get(), length, value);
+              f->filter(dst.get(), x.get(), length);
+              expectAll(dst.get(), length, value, compareExact);
+            }
+          }
+        }
+        endTest();
+      }
+
+      {
+        beginTest("IIR");
+        AlignedArray dst(kMaxArraySize), x(kMaxArraySize);
+        for (int size = 1; size <= kMaxIIRSize; ++size) {
+          for (size_t length = 1; length <= kMaxArraySize; ++length) {
+            ScopedPtr<arraymath::Filter> f(m_factory.createFilter(size, size - 1));
+            size_t passes = 2 + size / length;
+            for (size_t pass = 1; pass <= passes; ++pass) {
+              float value = static_cast<float>(pass + length);
+              fillArray(dst.get(), length, 42.0f);
+              fillArray(x.get(), length, value);
+              f->filter(dst.get(), x.get(), length);
+              expectAll(dst.get(), length, value, compareExact);
+            }
+          }
+        }
+        endTest();
+      }
+    }
+};
 
 void testFilterFactory() {
   FilterFactoryTester tester;

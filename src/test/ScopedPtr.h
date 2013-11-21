@@ -23,35 +23,26 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //------------------------------------------------------------------------------
 
-#include "test/Tester.h"
-
-#include <iostream>
+#ifndef _ARRAYMATH_TEST_SCOPEDPTR_H
+#define _ARRAYMATH_TEST_SCOPEDPTR_H
 
 namespace test {
 
-void Tester::beginTest(const char* name) {
-  std::cout << name << ": ";
-  m_failCount = 0;
-  m_passCount = 0;
-}
-
-void Tester::endTest() {
-  if (m_failCount == 0)
-    std::cout << "OK!";
-  else
-    std::cout << m_failCount << "/" << (m_passCount + m_failCount) << " failed. <------ FIXME!";
-  std::cout << std::endl;
-}
-
-bool Tester::expectAll(const float* array, size_t size, float value, bool (*compare)(float, float)) {
-  for (size_t k = 0; k < size; ++k) {
-    if (!compare(array[k], value)) {
-      m_failCount++;
-      return false;
+template <class T>
+class ScopedPtr {
+  public:
+    ScopedPtr(T* obj) : m_obj(obj) {}
+    ~ScopedPtr() {
+      delete m_obj;
     }
-  }
-  m_passCount++;
-  return true;
-}
+    T* operator->() {
+      return m_obj;
+    }
+
+  private:
+    T* m_obj;
+};
 
 } // namespace test
+
+#endif // _ARRAYMATH_TEST_SCOPEDPTR_H
