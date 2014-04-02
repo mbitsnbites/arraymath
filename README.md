@@ -6,7 +6,16 @@ operations on arrays.
 The idea is to provide a simple interface to highly optimized math kernels.
 
 
-## 1. Usage
+## Usage
+
+To build the static library, a test program and a benchmark program, run `make`
+in the `src/` folder (requires GCC).
+
+There is also an ARM makefile (`make -f Makefile.arm`) that you can use for
+cross-compiling (useful for testing in a QEMU environment, for instance).
+
+An experimental MSVC makefile (`nmake /F Makefile.msvc`) can be used for
+building the test and benchmark programs from command line.
 
 Provided that you've built the static library or separate object files
 that you link to your project, you will find the necessary information in
@@ -14,7 +23,17 @@ the doxygen documentation (run `doxygen` in the `doc/` folder to generate
 the HTML documentation).
 
 
-## 2. ArrayMath license
+## SIMD acceleration
+
+A key feature of ArrayMath is that it has been optimized for different SIMD
+architectures. There are currently x86 (SSE, AVX, etc) and ARM (NEON) optimized
+versions of many routines.
+
+ArrayMath will select the most appropriate version of each routine in the
+library at runtime, depending on the CPU it is running on.
+
+
+## ArrayMath license
 
 ArrayMath is released under the zlib/libpng license:
 
@@ -40,9 +59,9 @@ ArrayMath is released under the zlib/libpng license:
  3. This notice may not be removed or altered from any source distribution.
 ```
 
-## 3. Third party licenses
+## Third party licenses
 
-### 3.1 Kiss FFT
+### Kiss FFT
 
 ArrayMath uses [Kiss FFT](http://kissfft.sourceforge.net/) by Mark Borgerding,
 which is released under a BSD license:
@@ -76,7 +95,7 @@ which is released under a BSD license:
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ```
 
-### 3.2 sse\_mathfun & neon\_mathfun
+### sse\_mathfun & neon\_mathfun
 
 ArrayMath uses [sse\_mathfun and neon\_mathfun](http://gruntthepeon.free.fr/ssemath/)
 by Julien Pommier, which are released under the zlib/libpng license:
