@@ -8,9 +8,10 @@ The idea is to provide a simple interface to highly optimized math kernels.
 
 ## 1. Usage
 
-Provided that you've built all the .cpp files into object files or a library
+Provided that you've built the static library or separate object files
 that you link to your project, you will find the necessary information in
-the doxygen documentation (see the doc/ folder).
+the doxygen documentation (run `doxygen` in the `doc/` folder to generate
+the HTML documentation).
 
 
 ## 2. ArrayMath license
@@ -75,9 +76,9 @@ license:
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ```
 
-### 3.2 sse_mathfun & neon_mathfun
+### 3.2 sse\_mathfun & neon\_mathfun
 
-ArrayMath uses sse_mathfun and neon_mathfun by Julien Pommier, which are
+ArrayMath uses sse\_mathfun and neon\_mathfun by Julien Pommier, which are
 released under the zlib/libpng license:
 
 ```
