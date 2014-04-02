@@ -44,8 +44,8 @@ ArrayMath is released under the zlib/libpng license:
 
 ### 3.1 Kiss FFT
 
-ArrayMath uses Kiss FFT by Mark Borgerding, which is released under a BSD
-license:
+ArrayMath uses [Kiss FFT](http://kissfft.sourceforge.net/) by Mark Borgerding,
+which is released under a BSD license:
 
 ```
  Copyright (c) 2003-2010 Mark Borgerding
@@ -78,8 +78,8 @@ license:
 
 ### 3.2 sse\_mathfun & neon\_mathfun
 
-ArrayMath uses sse\_mathfun and neon\_mathfun by Julien Pommier, which are
-released under the zlib/libpng license:
+ArrayMath uses [sse\_mathfun and neon\_mathfun](http://gruntthepeon.free.fr/ssemath/)
+by Julien Pommier, which are released under the zlib/libpng license:
 
 ```
  Copyright (C) 2007 / 2011 Julien Pommier
