@@ -1,5 +1,4 @@
-ArrayMath
-=========
+# ArrayMath
 
 ArrayMath is a portable low level C++ library for performing primitive math
 operations on arrays.
@@ -7,20 +6,19 @@ operations on arrays.
 The idea is to provide a simple interface to highly optimized math kernels.
 
 
-1. Usage
---------
+## 1. Usage
 
 Provided that you've built all the .cpp files into object files or a library
 that you link to your project, you will find the necessary information in
 the doxygen documentation (see the doc/ folder).
 
 
-2. ArrayMath license
---------------------
+## 2. ArrayMath license
 
 ArrayMath is released under the zlib/libpng license:
 
- Copyright (c) 2013 Marcus Geelnard
+```
+ Copyright (c) 2013-2014 Marcus Geelnard
 
  This software is provided 'as-is', without any express or implied warranty.
  In no event will the authors be held liable for any damages arising from the
@@ -39,17 +37,16 @@ ArrayMath is released under the zlib/libpng license:
     misrepresented as being the original software.
 
  3. This notice may not be removed or altered from any source distribution.
+```
 
+## 3. Third party licenses
 
-3. Third party licenses
------------------------
-
-3.1 Kiss FFT
-------------
+### 3.1 Kiss FFT
 
 ArrayMath uses Kiss FFT by Mark Borgerding, which is released under a BSD
 license:
 
+```
  Copyright (c) 2003-2010 Mark Borgerding
 
  All rights reserved.
@@ -76,13 +73,14 @@ license:
  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+```
 
-
-3.2 sse_mathfun & neon_mathfun
+### 3.2 sse_mathfun & neon_mathfun
 
 ArrayMath uses sse_mathfun and neon_mathfun by Julien Pommier, which are
 released under the zlib/libpng license:
 
+```
  Copyright (C) 2007 / 2011 Julien Pommier
 
  This software is provided 'as-is', without any express or implied
@@ -100,3 +98,5 @@ released under the zlib/libpng license:
  2. Altered source versions must be plainly marked as such, and must not be
     misrepresented as being the original software.
  3. This notice may not be removed or altered from any source distribution.
+```
+
