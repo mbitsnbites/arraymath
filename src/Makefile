@@ -25,6 +25,9 @@
 
 .PHONY: all clean
 
+OUTDIR = out
+LIBRARY = $(OUTDIR)/libarraymath.a
+
 # C compiler settings
 CC = gcc
 CFLAGS = --std=c99 -c -O3 -ffast-math -W -Wall -Wextra -pedantic -I. -Ikiss_fft
@@ -32,7 +35,6 @@ CFLAGS = --std=c99 -c -O3 -ffast-math -W -Wall -Wextra -pedantic -I. -Ikiss_fft
 # C++ compiler settings
 CPP = g++
 CPPFLAGS = -c -O3 -ffast-math -W -Wall -Wextra -pedantic -I. -Ikiss_fft
-RM = rm -rf
 
 # Compiler settings for the test programs
 TESTFLAGS = -c -g -W -Wall -Wextra -pedantic -I.
@@ -41,14 +43,23 @@ TESTFLAGS = -c -g -W -Wall -Wextra -pedantic -I.
 CFLAGS += -MMD -MP
 CPPFLAGS += -MMD -MP
 
+# Linker settings
+LD = $(CPP)
+LFLAGS = -L$(OUTDIR)
+LIBS = -larraymath
+
+# Library archiving settings
+AR = ar
+ARFLAGS = rcs
+
+RM = rm -rf
+
 # x86 SIMD activation
 CPPFLAGS += -DAM_HAS_SSE -DAM_HAS_SSE2 -DAM_HAS_SSE4 -DAM_HAS_AVX -DAM_USE_KISS_FFT
 CPPFLAGS_SSE = $(CPPFLAGS) -msse
 CPPFLAGS_SSE2 = $(CPPFLAGS) -msse2
 CPPFLAGS_SSE4 = $(CPPFLAGS) -msse4.1
 CPPFLAGS_AVX = $(CPPFLAGS) -mavx
-
-OUTDIR = out
 
 # FFT objects
 FFT_OBJS = $(OUTDIR)/kiss_fft.o \
@@ -79,16 +90,19 @@ TEST_OBJS = $(OUTDIR)/Test.o \
             $(OUTDIR)/TestFilterFactory.o \
             $(OUTDIR)/TestRandom.o
 
-all: $(OUTDIR)/Benchmark $(OUTDIR)/Test
+all: $(LIBRARY) $(OUTDIR)/Benchmark $(OUTDIR)/Test
 
 clean:
-	$(RM) $(OBJS) $(OBJS:.o=.d) $(BENCHMARK_OBJS) $(BENCHMARK_OBJS:.o=.d) $(TEST_OBJS) $(TEST_OBJS:.o=.d) $(OUTDIR)/Test $(OUTDIR)/Benchmark
+	$(RM) $(OBJS) $(OBJS:.o=.d) $(BENCHMARK_OBJS) $(BENCHMARK_OBJS:.o=.d) $(TEST_OBJS) $(TEST_OBJS:.o=.d) $(LIBRARY) $(OUTDIR)/Test $(OUTDIR)/Benchmark
 
-$(OUTDIR)/Benchmark: $(OBJS) $(BENCHMARK_OBJS)
-	$(CPP) -o $@ $^
+$(LIBRARY): $(OBJS)
+	$(AR) $(ARFLAGS) $@ $^
 
-$(OUTDIR)/Test: $(OBJS) $(TEST_OBJS)
-	$(CPP) -o $@ $^
+$(OUTDIR)/Benchmark: $(LIBRARY) $(BENCHMARK_OBJS)
+	$(CPP) $(LFLAGS) -o $@ $(BENCHMARK_OBJS) $(LIBS)
+
+$(OUTDIR)/Test: $(LIBRARY) $(TEST_OBJS)
+	$(CPP) $(LFLAGS) -o $@ $(TEST_OBJS) $(LIBS)
 
 $(OUTDIR)/%.o: %.cpp
 	$(CPP) $(CPPFLAGS) -o $@ $<
