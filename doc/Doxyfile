@@ -668,7 +668,7 @@ WARN_LOGFILE           =
 # directories like "/usr/src/myproject". Separate the files or directories
 # with spaces.
 
-INPUT                  = ../src/ArrayMath.h ../src/FilterFactory.h ../src/Filter.h
+INPUT                  = ../src/ArrayMath.h ../src/FFTFactory.h ../src/FFT.h ../src/FilterFactory.h ../src/Filter.h
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding, which is
