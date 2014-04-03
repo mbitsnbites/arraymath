@@ -11,8 +11,8 @@ The idea is to provide a simple interface to highly optimized math kernels.
 To build the static library, a test program and a benchmark program, run `make`
 in the `src/` folder (requires GCC).
 
-There is also an ARM makefile (`make -f Makefile.arm`) that you can use for
-cross-compiling (useful for testing in a QEMU environment, for instance).
+It is also possible to cross compile for ARM (`make ARCH=arm`), which can be
+useful for testing in a QEMU environment, for instance.
 
 An experimental MSVC makefile (`nmake /F Makefile.msvc`) can be used for
 building the test and benchmark programs from command line.

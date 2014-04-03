@@ -2,7 +2,7 @@
 #-------------------------------------------------------------------------------
 # ArrayMath - an array math library
 #-------------------------------------------------------------------------------
-# Copyright(c) 2013 Marcus Geelnard
+# Copyright(c) 2013-2014 Marcus Geelnard
 #
 # This software is provided 'as-is', without any express or implied warranty.
 # In no event will the authors be held liable for any damages arising from the
@@ -25,61 +25,100 @@
 
 .PHONY: all clean
 
-OUTDIR = out
-LIBRARY = $(OUTDIR)/libarraymath.a
+# CPU architecture selection. Supported values: "x86" and "arm".
+ARCH ?= x86
 
-# C compiler settings
+# FFT back end selection. Supported values: "kiss_fft".
+FFT ?= kiss_fft
+
+OUTDIR = out_$(ARCH)
+
+# C compiler settings.
 CC = gcc
-CFLAGS = --std=c99 -c -O3 -ffast-math -W -Wall -Wextra -pedantic -I. -Ikiss_fft
+CFLAGS = --std=c99 -c -O3 -ffast-math -W -Wall -Wextra -pedantic -I.
 
-# C++ compiler settings
+# C++ compiler settings.
 CPP = g++
-CPPFLAGS = -c -O3 -ffast-math -W -Wall -Wextra -pedantic -I. -Ikiss_fft
+CPPFLAGS = -c -O3 -ffast-math -W -Wall -Wextra -pedantic -I.
 
-# Compiler settings for the test programs
+# Compiler settings for the test programs.
 TESTFLAGS = -c -g -W -Wall -Wextra -pedantic -I.
 
-# Automatically generate dependency files
+# Automatically generate dependency files.
 CFLAGS += -MMD -MP
 CPPFLAGS += -MMD -MP
 
-# Linker settings
+# Linker settings.
 LD = $(CPP)
 LFLAGS = -L$(OUTDIR)
 LIBS = -larraymath
 
-# Library archiving settings
+# Library archiving settings.
 AR = ar
 ARFLAGS = rcs
 
 RM = rm -rf
 
-# x86 SIMD activation
-CPPFLAGS += -DAM_HAS_SSE -DAM_HAS_SSE2 -DAM_HAS_SSE4 -DAM_HAS_AVX -DAM_USE_KISS_FFT
+ifeq ($(ARCH), x86)
+# x86 SIMD activation.
+CPPFLAGS += -DAM_HAS_SSE -DAM_HAS_SSE2 -DAM_HAS_SSE4 -DAM_HAS_AVX
+
+# x86 specific SIMD flags.
 CPPFLAGS_SSE = $(CPPFLAGS) -msse
 CPPFLAGS_SSE2 = $(CPPFLAGS) -msse2
 CPPFLAGS_SSE4 = $(CPPFLAGS) -msse4.1
 CPPFLAGS_AVX = $(CPPFLAGS) -mavx
+endif
 
-# FFT objects
+ifeq ($(ARCH), arm)
+# Use cross compiling tool chain.
+CC = arm-linux-gnueabihf-gcc
+CPP = arm-linux-gnueabihf-g++
+
+# ARM architecture flags.
+CPPFLAGS += -march=armv7-a -mtune=generic-armv7-a
+
+# ARM SIMD activation.
+CPPFLAGS += -DAM_HAS_NEON
+
+# ARM specific SIMD flags.
+CPPFLAGS_NEON = $(CPPFLAGS) -mfloat-abi=hard -mfpu=neon
+endif
+
+ifeq ($(FFT), kiss_fft)
+# Kiss FFT activation.
+CFLAGS   += -Ikiss_fft
+CPPFLAGS += -DAM_USE_KISS_FFT -Ikiss_fft
+
+# Kiss FFT object files.
 FFT_OBJS = $(OUTDIR)/kiss_fft.o \
            $(OUTDIR)/kiss_fftr.o \
            $(OUTDIR)/FFTKiss.o
+endif
 
-# Core ArrayMath objects
+# Core ArrayMath objects.
 OBJS = $(OUTDIR)/ArrayMath.o \
-       $(OUTDIR)/ArrayMathAVX.o \
        $(OUTDIR)/ArrayMathGeneric.o \
-       $(OUTDIR)/ArrayMathSSE.o \
-       $(OUTDIR)/ArrayMathSSE4.o \
        $(OUTDIR)/CPUFeatureDetector.o \
-       $(OUTDIR)/FilterAVX.o \
        $(OUTDIR)/FilterFactory.o \
        $(OUTDIR)/FilterGeneric.o \
        $(OUTDIR)/FFTFactory.o \
        $(OUTDIR)/RandomGeneric.o \
-       $(OUTDIR)/RandomSSE2.o \
        $(FFT_OBJS)
+
+ifeq ($(ARCH), x86)
+OBJS += $(OUTDIR)/ArrayMathAVX.o \
+        $(OUTDIR)/ArrayMathSSE.o \
+        $(OUTDIR)/ArrayMathSSE4.o \
+        $(OUTDIR)/FilterAVX.o \
+        $(OUTDIR)/RandomSSE2.o
+endif
+
+ifeq ($(ARCH), arm)
+OBJS += $(OUTDIR)/ArrayMathARM.o \
+        $(OUTDIR)/ArrayMathNEON.o \
+        $(OUTDIR)/RandomNEON.o
+endif
 
 BENCHMARK_OBJS = $(OUTDIR)/Benchmark.o
 
@@ -90,20 +129,25 @@ TEST_OBJS = $(OUTDIR)/Test.o \
             $(OUTDIR)/TestFilterFactory.o \
             $(OUTDIR)/TestRandom.o
 
+LIBRARY = $(OUTDIR)/libarraymath.a
+
 all: $(LIBRARY) $(OUTDIR)/Benchmark $(OUTDIR)/Test
 
 clean:
 	$(RM) $(OBJS) $(OBJS:.o=.d) $(BENCHMARK_OBJS) $(BENCHMARK_OBJS:.o=.d) $(TEST_OBJS) $(TEST_OBJS:.o=.d) $(LIBRARY) $(OUTDIR)/Test $(OUTDIR)/Benchmark
 
+# Static library build rule.
 $(LIBRARY): $(OBJS)
 	$(AR) $(ARFLAGS) $@ $^
 
+# Test programs build rules.
 $(OUTDIR)/Benchmark: $(LIBRARY) $(BENCHMARK_OBJS)
 	$(CPP) $(LFLAGS) -o $@ $(BENCHMARK_OBJS) $(LIBS)
 
 $(OUTDIR)/Test: $(LIBRARY) $(TEST_OBJS)
 	$(CPP) $(LFLAGS) -o $@ $(TEST_OBJS) $(LIBS)
 
+# Generic sources.
 $(OUTDIR)/%.o: %.cpp
 	$(CPP) $(CPPFLAGS) -o $@ $<
 
@@ -113,6 +157,11 @@ $(OUTDIR)/%.o: common/%.cpp
 $(OUTDIR)/%.o: generic/%.cpp
 	$(CPP) $(CPPFLAGS) -o $@ $<
 
+$(OUTDIR)/%.o: test/%.cpp
+	$(CPP) $(TESTFLAGS) -o $@ $<
+
+ifeq ($(ARCH), x86)
+# x86 specific sources.
 $(OUTDIR)/ArrayMathSSE.o: x86/ArrayMathSSE.cpp
 	$(CPP) $(CPPFLAGS_SSE) -o $@ $<
 
@@ -127,17 +176,28 @@ $(OUTDIR)/FilterAVX.o: x86/FilterAVX.cpp
 
 $(OUTDIR)/RandomSSE2.o: x86/RandomSSE2.cpp
 	$(CPP) $(CPPFLAGS_SSE2) -o $@ $<
+endif
 
-$(OUTDIR)/%.o: test/%.cpp
-	$(CPP) $(TESTFLAGS) -o $@ $<
+ifeq ($(ARCH), arm)
+# ARM specific sources.
+$(OUTDIR)/ArrayMathARM.o: arm/ArrayMathARM.cpp
+	$(CPP) $(CPPFLAGS) -o $@ $<
 
-# Kiss FFT compilation rules
+$(OUTDIR)/ArrayMathNEON.o: arm/ArrayMathNEON.cpp
+	$(CPP) $(CPPFLAGS_NEON) -o $@ $<
+
+$(OUTDIR)/RandomNEON.o: arm/RandomNEON.cpp
+	$(CPP) $(CPPFLAGS_NEON) -o $@ $<
+endif
+
+ifeq ($(FFT), kiss_fft)
+# Kiss FFT sources.
 $(OUTDIR)/%.o: kiss_fft/%.c
 	$(CC) $(CFLAGS) -o $@ $<
 
 $(OUTDIR)/%.o: kiss_fft/tools/%.c
 	$(CC) $(CFLAGS) -o $@ $<
-
+endif
 
 # These dependency files are generated automatically when building the object
 # files.
