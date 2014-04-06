@@ -36,16 +36,16 @@ class FFT {
   virtual ~FFT() {}
 
   /// Perform a forward Fourier transform of a real input signal.
-  virtual void forward(float32* dstReal, float32* dstImag, const float32* x) = 0;
+  virtual void forward(float32* dstReal, float32* dstImag, const float32* x) const = 0;
 
   /// Perform a forward Fourier transform of a complex input signal.
-  virtual void forwardCplx(float32* dstReal, float32* dstImag, const float32* xReal, const float32* xImag) = 0;
+  virtual void forwardCplx(float32* dstReal, float32* dstImag, const float32* xReal, const float32* xImag) const = 0;
 
   /// Perform an inverse Fourier transform of a real input signal.
-  virtual void inverse(float32* dst, const float32* xReal, const float32* xImag) = 0;
+  virtual void inverse(float32* dst, const float32* xReal, const float32* xImag) const = 0;
 
   /// Perform an inverse Fourier transform of a complex input signal.
-  virtual void inverseCplx(float32* dstReal, float32* dstImag, const float32* xReal, const float32* xImag) = 0;
+  virtual void inverseCplx(float32* dstReal, float32* dstImag, const float32* xReal, const float32* xImag) const = 0;
 
  protected:
   virtual bool init(size_t size) = 0;

@@ -40,13 +40,13 @@ class FFTKiss : public FFT {
   FFTKiss();
   virtual ~FFTKiss();
 
-  virtual void forward(float32* dstReal, float32* dstImag, const float32* x);
+  virtual void forward(float32* dstReal, float32* dstImag, const float32* x) const;
 
-  virtual void forwardCplx(float32* dstReal, float32* dstImag, const float32* xReal, const float32* xImag);
+  virtual void forwardCplx(float32* dstReal, float32* dstImag, const float32* xReal, const float32* xImag) const;
 
-  virtual void inverse(float32* dst, const float32* xReal, const float32* xImag);
+  virtual void inverse(float32* dst, const float32* xReal, const float32* xImag) const;
 
-  virtual void inverseCplx(float32* dstReal, float32* dstImag, const float32* xReal, const float32* xImag);
+  virtual void inverseCplx(float32* dstReal, float32* dstImag, const float32* xReal, const float32* xImag) const;
 
  protected:
   virtual bool init(size_t size);

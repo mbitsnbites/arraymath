@@ -55,7 +55,7 @@ class ArrayMathTester : public Tester {
                 const float* xValues,
                 const float* results,
                 size_t numValues,
-                void (arraymath::ArrayMath::*method)(arraymath::float32*, const arraymath::float32*, size_t),
+                void (arraymath::ArrayMath::*method)(arraymath::float32*, const arraymath::float32*, size_t) const,
                 bool (*compare)(float, float)) {
       beginTest(name);
       AlignedArray dst(kArraySize), x(kArraySize);
@@ -81,7 +81,7 @@ class ArrayMathTester : public Tester {
                 const float* yValues,
                 const float* results,
                 size_t numValues,
-                void (arraymath::ArrayMath::*method)(arraymath::float32*, arraymath::float32, const arraymath::float32*, size_t),
+                void (arraymath::ArrayMath::*method)(arraymath::float32*, arraymath::float32, const arraymath::float32*, size_t) const,
                 bool (*compare)(float, float)) {
       beginTest(name);
       AlignedArray dst(kArraySize), y(kArraySize);
@@ -107,7 +107,7 @@ class ArrayMathTester : public Tester {
                 const float* yValues,
                 const float* results,
                 size_t numValues,
-                void (arraymath::ArrayMath::*method)(arraymath::float32*, const arraymath::float32*, const arraymath::float32*, size_t),
+                void (arraymath::ArrayMath::*method)(arraymath::float32*, const arraymath::float32*, const arraymath::float32*, size_t) const,
                 bool (*compare)(float, float)) {
       beginTest(name);
       AlignedArray dst(kArraySize), x(kArraySize), y(kArraySize);
@@ -140,7 +140,7 @@ class ArrayMathTester : public Tester {
                     const float* resultsRe,
                     const float* resultsIm,
                     size_t numValues,
-                    void (arraymath::ArrayMath::*method)(arraymath::float32*, arraymath::float32*, arraymath::float32, arraymath::float32, const arraymath::float32*, const arraymath::float32*, size_t),
+                    void (arraymath::ArrayMath::*method)(arraymath::float32*, arraymath::float32*, arraymath::float32, arraymath::float32, const arraymath::float32*, const arraymath::float32*, size_t) const,
                     bool (*compare)(float, float)) {
       beginTest(name);
       AlignedArray dstRe(kArraySize), dstIm(kArraySize), yRe(kArraySize), yIm(kArraySize);
@@ -174,7 +174,7 @@ class ArrayMathTester : public Tester {
                     const float* resultsRe,
                     const float* resultsIm,
                     size_t numValues,
-                    void (arraymath::ArrayMath::*method)(arraymath::float32*, arraymath::float32*, const arraymath::float32*, const arraymath::float32*, const arraymath::float32*, const arraymath::float32*, size_t),
+                    void (arraymath::ArrayMath::*method)(arraymath::float32*, arraymath::float32*, const arraymath::float32*, const arraymath::float32*, const arraymath::float32*, const arraymath::float32*, size_t) const,
                     bool (*compare)(float, float)) {
       beginTest(name);
       AlignedArray dstRe(kArraySize), dstIm(kArraySize), xRe(kArraySize), xIm(kArraySize), yRe(kArraySize), yIm(kArraySize);

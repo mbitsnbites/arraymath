@@ -31,7 +31,7 @@
 
 namespace arraymath {
 
-FFT* FFTFactory::createFFT(size_t size) {
+FFT* FFTFactory::createFFT(size_t size) const {
   // Sanity check.
   if (size < 1) {
     return NULL;

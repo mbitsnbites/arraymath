@@ -105,7 +105,7 @@ bool FFTKiss::init(size_t size) {
   return true;
 }
 
-void FFTKiss::forward(float32* dstReal, float32* dstImag, const float32* x) {
+void FFTKiss::forward(float32* dstReal, float32* dstImag, const float32* x) const {
   // Scaling factor.
   const float32 scale = 1.0f / std::sqrt(static_cast<float>(m_size));
 
@@ -142,7 +142,7 @@ void FFTKiss::forward(float32* dstReal, float32* dstImag, const float32* x) {
   }
 }
 
-void FFTKiss::forwardCplx(float32* dstReal, float32* dstImag, const float32* xReal, const float32* xImag) {
+void FFTKiss::forwardCplx(float32* dstReal, float32* dstImag, const float32* xReal, const float32* xImag) const {
   // Scaling factor.
   const float32 scale = 1.0f / std::sqrt(static_cast<float>(m_size));
 
@@ -162,7 +162,7 @@ void FFTKiss::forwardCplx(float32* dstReal, float32* dstImag, const float32* xRe
   }
 }
 
-void FFTKiss::inverse(float32* dst, const float32* xReal, const float32* xImag) {
+void FFTKiss::inverse(float32* dst, const float32* xReal, const float32* xImag) const {
   // Scaling factor.
   const float32 scale = 1.0f / std::sqrt(static_cast<float>(m_size));
 
@@ -197,7 +197,7 @@ void FFTKiss::inverse(float32* dst, const float32* xReal, const float32* xImag) 
   }
 }
 
-void FFTKiss::inverseCplx(float32* dstReal, float32* dstImag, const float32* xReal, const float32* xImag) {
+void FFTKiss::inverseCplx(float32* dstReal, float32* dstImag, const float32* xReal, const float32* xImag) const {
   // Scaling factor.
   const float32 scale = 1.0f / std::sqrt(static_cast<float>(m_size));
 

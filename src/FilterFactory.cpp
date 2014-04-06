@@ -30,7 +30,7 @@
 
 namespace arraymath {
 
-Filter* FilterFactory::createFilter(int bSize, int aSize) {
+Filter* FilterFactory::createFilter(int bSize, int aSize) const {
   // Sanity check.
   if (bSize < 1 || aSize < 0) {
     return NULL;

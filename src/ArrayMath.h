@@ -61,7 +61,7 @@ class ArrayMath {
   /// \param[in] x Source scalar.
   /// \param[in] y Source array (\c length elements).
   /// \param[in] length Number of elements to process.
-  AM_INLINE void add(float32 *dst, float32 x, const float32 *y, size_t length) {
+  AM_INLINE void add(float32 *dst, float32 x, const float32 *y, size_t length) const {
     m_add_f32_sa(dst, x, y, length);
   }
 
@@ -70,7 +70,7 @@ class ArrayMath {
   /// \param[in] x Source array (\c length elements).
   /// \param[in] y Source array (\c length elements).
   /// \param[in] length Number of elements to process.
-  AM_INLINE void add(float32 *dst, const float32 *x, const float32 *y, size_t length) {
+  AM_INLINE void add(float32 *dst, const float32 *x, const float32 *y, size_t length) const {
     m_add_f32_aa(dst, x, y, length);
   }
 
@@ -79,7 +79,7 @@ class ArrayMath {
   /// \param[in] x Source scalar.
   /// \param[in] y Source array (\c length elements).
   /// \param[in] length Number of elements to process.
-  AM_INLINE void sub(float32 *dst, float32 x, const float32 *y, size_t length) {
+  AM_INLINE void sub(float32 *dst, float32 x, const float32 *y, size_t length) const {
     m_sub_f32_sa(dst, x, y, length);
   }
 
@@ -88,7 +88,7 @@ class ArrayMath {
   /// \param[in] x Source array (\c length elements).
   /// \param[in] y Source array (\c length elements).
   /// \param[in] length Number of elements to process.
-  AM_INLINE void sub(float32 *dst, const float32 *x, const float32 *y, size_t length) {
+  AM_INLINE void sub(float32 *dst, const float32 *x, const float32 *y, size_t length) const {
     m_sub_f32_aa(dst, x, y, length);
   }
 
@@ -97,7 +97,7 @@ class ArrayMath {
   /// \param[in] x Source scalar.
   /// \param[in] y Source array (\c length elements).
   /// \param[in] length Number of elements to process.
-  AM_INLINE void mul(float32 *dst, float32 x, const float32 *y, size_t length) {
+  AM_INLINE void mul(float32 *dst, float32 x, const float32 *y, size_t length) const {
     m_mul_f32_sa(dst, x, y, length);
   }
 
@@ -106,7 +106,7 @@ class ArrayMath {
   /// \param[in] x Source array (\c length elements).
   /// \param[in] y Source array (\c length elements).
   /// \param[in] length Number of elements to process.
-  AM_INLINE void mul(float32 *dst, const float32 *x, const float32 *y, size_t length) {
+  AM_INLINE void mul(float32 *dst, const float32 *x, const float32 *y, size_t length) const {
     m_mul_f32_aa(dst, x, y, length);
   }
 
@@ -119,7 +119,7 @@ class ArrayMath {
   /// \param[in] yReal Source array, real part (\c length elements).
   /// \param[in] yImag Source array, imaginary part (\c length elements).
   /// \param[in] length Number of elements to process.
-  AM_INLINE void mulCplx(float32 *dstReal, float32 *dstImag, float32 xReal, float32 xImag, const float32 *yReal, const float32 *yImag, size_t length) {
+  AM_INLINE void mulCplx(float32 *dstReal, float32 *dstImag, float32 xReal, float32 xImag, const float32 *yReal, const float32 *yImag, size_t length) const {
     m_mulCplx_f32_sa(dstReal, dstImag, xReal, xImag, yReal, yImag, length);
   }
 
@@ -132,7 +132,7 @@ class ArrayMath {
   /// \param[in] yReal Source array, real part (\c length elements).
   /// \param[in] yImag Source array, imaginary part (\c length elements).
   /// \param[in] length Number of elements to process.
-  AM_INLINE void mulCplx(float32 *dstReal, float32 *dstImag, const float32 *xReal, const float32 *xImag, const float32 *yReal, const float32 *yImag, size_t length) {
+  AM_INLINE void mulCplx(float32 *dstReal, float32 *dstImag, const float32 *xReal, const float32 *xImag, const float32 *yReal, const float32 *yImag, size_t length) const {
     m_mulCplx_f32_aa(dstReal, dstImag, xReal, xImag, yReal, yImag, length);
   }
 
@@ -141,7 +141,7 @@ class ArrayMath {
   /// \param[in] x Source scalar.
   /// \param[in] y Source array (\c length elements).
   /// \param[in] length Number of elements to process.
-  AM_INLINE void div(float32 *dst, float32 x, const float32 *y, size_t length) {
+  AM_INLINE void div(float32 *dst, float32 x, const float32 *y, size_t length) const {
     m_div_f32_sa(dst, x, y, length);
   }
 
@@ -150,7 +150,7 @@ class ArrayMath {
   /// \param[in] x Source array (\c length elements).
   /// \param[in] y Source array (\c length elements).
   /// \param[in] length Number of elements to process.
-  AM_INLINE void div(float32 *dst, const float32 *x, const float32 *y, size_t length) {
+  AM_INLINE void div(float32 *dst, const float32 *x, const float32 *y, size_t length) const {
     m_div_f32_aa(dst, x, y, length);
   }
 
@@ -163,7 +163,7 @@ class ArrayMath {
   /// \param[in] yReal Source array, real part (\c length elements).
   /// \param[in] yImag Source array, imaginary part (\c length elements).
   /// \param[in] length Number of elements to process.
-  AM_INLINE void divCplx(float32 *dstReal, float32 *dstImag, float32 xReal, float32 xImag, const float32 *yReal, const float32 *yImag, size_t length) {
+  AM_INLINE void divCplx(float32 *dstReal, float32 *dstImag, float32 xReal, float32 xImag, const float32 *yReal, const float32 *yImag, size_t length) const {
     m_divCplx_f32_sa(dstReal, dstImag, xReal, xImag, yReal, yImag, length);
   }
 
@@ -176,7 +176,7 @@ class ArrayMath {
   /// \param[in] yReal Source array, real part (\c length elements).
   /// \param[in] yImag Source array, imaginary part (\c length elements).
   /// \param[in] length Number of elements to process.
-  AM_INLINE void divCplx(float32 *dstReal, float32 *dstImag, const float32 *xReal, const float32 *xImag, const float32 *yReal, const float32 *yImag, size_t length) {
+  AM_INLINE void divCplx(float32 *dstReal, float32 *dstImag, const float32 *xReal, const float32 *xImag, const float32 *yReal, const float32 *yImag, size_t length) const {
     m_divCplx_f32_aa(dstReal, dstImag, xReal, xImag, yReal, yImag, length);
   }
 
@@ -186,7 +186,7 @@ class ArrayMath {
   /// \param[in] y Source array (\c length elements).
   /// \param[in] z Source array (\c length elements).
   /// \param[in] length Number of elements to process.
-  AM_INLINE void madd(float32 *dst, float32 x, const float32 *y, const float32 *z, size_t length) {
+  AM_INLINE void madd(float32 *dst, float32 x, const float32 *y, const float32 *z, size_t length) const {
     m_madd_f32_saa(dst, x, y, z, length);
   }
 
@@ -196,7 +196,7 @@ class ArrayMath {
   /// \param[in] y Source array (\c length elements).
   /// \param[in] z Source array (\c length elements).
   /// \param[in] length Number of elements to process.
-  AM_INLINE void madd(float32 *dst, const float32 *x, const float32 *y, const float32 *z, size_t length) {
+  AM_INLINE void madd(float32 *dst, const float32 *x, const float32 *y, const float32 *z, size_t length) const {
     m_madd_f32_aaa(dst, x, y, z, length);
   }
 
@@ -204,7 +204,7 @@ class ArrayMath {
   /// \param[out] dst Destination array (\c length elements).
   /// \param[in] x Source array (\c length elements).
   /// \param[in] length Number of elements to process.
-  AM_INLINE void abs(float32 *dst, const float32 *x, size_t length) {
+  AM_INLINE void abs(float32 *dst, const float32 *x, size_t length) const {
     m_abs_f32(dst, x, length);
   }
 
@@ -214,7 +214,7 @@ class ArrayMath {
   /// \param[in] xReal Source array, real part (\c length elements).
   /// \param[in] xImag Source array, imaginary part (\c length elements).
   /// \param[in] length Number of elements to process.
-  AM_INLINE void absCplx(float32 *dst, const float32 *xReal, const float32 *xImag, size_t length) {
+  AM_INLINE void absCplx(float32 *dst, const float32 *xReal, const float32 *xImag, size_t length) const {
     m_absCplx_f32(dst, xReal, xImag, length);
   }
 
@@ -222,7 +222,7 @@ class ArrayMath {
   /// \param[out] dst Destination array (\c length elements).
   /// \param[in] x Source array (\c length elements).
   /// \param[in] length Number of elements to process.
-  AM_INLINE void acos(float32 *dst, const float32 *x, size_t length) {
+  AM_INLINE void acos(float32 *dst, const float32 *x, size_t length) const {
     m_acos_f32(dst, x, length);
   }
 
@@ -230,7 +230,7 @@ class ArrayMath {
   /// \param[out] dst Destination array (\c length elements).
   /// \param[in] x Source array (\c length elements).
   /// \param[in] length Number of elements to process.
-  AM_INLINE void asin(float32 *dst, const float32 *x, size_t length) {
+  AM_INLINE void asin(float32 *dst, const float32 *x, size_t length) const {
     m_asin_f32(dst, x, length);
   }
 
@@ -238,7 +238,7 @@ class ArrayMath {
   /// \param[out] dst Destination array (\c length elements).
   /// \param[in] x Source array (\c length elements).
   /// \param[in] length Number of elements to process.
-  AM_INLINE void atan(float32 *dst, const float32 *x, size_t length) {
+  AM_INLINE void atan(float32 *dst, const float32 *x, size_t length) const {
     m_atan_f32(dst, x, length);
   }
 
@@ -247,7 +247,7 @@ class ArrayMath {
   /// \param[in] y Source array (\c length elements).
   /// \param[in] x Source array (\c length elements).
   /// \param[in] length Number of elements to process.
-  AM_INLINE void atan2(float32 *dst, const float32 *y, const float32 *x, size_t length) {
+  AM_INLINE void atan2(float32 *dst, const float32 *y, const float32 *x, size_t length) const {
     m_atan2_f32(dst, y, x, length);
   }
 
@@ -255,7 +255,7 @@ class ArrayMath {
   /// \param[out] dst Destination array (\c length elements).
   /// \param[in] x Source array (\c length elements).
   /// \param[in] length Number of elements to process.
-  AM_INLINE void ceil(float32 *dst, const float32 *x, size_t length) {
+  AM_INLINE void ceil(float32 *dst, const float32 *x, size_t length) const {
     m_ceil_f32(dst, x, length);
   }
 
@@ -263,7 +263,7 @@ class ArrayMath {
   /// \param[out] dst Destination array (\c length elements).
   /// \param[in] x Source array (\c length elements).
   /// \param[in] length Number of elements to process.
-  AM_INLINE void cos(float32 *dst, const float32 *x, size_t length) {
+  AM_INLINE void cos(float32 *dst, const float32 *x, size_t length) const {
     m_cos_f32(dst, x, length);
   }
 
@@ -271,7 +271,7 @@ class ArrayMath {
   /// \param[out] dst Destination array (\c length elements).
   /// \param[in] x Source array (\c length elements).
   /// \param[in] length Number of elements to process.
-  AM_INLINE void exp(float32 *dst, const float32 *x, size_t length) {
+  AM_INLINE void exp(float32 *dst, const float32 *x, size_t length) const {
     m_exp_f32(dst, x, length);
   }
 
@@ -279,7 +279,7 @@ class ArrayMath {
   /// \param[out] dst Destination array (\c length elements).
   /// \param[in] x Source array (\c length elements).
   /// \param[in] length Number of elements to process.
-  AM_INLINE void floor(float32 *dst, const float32 *x, size_t length) {
+  AM_INLINE void floor(float32 *dst, const float32 *x, size_t length) const {
     m_floor_f32(dst, x, length);
   }
 
@@ -287,7 +287,7 @@ class ArrayMath {
   /// \param[out] dst Destination array (\c length elements).
   /// \param[in] x Source array (\c length elements).
   /// \param[in] length Number of elements to process.
-  AM_INLINE void log(float32 *dst, const float32 *x, size_t length) {
+  AM_INLINE void log(float32 *dst, const float32 *x, size_t length) const {
     m_log_f32(dst, x, length);
   }
 
@@ -295,7 +295,7 @@ class ArrayMath {
   /// \param[in] x Source array (\c length elements).
   /// \param[in] length Number of elements to process.
   /// \return The maxium value found in the array \c x.
-  AM_INLINE float32 max(const float32 *x, size_t length) {
+  AM_INLINE float32 max(const float32 *x, size_t length) const {
     return m_max_f32(x, length);
   }
 
@@ -303,7 +303,7 @@ class ArrayMath {
   /// \param[in] x Source array (\c length elements).
   /// \param[in] length Number of elements to process.
   /// \return The minimum value found in the array \c x.
-  AM_INLINE float32 min(const float32 *x, size_t length) {
+  AM_INLINE float32 min(const float32 *x, size_t length) const {
     return m_min_f32(x, length);
   }
 
@@ -312,7 +312,7 @@ class ArrayMath {
   /// \param[in] x Source array (\c length elements).
   /// \param[in] y Source scalar.
   /// \param[in] length Number of elements to process.
-  AM_INLINE void pow(float32 *dst, const float32 *x, float32 y, size_t length) {
+  AM_INLINE void pow(float32 *dst, const float32 *x, float32 y, size_t length) const {
     m_pow_f32_as(dst, x, y, length);
   }
 
@@ -321,7 +321,7 @@ class ArrayMath {
   /// \param[in] x Source array (\c length elements).
   /// \param[in] y Source array (\c length elements).
   /// \param[in] length Number of elements to process.
-  AM_INLINE void pow(float32 *dst, const float32 *x, const float32 *y, size_t length) {
+  AM_INLINE void pow(float32 *dst, const float32 *x, const float32 *y, size_t length) const {
     m_pow_f32_aa(dst, x, y, length);
   }
 
@@ -330,6 +330,9 @@ class ArrayMath {
   /// \param[in] low Lowest value to produce (inclusive).
   /// \param[in] high Highest value to produce (exclusive).
   /// \param[in] length Number of elements to process.
+  /// \note This affects the internal random number generator state. In order
+  /// to be thread safe, the recommended solution is to use one ArrayMath
+  /// object per thread.
   AM_INLINE void random(float32 *dst, float32 low, float32 high, size_t length) {
     m_random_f32->random(dst, low, high, length);
   }
@@ -338,7 +341,7 @@ class ArrayMath {
   /// \param[out] dst Destination array (\c length elements).
   /// \param[in] x Source array (\c length elements).
   /// \param[in] length Number of elements to process.
-  AM_INLINE void round(float32 *dst, const float32 *x, size_t length) {
+  AM_INLINE void round(float32 *dst, const float32 *x, size_t length) const {
     m_round_f32(dst, x, length);
   }
 
@@ -346,7 +349,7 @@ class ArrayMath {
   /// \param[out] dst Destination array (\c length elements).
   /// \param[in] x Source array (\c length elements).
   /// \param[in] length Number of elements to process.
-  AM_INLINE void sin(float32 *dst, const float32 *x, size_t length) {
+  AM_INLINE void sin(float32 *dst, const float32 *x, size_t length) const {
     m_sin_f32(dst, x, length);
   }
 
@@ -354,7 +357,7 @@ class ArrayMath {
   /// \param[out] dst Destination array (\c length elements).
   /// \param[in] x Source array (\c length elements).
   /// \param[in] length Number of elements to process.
-  AM_INLINE void sqrt(float32 *dst, const float32 *x, size_t length) {
+  AM_INLINE void sqrt(float32 *dst, const float32 *x, size_t length) const {
     m_sqrt_f32(dst, x, length);
   }
 
@@ -362,7 +365,7 @@ class ArrayMath {
   /// \param[out] dst Destination array (\c length elements).
   /// \param[in] x Source array (\c length elements).
   /// \param[in] length Number of elements to process.
-  AM_INLINE void tan(float32 *dst, const float32 *x, size_t length) {
+  AM_INLINE void tan(float32 *dst, const float32 *x, size_t length) const {
     m_tan_f32(dst, x, length);
   }
 
@@ -372,7 +375,7 @@ class ArrayMath {
   /// \param[in] xMin Minimum value to clamp to.
   /// \param[in] xMax Maximum value to clamp to.
   /// \param[in] length Number of elements to process.
-  AM_INLINE void clamp(float32 *dst, const float32 *x, float32 xMin, float32 xMax, size_t length) {
+  AM_INLINE void clamp(float32 *dst, const float32 *x, float32 xMin, float32 xMax, size_t length) const {
     m_clamp_f32(dst, x, xMin, xMax, length);
   }
 
@@ -380,7 +383,7 @@ class ArrayMath {
   /// \param[out] dst Destination array (\c length elements).
   /// \param[in] x Source array (\c length elements).
   /// \param[in] length Number of elements to process.
-  AM_INLINE void fract(float32 *dst, const float32 *x, size_t length) {
+  AM_INLINE void fract(float32 *dst, const float32 *x, size_t length) const {
     m_fract_f32(dst, x, length);
   }
 
@@ -388,7 +391,7 @@ class ArrayMath {
   /// \param[out] dst Destination array (\c length elements).
   /// \param[in] value The value to fill the array with.
   /// \param[in] length Number of elements to process.
-  AM_INLINE void fill(float32 *dst, float32 value, size_t length) {
+  AM_INLINE void fill(float32 *dst, float32 value, size_t length) const {
     m_fill_f32(dst, value, length);
   }
 
@@ -397,7 +400,7 @@ class ArrayMath {
   /// \param[in] first First value.
   /// \param[in] last Last value.
   /// \param[in] length Number of elements to process.
-  AM_INLINE void ramp(float32 *dst, float32 first, float32 last, size_t length) {
+  AM_INLINE void ramp(float32 *dst, float32 first, float32 last, size_t length) const {
     m_ramp_f32(dst, first, last, length);
   }
 
@@ -405,7 +408,7 @@ class ArrayMath {
   /// \param[out] dst Destination array (\c length elements).
   /// \param[in] x Source array (\c length elements).
   /// \param[in] length Number of elements to process.
-  AM_INLINE void sign(float32 *dst, const float32 *x, size_t length) {
+  AM_INLINE void sign(float32 *dst, const float32 *x, size_t length) const {
     m_sign_f32(dst, x, length);
   }
 
@@ -413,7 +416,7 @@ class ArrayMath {
   /// \param[in] x Source array (\c length elements).
   /// \param[in] length Number of elements to process.
   /// \return The sum of all elements in the array \c x.
-  AM_INLINE float32 sum(const float32 *x, size_t length) {
+  AM_INLINE float32 sum(const float32 *x, size_t length) const {
     return m_sum_f32(x, length);
   }
 
@@ -423,7 +426,7 @@ class ArrayMath {
   /// \param[in] t Sample positions array (\c length elements).
   /// \param[in] length Number of elements to process.
   /// \param[in] xLength Number of elements in the value array.
-  AM_INLINE void sampleLinear(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength) {
+  AM_INLINE void sampleLinear(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength) const {
     m_sampleLinear_f32(dst, x, t, length, xLength);
   }
 
@@ -433,7 +436,7 @@ class ArrayMath {
   /// \param[in] t Sample positions array (\c length elements).
   /// \param[in] length Number of elements to process.
   /// \param[in] xLength Number of elements in the value array.
-  AM_INLINE void sampleLinearRepeat(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength) {
+  AM_INLINE void sampleLinearRepeat(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength) const {
     m_sampleLinearRepeat_f32(dst, x, t, length, xLength);
   }
 
@@ -443,7 +446,7 @@ class ArrayMath {
   /// \param[in] t Sample positions array (\c length elements).
   /// \param[in] length Number of elements to process.
   /// \param[in] xLength Number of elements in the value array.
-  AM_INLINE void sampleCubic(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength) {
+  AM_INLINE void sampleCubic(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength) const {
     m_sampleCubic_f32(dst, x, t, length, xLength);
   }
 
@@ -453,7 +456,7 @@ class ArrayMath {
   /// \param[in] t Sample positions array (\c length elements).
   /// \param[in] length Number of elements to process.
   /// \param[in] xLength Number of elements in the value array.
-  AM_INLINE void sampleCubicRepeat(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength) {
+  AM_INLINE void sampleCubicRepeat(float32 *dst, const float32 *x, const float32 *t, size_t length, size_t xLength) const {
     m_sampleCubicRepeat_f32(dst, x, t, length, xLength);
   }
 

@@ -70,7 +70,7 @@ class FFTFactory {
   /// Create a new FFT object.
   /// \param[in] size The size of the transform.
   /// \return A new FFT object, or NULL if none could be created.
-  FFT* createFFT(size_t size);
+  FFT* createFFT(size_t size) const;
 };
 
 }  // namespace arraymath
