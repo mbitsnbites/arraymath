@@ -1,3 +1,5 @@
+## This repo has moved to: https://gitlab.com/mbitsnbites/arraymath
+
 # ArrayMath
 
 ArrayMath is a portable low level C++ library for performing primitive math
